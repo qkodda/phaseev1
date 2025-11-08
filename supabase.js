@@ -210,35 +210,18 @@ export async function scheduleIdea(ideaId, date) {
 }
 
 // ============================================
-// BOOKMARKS FUNCTIONS
+// ANALYTICS FUNCTIONS
 // ============================================
 
 /**
- * Get all bookmarks for a user
+ * Track generation event
  */
-export async function getBookmarks(userId) {
+export async function trackGenerationEvent(userId, eventData) {
   const { data, error } = await supabase
-    .from('bookmarks')
-    .select(`
-      *,
-      ideas (*)
-    `)
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
-  
-  if (error) throw error
-  return data
-}
-
-/**
- * Add a bookmark
- */
-export async function addBookmark(userId, ideaId) {
-  const { data, error } = await supabase
-    .from('bookmarks')
+    .from('generation_analytics')
     .insert({
       user_id: userId,
-      idea_id: ideaId,
+      ...eventData,
       created_at: new Date().toISOString()
     })
     .select()
@@ -249,16 +232,151 @@ export async function addBookmark(userId, ideaId) {
 }
 
 /**
- * Remove a bookmark
+ * Track app analytics (page views, errors)
  */
-export async function removeBookmark(userId, ideaId) {
-  const { error } = await supabase
-    .from('bookmarks')
-    .delete()
-    .eq('user_id', userId)
-    .eq('idea_id', ideaId)
+export async function trackAppEvent(eventData) {
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  const { data, error } = await supabase
+    .from('app_analytics')
+    .insert({
+      user_id: user?.id || null,
+      ...eventData,
+      created_at: new Date().toISOString()
+    })
+    .select()
+    .single()
   
   if (error) throw error
+  return data
+}
+
+/**
+ * Get user generation stats
+ */
+export async function getGenerationStats(userId, days = 30) {
+  const { data, error } = await supabase
+    .rpc('get_daily_generation_stats', {
+      p_user_id: userId,
+      p_days: days
+    })
+  
+  if (error) throw error
+  return data
+}
+
+/**
+ * Get page time stats (admin only)
+ */
+export async function getPageTimeStats(days = 30) {
+  const { data, error } = await supabase
+    .rpc('get_page_time_stats', {
+      p_days: days
+    })
+  
+  if (error) throw error
+  return data
+}
+
+// ============================================
+// FEEDBACK FUNCTIONS
+// ============================================
+
+/**
+ * Submit user feedback
+ */
+export async function submitFeedback(message, userEmail = null, userName = null) {
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  const { data, error } = await supabase
+    .from('feedback')
+    .insert({
+      user_id: user?.id || null,
+      message,
+      user_email: userEmail || user?.email,
+      user_name: userName,
+      created_at: new Date().toISOString()
+    })
+    .select()
+    .single()
+  
+  if (error) throw error
+  return data
+}
+
+/**
+ * Get user's feedback submissions
+ */
+export async function getUserFeedback(userId) {
+  const { data, error } = await supabase
+    .from('feedback')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+  
+  if (error) throw error
+  return data
+}
+
+// ============================================
+// ACCOUNT MANAGEMENT FUNCTIONS
+// ============================================
+
+/**
+ * Update user email
+ */
+export async function updateEmail(newEmail) {
+  const { data, error } = await supabase.auth.updateUser({
+    email: newEmail
+  })
+  
+  if (error) throw error
+  return data
+}
+
+/**
+ * Update user password
+ */
+export async function updatePassword(newPassword) {
+  const { data, error } = await supabase.auth.updateUser({
+    password: newPassword
+  })
+  
+  if (error) throw error
+  return data
+}
+
+/**
+ * Delete user account
+ */
+export async function deleteAccount() {
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) throw new Error('No user logged in')
+  
+  // Delete profile (cascade will delete ideas, analytics, etc.)
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .delete()
+    .eq('id', user.id)
+  
+  if (profileError) throw profileError
+  
+  // Sign out
+  await signOut()
+}
+
+/**
+ * Request email confirmation resend
+ */
+export async function resendEmailConfirmation(email) {
+  const { data, error } = await supabase.auth.resend({
+    type: 'signup',
+    email: email
+  })
+  
+  if (error) throw error
+  return data
 }
 
 // ============================================

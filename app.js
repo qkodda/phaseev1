@@ -221,6 +221,9 @@ function navigateTo(pageId) {
         targetPage.classList.add('active');
     }
     
+    // Track page view
+    trackPageView(pageId);
+    
     if (pageId === 'paywall-page') {
         startTrialCountdown();
         updateTrialCountdownDisplay();
@@ -2895,4 +2898,307 @@ function formatTrialDuration(ms) {
     segments.push(`${seconds.toString().padStart(2, '0')}s`);
     return segments.join(' ');
 }
+
+// ============================================
+// FEEDBACK SYSTEM
+// ============================================
+
+/**
+ * Submit user feedback
+ */
+async function submitFeedback() {
+    const textarea = document.getElementById('feedback-textarea');
+    const submitBtn = document.querySelector('.feedback-submit-btn');
+    const successMsg = document.getElementById('feedback-success');
+    
+    if (!textarea || !submitBtn) return;
+    
+    const message = textarea.value.trim();
+    
+    if (!message) {
+        showAlertModal('Empty Feedback', 'Please enter your feedback before submitting.');
+        return;
+    }
+    
+    // Disable button and show loading
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    
+    try {
+        // Import submitFeedback from supabase.js
+        const { submitFeedback: submitToSupabase } = await import('./supabase.js');
+        
+        // Submit feedback
+        await submitToSupabase(message);
+        
+        // Show success message
+        textarea.value = '';
+        textarea.style.display = 'none';
+        submitBtn.style.display = 'none';
+        document.querySelector('.feedback-char-count').style.display = 'none';
+        successMsg.style.display = 'flex';
+        
+        // Track analytics
+        trackAppEvent({
+            page_name: 'feedback',
+            event_type: 'feedback_submitted'
+        });
+        
+        // Reset after 3 seconds
+        setTimeout(() => {
+            navigateTo('settings-page');
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Error submitting feedback:', error);
+        showAlertModal('Error', 'Failed to submit feedback. Please try again later.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit Feedback';
+        
+        // Track error
+        trackAppEvent({
+            page_name: 'feedback',
+            error_type: 'feedback_submission_error',
+            error_message: error.message
+        });
+    }
+}
+
+/**
+ * Update character count for feedback textarea
+ */
+function updateFeedbackCharCount() {
+    const textarea = document.getElementById('feedback-textarea');
+    const charCount = document.getElementById('feedback-char-count');
+    
+    if (textarea && charCount) {
+        textarea.addEventListener('input', () => {
+            charCount.textContent = textarea.value.length;
+        });
+    }
+}
+
+// ============================================
+// ANALYTICS TRACKING
+// ============================================
+
+/**
+ * Track generation event (generated, pinned, scheduled, swiped_left)
+ */
+async function trackGenerationEvent(eventType, context = {}) {
+    try {
+        const { trackGenerationEvent: trackToSupabase, getCurrentUser } = await import('./supabase.js');
+        const user = await getCurrentUser();
+        
+        if (!user) return; // Don't track if not logged in
+        
+        await trackToSupabase(user.id, {
+            event_type: eventType,
+            ...context
+        });
+    } catch (error) {
+        console.error('Error tracking generation event:', error);
+    }
+}
+
+/**
+ * Track app analytics (page views, errors, session duration)
+ */
+async function trackAppEvent(eventData) {
+    try {
+        const { trackAppEvent: trackToSupabase } = await import('./supabase.js');
+        await trackToSupabase(eventData);
+    } catch (error) {
+        console.error('Error tracking app event:', error);
+    }
+}
+
+/**
+ * Track page view with session duration
+ */
+let pageStartTime = Date.now();
+let currentPage = 'homepage';
+
+function trackPageView(pageName) {
+    // Track previous page session duration
+    if (currentPage && pageStartTime) {
+        const sessionDuration = Math.floor((Date.now() - pageStartTime) / 1000);
+        trackAppEvent({
+            page_name: currentPage,
+            session_duration: sessionDuration
+        });
+    }
+    
+    // Start tracking new page
+    currentPage = pageName;
+    pageStartTime = Date.now();
+}
+
+// ============================================
+// HYBRID STORAGE SYSTEM
+// ============================================
+
+/**
+ * Local Storage for temporary swiper ideas
+ */
+const LocalStorage = {
+    SWIPER_IDEAS_KEY: 'phasee_swiper_ideas',
+    
+    // Save swiper ideas to local storage
+    saveSwiperIdeas(ideas) {
+        try {
+            localStorage.setItem(this.SWIPER_IDEAS_KEY, JSON.stringify(ideas));
+        } catch (error) {
+            console.error('Error saving to local storage:', error);
+        }
+    },
+    
+    // Get swiper ideas from local storage
+    getSwiperIdeas() {
+        try {
+            const ideas = localStorage.getItem(this.SWIPER_IDEAS_KEY);
+            return ideas ? JSON.parse(ideas) : [];
+        } catch (error) {
+            console.error('Error reading from local storage:', error);
+            return [];
+        }
+    },
+    
+    // Clear swiper ideas
+    clearSwiperIdeas() {
+        try {
+            localStorage.removeItem(this.SWIPER_IDEAS_KEY);
+        } catch (error) {
+            console.error('Error clearing local storage:', error);
+        }
+    }
+};
+
+/**
+ * Save pinned idea to Supabase
+ */
+async function savePinnedIdeaToSupabase(ideaData) {
+    try {
+        const { createIdea, getCurrentUser } = await import('./supabase.js');
+        const user = await getCurrentUser();
+        
+        if (!user) {
+            console.warn('User not logged in, idea saved locally only');
+            return null;
+        }
+        
+        const savedIdea = await createIdea(user.id, {
+            ...ideaData,
+            is_pinned: true,
+            is_scheduled: false
+        });
+        
+        // Track pinned event
+        await trackGenerationEvent('pinned', {
+            direction: ideaData.direction,
+            is_campaign: ideaData.is_campaign,
+            platforms: ideaData.platforms
+        });
+        
+        return savedIdea;
+    } catch (error) {
+        console.error('Error saving pinned idea to Supabase:', error);
+        
+        // Track error
+        trackAppEvent({
+            page_name: 'home',
+            error_type: 'save_pinned_error',
+            error_message: error.message
+        });
+        
+        return null;
+    }
+}
+
+/**
+ * Save scheduled idea to Supabase
+ */
+async function saveScheduledIdeaToSupabase(ideaData, scheduledDate) {
+    try {
+        const { createIdea, getCurrentUser } = await import('./supabase.js');
+        const user = await getCurrentUser();
+        
+        if (!user) {
+            console.warn('User not logged in, idea saved locally only');
+            return null;
+        }
+        
+        const savedIdea = await createIdea(user.id, {
+            ...ideaData,
+            is_pinned: false,
+            is_scheduled: true,
+            scheduled_date: scheduledDate
+        });
+        
+        // Track scheduled event
+        await trackGenerationEvent('scheduled', {
+            direction: ideaData.direction,
+            is_campaign: ideaData.is_campaign,
+            platforms: ideaData.platforms
+        });
+        
+        return savedIdea;
+    } catch (error) {
+        console.error('Error saving scheduled idea to Supabase:', error);
+        
+        // Track error
+        trackAppEvent({
+            page_name: 'calendar',
+            error_type: 'save_scheduled_error',
+            error_message: error.message
+        });
+        
+        return null;
+    }
+}
+
+/**
+ * Load pinned and scheduled ideas from Supabase on app start
+ */
+async function loadIdeasFromSupabase() {
+    try {
+        const { getIdeas, getCurrentUser } = await import('./supabase.js');
+        const user = await getCurrentUser();
+        
+        if (!user) return;
+        
+        // Load pinned ideas
+        const pinnedIdeas = await getIdeas(user.id, { isPinned: true });
+        // TODO: Render pinned ideas to UI
+        
+        // Load scheduled ideas
+        const scheduledIdeas = await getIdeas(user.id, { isScheduled: true });
+        // TODO: Render scheduled ideas to calendar
+        
+    } catch (error) {
+        console.error('Error loading ideas from Supabase:', error);
+    }
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
+// Initialize feedback character counter
+document.addEventListener('DOMContentLoaded', () => {
+    updateFeedbackCharCount();
+    
+    // Track initial page view
+    trackPageView('homepage');
+    
+    // Load ideas from Supabase if user is logged in
+    loadIdeasFromSupabase();
+});
+
+// Make functions globally accessible
+window.submitFeedback = submitFeedback;
+window.trackGenerationEvent = trackGenerationEvent;
+window.trackAppEvent = trackAppEvent;
+window.savePinnedIdeaToSupabase = savePinnedIdeaToSupabase;
+window.saveScheduledIdeaToSupabase = saveScheduledIdeaToSupabase;
 
