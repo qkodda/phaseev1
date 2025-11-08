@@ -2648,9 +2648,8 @@ body {
 }
 
 .expanded-idea-card .card-content {
-    padding-top: 30px;
-    justify-content: flex-start;
-    margin-top: -10px;
+    padding-top: 40px;
+    justify-content: center;
 }
 
 .expanded-idea-card .card-title {
