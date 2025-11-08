@@ -317,6 +317,9 @@ export async function getUserProfile(userId) {
  */
 export async function updateUserProfile(userId, profileData) {
     try {
+        console.log('📝 Updating profile for user:', userId);
+        console.log('📦 Profile data:', profileData);
+        
         const { data, error } = await supabase
             .from('profiles')
             .update(profileData)
@@ -325,15 +328,25 @@ export async function updateUserProfile(userId, profileData) {
             .single();
         
         if (error) {
-            console.error('Error updating profile:', error);
+            console.error('❌ Error updating profile:', error);
+            
+            // Provide helpful error messages
+            if (error.message?.includes('column') && error.message?.includes('does not exist')) {
+                throw new Error('Database schema is outdated. Please run SUPABASE_FRESH_START.sql in your Supabase dashboard.');
+            } else if (error.code === 'PGRST204') {
+                throw new Error('Profile not found. Please sign out and sign in again.');
+            } else if (error.message?.includes('violates')) {
+                throw new Error('Invalid data format. Please check your inputs.');
+            }
+            
             throw error;
         }
         
-        console.log('✅ Profile updated:', data);
+        console.log('✅ Profile updated successfully:', data);
         return data;
         
     } catch (error) {
-        console.error('Error updating profile:', error);
+        console.error('❌ Error in updateUserProfile:', error);
         throw error;
     }
 }
