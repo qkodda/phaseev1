@@ -1145,6 +1145,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (result.success) {
                 if (result.requiresConfirmation) {
+                    // Email confirmation required - show success message
                     showAlertModal(
                         'Check Your Email',
                         'We sent you a confirmation email. Please click the link to verify your account before signing in.',
@@ -1155,9 +1156,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     );
                     submitBtn.disabled = false;
                     submitBtn.textContent = originalText;
-                } else {
+                } else if (result.user) {
+                    // Auto-signed in, start trial and go to onboarding
                     await startTrial(result.user.id);
                     navigateTo('onboarding-1-page');
+                } else {
+                    // Success but no user object (shouldn't happen)
+                    showAlertModal('Account Created', 'Please check your email to confirm your account.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
                 }
             } else {
                 showAlertModal('Sign Up Failed', result.error || 'Could not create account');
