@@ -2995,24 +2995,35 @@ function getTrialTimeRemaining() {
 
 // isTrialExpired and hasActiveSubscription are now imported from auth-integration.js
 
-function hasAccessToPaidContent() {
-    if (hasActiveSubscription()) return true;
+async function hasAccessToPaidContent() {
+    const user = getUser();
+    if (user) {
+        const hasSubscription = await hasActiveSubscription(user.id);
+        if (hasSubscription) return true;
+    }
     if (!isTrialStarted()) return false;
-    return !isTrialExpired();
+    const trialExpired = await isTrialExpired(user?.id);
+    return !trialExpired;
 }
 
-function startFreeTrial() {
-    if (hasActiveSubscription()) {
-        // Mark onboarding as complete
-        localStorage.setItem('onboardingComplete', 'true');
-        navigateTo('homepage');
-        return;
+async function startFreeTrial() {
+    const user = getUser();
+    
+    if (user) {
+        const hasSubscription = await hasActiveSubscription(user.id);
+        if (hasSubscription) {
+            // Mark onboarding as complete
+            localStorage.setItem('onboardingComplete', 'true');
+            navigateTo('homepage');
+            return;
+        }
     }
 
     if (isTrialStarted()) {
-        if (isTrialExpired()) {
+        const trialExpired = await isTrialExpired(user?.id);
+        if (trialExpired) {
             showAlertModal('Trial Ended', 'Your free trial has expired. Subscribe to continue.');
-            updateTrialCountdownDisplay();
+            await updateTrialCountdownDisplay();
             navigateTo('paywall-page');
             return;
         }
@@ -3027,7 +3038,7 @@ function startFreeTrial() {
     // But keep as fallback
     localStorage.setItem('trialStartedAt', Date.now().toString());
     localStorage.setItem('onboardingComplete', 'true');
-    updateTrialCountdownDisplay();
+    await updateTrialCountdownDisplay();
     navigateTo('homepage');
 }
 
@@ -3046,16 +3057,21 @@ function stopTrialCountdown() {
     }
 }
 
-function updateTrialCountdownDisplay() {
+async function updateTrialCountdownDisplay() {
     const countdownEl = document.getElementById('trial-countdown');
     const startBtn = document.getElementById('start-trial-btn');
     if (!countdownEl || !startBtn) return;
 
-    if (hasActiveSubscription()) {
-        countdownEl.textContent = 'Thanks for subscribing!';
-        startBtn.textContent = 'Manage Subscription';
-        startBtn.disabled = false;
-        return;
+    // Check if user has active subscription
+    const user = getUser();
+    if (user) {
+        const hasSubscription = await hasActiveSubscription(user.id);
+        if (hasSubscription) {
+            countdownEl.textContent = 'Thanks for subscribing!';
+            startBtn.textContent = 'Manage Subscription';
+            startBtn.disabled = false;
+            return;
+        }
     }
 
     if (!isTrialStarted()) {
@@ -3065,7 +3081,8 @@ function updateTrialCountdownDisplay() {
         return;
     }
 
-    if (isTrialExpired()) {
+    const trialExpired = await isTrialExpired(user?.id);
+    if (trialExpired) {
         countdownEl.textContent = 'Your free trial has ended.';
         startBtn.textContent = 'Subscribe to Continue';
         startBtn.disabled = false;
