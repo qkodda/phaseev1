@@ -3437,9 +3437,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize app with auth check
     await initializeApp();
     
-    // Track initial page view
-    const currentPage = document.querySelector('.page.active')?.id || 'sign-in-page';
-    trackPageView(currentPage);
+    // Only track page views if user is authenticated (to avoid RLS errors)
+    const user = getUser();
+    if (user) {
+        const currentPage = document.querySelector('.page.active')?.id || 'sign-in-page';
+        trackPageView(currentPage);
+    }
 });
 
 // Make functions globally accessible for onclick handlers
