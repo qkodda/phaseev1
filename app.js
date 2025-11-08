@@ -286,7 +286,7 @@ const PROFILE_STORAGE_KEY = 'phasee_profile';
 /**
  * Schedule an idea from the pinned section (opens calendar)
  */
-function scheduleIdea(button) {
+window.scheduleIdea = function(button) {
     const card = button.closest('.idea-card-collapsed');
     if (!card) return;
 

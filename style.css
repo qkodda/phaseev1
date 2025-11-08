@@ -1387,16 +1387,23 @@ body {
     line-height: 1.2;
 }
 
-/* Swiper card title - centered in middle of card */
+/* Swiper card - left-aligned like expanded cards */
 .idea-card .card-content {
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    text-align: left;
+    padding: 14px;
+}
+
+.idea-card .card-section {
+    text-align: left;
+    width: 100%;
 }
 
 .idea-card .card-title {
-    text-align: center;
+    text-align: left;
     width: 100%;
-    margin: 0;
+    margin: 0 0 8px 0;
     padding: 0;
 }
 
@@ -1837,6 +1844,7 @@ body {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: rgba(107, 70, 193, 0.3) transparent;
+    padding: 2px 0;
 }
 
 .ideas-grid::-webkit-scrollbar {
@@ -2573,8 +2581,9 @@ body {
 .calendar-picker-modal-content {
     width: 320px;
     height: auto;
-    max-height: 500px;
+    max-height: 90vh;
     padding: 24px 16px;
+    overflow-y: auto;
 }
 
 .calendar-container {
