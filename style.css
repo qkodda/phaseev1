@@ -1387,11 +1387,15 @@ body {
     line-height: 1.2;
 }
 
+/* Swiper card title - centered in middle of card */
+.idea-card .card-content {
+    justify-content: center;
+    align-items: center;
+}
+
 .idea-card .card-title {
     text-align: center;
-    position: relative;
-    top: 50%;
-    transform: translateY(calc(-50% - 4px));
+    width: 100%;
     margin: 0;
     padding: 0;
 }
@@ -2631,7 +2635,8 @@ body {
     height: 350px;
     margin: 0 auto;
     position: relative;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2),
+                0 4px 16px rgba(0, 0, 0, 0.15) !important;
     border: 1px solid #d0d0d0 !important;
     border-radius: 16px !important;
     outline: none !important;
@@ -2639,20 +2644,22 @@ body {
     flex-direction: column;
     justify-content: center;
     text-align: left;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
 }
 
 .expanded-idea-card .card-content {
-    padding-top: 40px;
-    justify-content: center;
+    padding-top: 30px;
+    justify-content: flex-start;
+    margin-top: -10px;
 }
 
 .expanded-idea-card .card-title {
     position: absolute;
-    top: 16px;
-    left: 50px;
-    right: 50px;
+    top: 18px;
+    left: 16px;
+    right: 16px;
     margin: 0;
-    text-align: left;
+    text-align: center;
 }
 
 .expanded-idea-card .card-actions-bottom {
@@ -2678,8 +2685,11 @@ body {
     justify-content: center;
     align-items: center;
     gap: 4px;
-    margin: 0 auto;
-    position: relative;
+    margin: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
 }
 
 .expanded-idea-card .platform-icons.edit-mode {
@@ -2726,6 +2736,7 @@ body {
     position: absolute;
     bottom: 0;
     right: 16px;
+    z-index: 1;
 }
 
 .expanded-idea-card .card-section:first-of-type .section-text {
