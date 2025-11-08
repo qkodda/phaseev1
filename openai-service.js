@@ -7,13 +7,34 @@
  * 3. Import and use generateContentIdeas() function
  */
 
-import OpenAI from 'openai'
+// OpenAI API key - from environment or Supabase Edge Function
+// IMPORTANT: For production, move this to Supabase Edge Functions to keep the key secure
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || ''
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.VITE_OPENAI_API_KEY || 'YOUR_OPENAI_API_KEY',
-  dangerouslyAllowBrowser: true // Note: In production, use a backend proxy
-})
+// Call OpenAI API directly (no SDK needed for browser)
+async function callOpenAI(messages, temperature = 0.9) {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OPENAI_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: 'gpt-4-turbo-preview',
+      messages: messages,
+      temperature: temperature,
+      max_tokens: 3000,
+      response_format: { type: "json_object" }
+    })
+  })
+  
+  if (!response.ok) {
+    const error = await response.json()
+    throw new Error(error.error?.message || 'OpenAI API request failed')
+  }
+  
+  return response.json()
+}
 
 /**
  * Generate content ideas based on user profile
@@ -30,22 +51,34 @@ export async function generateContentIdeas(userProfile, customDirection = '', is
   try {
     const prompt = buildPrompt(userProfile, customDirection, isCampaign)
     
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
-      messages: [
-        {
-          role: 'system',
-          content: `You are an expert content strategist and creative director specializing in experiential storytelling for social media. You understand platform-specific best practices, audience psychology, and viral content mechanics. Your ideas are actionable, specific, and designed to create authentic connections.`
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      temperature: 0.9,
-      max_tokens: 3000,
-      response_format: { type: "json_object" }
-    })
+    const response = await callOpenAI([
+      {
+        role: 'system',
+        content: `You are an expert content strategist and creative director specializing in experiential storytelling for social media. 
+
+**Core Values & Perspective:**
+- Start with a GREEN, sustainable, and eco-conscious mindset
+- Promote authenticity, mindfulness, and positive impact
+- Encourage responsible consumption and environmental awareness
+- But remain open-minded to all creative directions
+
+**Expertise:**
+- Platform-specific best practices (TikTok, Instagram, YouTube, etc.)
+- Audience psychology and emotional connection
+- Viral content mechanics and engagement strategies
+- Authentic storytelling that creates real connections
+
+**Approach:**
+- Ideas should feel genuine, not forced or overly promotional
+- Focus on experiential moments that resonate emotionally
+- Balance entertainment with meaningful messaging
+- Make sustainability and consciousness feel natural, not preachy`
+      },
+      {
+        role: 'user',
+        content: prompt
+      }
+    ], 0.9)
 
     const content = response.choices[0].message.content
     const parsed = JSON.parse(content)

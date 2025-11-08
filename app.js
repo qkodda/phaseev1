@@ -1202,9 +1202,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================
 
     /**
-     * Generate 7 new idea cards (all identical)
+     * Generate 7 new AI-powered idea cards
      */
-    function generateNewIdeas() {
+    async function generateNewIdeas() {
         const cardStack = document.getElementById('card-stack');
         const generatorCard = document.getElementById('idea-generator-card');
         if (!cardStack || !generatorCard) return;
@@ -1217,16 +1217,43 @@ document.addEventListener('DOMContentLoaded', () => {
         cardsRemaining = 7;
         ideasStack = [];
 
-        // Pick ONE random idea to use for all 7 cards
-        const randomIdea = ideaTemplates[Math.floor(Math.random() * ideaTemplates.length)];
+        // Show loading state
+        console.log('🤖 Generating AI-powered ideas...');
+        
+        try {
+            // Import the AI service
+            const { generateContentIdeas } = await import('./openai-service.js');
+            
+            // Get user profile (or use defaults)
+            const userProfile = {
+                contentType: 'creator',
+                targetAudience: 'Gen Z and Millennials',
+                platforms: ['tiktok', 'instagram', 'youtube'],
+                cultureValues: ['Authentic', 'Creative', 'Bold']
+            };
+            
+            // Generate AI ideas
+            const aiIdeas = await generateContentIdeas(userProfile, '', false);
+            
+            console.log('✅ Generated', aiIdeas.length, 'AI ideas');
+            
+            // Use AI ideas
+            ideasStack = aiIdeas;
+            
+        } catch (error) {
+            console.error('❌ AI generation failed, using fallback:', error);
+            // Fallback to template ideas
+            const randomIdea = ideaTemplates[Math.floor(Math.random() * ideaTemplates.length)];
+            ideasStack = Array(7).fill(randomIdea);
+        }
 
-        // Create 7 IDENTICAL cards using the same idea
+        // Create 7 cards from the AI-generated ideas
         // Insert BEFORE the generator card so nth-child CSS works correctly
         for (let i = 6; i >= 0; i--) {
-            const ideaInstance = cloneIdeaTemplate(randomIdea);
+            const ideaData = ideasStack[i] || ideasStack[0] || ideaTemplates[0];
+            const ideaInstance = cloneIdeaTemplate(ideaData);
             const card = createIdeaCard(ideaInstance);
             cardStack.insertBefore(card, generatorCard);
-            ideasStack.push(ideaInstance);
         }
 
         // Initialize swipe handlers
@@ -1234,13 +1261,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update swiper info
         lastRefreshTime = new Date();
-        ideasRemaining = 7;
+        ideasRemaining = ideasStack.length;
         updateSwiperInfo();
 
         // Hide idea generator
         updateIdeaGeneratorVisibility();
 
-        console.log('Generated 7 identical idea cards');
+        console.log('✅ Created', ideasStack.length, 'AI-powered idea cards');
     }
 
     window.generateNewIdeas = generateNewIdeas;
