@@ -1300,21 +1300,39 @@ document.addEventListener('DOMContentLoaded', () => {
             
             console.log('✅ Generated', aiIdeas.length, 'AI ideas');
             
+            // Log each idea title to verify uniqueness
+            aiIdeas.forEach((idea, idx) => {
+                console.log(`  ${idx + 1}. "${idea.title}"`);
+            });
+            
             // Use AI ideas
             ideasStack = aiIdeas;
             
         } catch (error) {
             console.error('❌ AI generation failed, using fallback:', error);
-            // Fallback to template ideas
-            const randomIdea = ideaTemplates[Math.floor(Math.random() * ideaTemplates.length)];
-            ideasStack = Array(7).fill(randomIdea);
+            // Fallback to template ideas - create 7 different random ideas
+            ideasStack = [];
+            for (let i = 0; i < 7; i++) {
+                const randomIdea = ideaTemplates[Math.floor(Math.random() * ideaTemplates.length)];
+                ideasStack.push(cloneIdeaTemplate(randomIdea));
+            }
+        }
+
+        // Ensure we have exactly 7 ideas
+        if (ideasStack.length !== 7) {
+            console.warn(`⚠️ Expected 7 ideas, got ${ideasStack.length}`);
         }
 
         // Create 7 cards from the AI-generated ideas
         // Insert BEFORE the generator card so nth-child CSS works correctly
         for (let i = 6; i >= 0; i--) {
-            const ideaData = ideasStack[i] || ideasStack[0] || ideaTemplates[0];
+            const ideaData = ideasStack[i];
+            if (!ideaData) {
+                console.error(`❌ Missing idea at index ${i}`);
+                continue;
+            }
             const ideaInstance = cloneIdeaTemplate(ideaData);
+            console.log(`📝 Creating card ${i + 1}: "${ideaInstance.title}"`);
             const card = createIdeaCard(ideaInstance);
             cardStack.insertBefore(card, generatorCard);
         }
