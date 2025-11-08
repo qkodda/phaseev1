@@ -495,7 +495,17 @@ body {
     margin: 0 auto 12px;
     display: block;
     position: relative;
-    filter: brightness(0.3) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+    filter: drop-shadow(0 2px 8px rgba(102, 126, 234, 0.4));
+    animation: logoColorShift 6s ease-in-out infinite;
+}
+
+@keyframes logoColorShift {
+    0%, 100% {
+        filter: drop-shadow(0 2px 8px rgba(102, 126, 234, 0.4)) brightness(1) hue-rotate(0deg);
+    }
+    50% {
+        filter: drop-shadow(0 2px 12px rgba(147, 51, 234, 0.6)) brightness(1.2) hue-rotate(20deg);
+    }
 }
 
 .auth-logo::after {
