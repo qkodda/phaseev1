@@ -672,11 +672,14 @@ body {
     gap: 16px;
     padding-top: 0;
     position: relative;
+    min-height: 44px;
 }
 
 .onboarding-back-btn {
     position: absolute;
     left: 0;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
     align-items: center;
     gap: 6px;
@@ -691,8 +694,8 @@ body {
     transition: all 0.3s;
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    position: relative;
     overflow: hidden;
+    z-index: 10;
 }
 
 .onboarding-back-btn::before {
@@ -711,13 +714,13 @@ body {
 }
 
 .onboarding-back-btn:hover {
-    transform: translateY(-2px) scale(1.02);
+    transform: translateY(-50%) translateY(-2px) scale(1.02);
     box-shadow: 0 6px 16px rgba(102, 126, 234, 0.45),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .onboarding-back-btn:active {
-    transform: translateY(0) scale(0.98);
+    transform: translateY(-50%) scale(0.98);
 }
 
 .onboarding-back-btn svg {
