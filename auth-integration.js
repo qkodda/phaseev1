@@ -313,17 +313,27 @@ export async function getUserProfile(userId) {
 }
 
 /**
- * Update user profile in database
+ * Update user profile in database (UPSERT - creates if doesn't exist)
  */
 export async function updateUserProfile(userId, profileData) {
     try {
         console.log('📝 Updating profile for user:', userId);
         console.log('📦 Profile data:', profileData);
         
+        // Get current user to ensure we have email
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        // Use UPSERT to create or update
         const { data, error } = await supabase
             .from('profiles')
-            .update(profileData)
-            .eq('id', userId)
+            .upsert({
+                id: userId,
+                email: user?.email || profileData.email,
+                ...profileData,
+                updated_at: new Date().toISOString()
+            }, {
+                onConflict: 'id'
+            })
             .select()
             .single();
         
@@ -333,16 +343,16 @@ export async function updateUserProfile(userId, profileData) {
             // Provide helpful error messages
             if (error.message?.includes('column') && error.message?.includes('does not exist')) {
                 throw new Error('Database schema is outdated. Please run SUPABASE_FRESH_START.sql in your Supabase dashboard.');
-            } else if (error.code === 'PGRST204') {
-                throw new Error('Profile not found. Please sign out and sign in again.');
             } else if (error.message?.includes('violates')) {
                 throw new Error('Invalid data format. Please check your inputs.');
+            } else if (error.message?.includes('JSON')) {
+                throw new Error('Data format error. This usually means the database schema needs to be updated.');
             }
             
             throw error;
         }
         
-        console.log('✅ Profile updated successfully:', data);
+        console.log('✅ Profile saved successfully:', data);
         return data;
         
     } catch (error) {
