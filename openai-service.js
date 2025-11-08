@@ -7,12 +7,18 @@
  * 3. Import and use generateContentIdeas() function
  */
 
-// OpenAI API key - from environment or Supabase Edge Function
-// IMPORTANT: For production, move this to Supabase Edge Functions to keep the key secure
+// OpenAI API key - from environment variable (set in .env.local)
+// TODO: For production, move to Supabase Edge Functions for security
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || ''
 
 // Call OpenAI API directly (no SDK needed for browser)
 async function callOpenAI(messages, temperature = 0.9) {
+  if (!OPENAI_API_KEY || OPENAI_API_KEY === '') {
+    throw new Error('OpenAI API key is not configured')
+  }
+  
+  console.log('🔑 Using OpenAI API key:', OPENAI_API_KEY.substring(0, 20) + '...')
+  
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -29,8 +35,9 @@ async function callOpenAI(messages, temperature = 0.9) {
   })
   
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.error?.message || 'OpenAI API request failed')
+    const errorData = await response.json()
+    console.error('❌ OpenAI API error:', errorData)
+    throw new Error(errorData.error?.message || 'OpenAI API request failed')
   }
   
   return response.json()
