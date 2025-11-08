@@ -2692,12 +2692,17 @@ function populateProfileFields(data) {
 }
 
 async function completeOnboarding() {
+    console.log('🔄 Starting completeOnboarding...');
+    
     const brandName = document.getElementById('brand-name')?.value;
     const role = document.getElementById('role')?.value;
     const foundedYear = document.getElementById('founded-year')?.value;
     const industry = document.getElementById('industry')?.value;
     
+    console.log('📝 Form values:', { brandName, role, foundedYear, industry });
+    
     if (!brandName || brandName.trim() === '') {
+        console.log('❌ Brand name is empty');
         showAlertModal('Required Field', 'Please enter your brand name to continue.');
         return;
     }
@@ -2710,14 +2715,21 @@ async function completeOnboarding() {
         document.querySelectorAll('.pill-btn.selected')
     ).map(btn => btn.textContent);
     
+    console.log('📱 Selected platforms:', selectedPlatforms);
+    console.log('💎 Selected values:', selectedValues);
+    
     try {
         const user = getUser();
+        console.log('👤 Current user:', user);
         
         if (!user) {
+            console.log('❌ No user session found');
             showAlertModal('Error', 'No user session found. Please sign in again.');
             navigateTo('sign-in-page');
             return;
         }
+        
+        console.log('💾 Saving profile to Supabase...');
         
         await updateUserProfile(user.id, {
             brand_name: brandName,
@@ -2734,8 +2746,9 @@ async function completeOnboarding() {
         navigateTo('paywall-page');
         
     } catch (error) {
-        console.error('Error completing onboarding:', error);
-        showAlertModal('Error', 'Could not save profile. Please try again.');
+        console.error('❌ Error completing onboarding:', error);
+        console.error('Error details:', error.message, error.stack);
+        showAlertModal('Error', `Could not save profile: ${error.message}`);
     }
 }
 
