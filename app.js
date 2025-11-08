@@ -1042,26 +1042,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Auth toggle button setup
     const authToggle = document.getElementById('auth-toggle');
     const signInForm = document.getElementById('sign-in-form');
     const signUpForm = document.getElementById('sign-up-form');
-    let isSignIn = true;
+    
+    if (authToggle && signInForm && signUpForm) {
+        let isSignIn = true;
 
-    authToggle.addEventListener('click', () => {
-        isSignIn = !isSignIn;
-        
-        if (isSignIn) {
-            signInForm.classList.add('active');
-            signUpForm.classList.remove('active');
-            authToggle.textContent = 'Create New Account';
-            authToggle.className = 'btn-signup';
-        } else {
-            signInForm.classList.remove('active');
-            signUpForm.classList.add('active');
-            authToggle.textContent = 'Back to Sign In';
-            authToggle.className = 'btn-primary btn-back-signin';
-        }
-    });
+        authToggle.addEventListener('click', () => {
+            isSignIn = !isSignIn;
+            
+            if (isSignIn) {
+                signInForm.classList.add('active');
+                signUpForm.classList.remove('active');
+                authToggle.textContent = 'Create New Account';
+                authToggle.className = 'btn-signup';
+            } else {
+                signInForm.classList.remove('active');
+                signUpForm.classList.add('active');
+                authToggle.textContent = 'Back to Sign In';
+                authToggle.className = 'btn-primary btn-back-signin';
+            }
+        });
+    }
 
     // ============================================
     // FORM HANDLERS
@@ -3431,13 +3435,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     trackPageView(currentPage);
 });
 
-// Make functions globally accessible
+// Make functions globally accessible for onclick handlers
+window.navigateTo = navigateTo;
+window.completeOnboarding = completeOnboarding;
+window.startFreeTrial = startFreeTrial;
+window.generateRandomIdeas = generateRandomIdeas;
+window.buildCustomIdeas = buildCustomIdeas;
+window.saveProfileChanges = saveProfileChanges;
+window.handleChangePassword = handleChangePassword;
+window.handleDeleteAccount = handleDeleteAccount;
+window.handleUserSignOut = handleUserSignOut;
 window.submitFeedback = submitFeedback;
 window.trackGenerationEvent = trackGenerationEvent;
 window.trackAppEvent = trackAppEvent;
 window.savePinnedIdeaToSupabase = savePinnedIdeaToSupabase;
 window.saveScheduledIdeaToSupabase = saveScheduledIdeaToSupabase;
-window.handleUserSignIn = handleUserSignIn;
-window.handleUserSignOut = handleUserSignOut;
-window.completeOnboarding = completeOnboarding;
+window.scheduleIdea = scheduleIdea;
+window.expandIdeaCard = expandIdeaCard;
+window.closeExpandedCard = closeExpandedCard;
+window.editIdeaCard = editIdeaCard;
+window.saveIdeaCard = saveIdeaCard;
+window.scheduleFromExpanded = scheduleFromExpanded;
 
