@@ -2694,12 +2694,17 @@ function populateProfileFields(data) {
 async function completeOnboarding() {
     console.log('🔄 Starting completeOnboarding...');
     
-    const brandName = document.getElementById('brand-name')?.value;
-    const role = document.getElementById('role')?.value;
-    const foundedYear = document.getElementById('founded-year')?.value;
-    const industry = document.getElementById('industry')?.value;
+    // Get values from onboarding pages (with 'onb-' prefix)
+    const brandName = document.getElementById('onb-brand-name')?.value;
+    const role = document.getElementById('onb-role')?.value;
+    const foundedYear = document.getElementById('onb-founded')?.value;
+    const industry = document.getElementById('onb-industry')?.value;
+    const targetAudience = document.getElementById('onb-target-audience')?.value;
+    const contentGoals = document.getElementById('onb-content-goals')?.value;
+    const postFrequency = document.getElementById('onb-post-frequency')?.value;
+    const productionLevel = document.getElementById('onb-production-level')?.value;
     
-    console.log('📝 Form values:', { brandName, role, foundedYear, industry });
+    console.log('📝 Form values:', { brandName, role, foundedYear, industry, targetAudience, contentGoals, postFrequency, productionLevel });
     
     if (!brandName || brandName.trim() === '') {
         console.log('❌ Brand name is empty');
@@ -2707,16 +2712,18 @@ async function completeOnboarding() {
         return;
     }
     
+    // Get selected platforms from onboarding page 2
     const selectedPlatforms = Array.from(
-        document.querySelectorAll('.platform-select-btn.selected')
+        document.querySelectorAll('#onb-platforms .platform-select-btn.selected')
     ).map(btn => btn.dataset.platform);
     
+    // Get selected culture values from onboarding page 2
     const selectedValues = Array.from(
-        document.querySelectorAll('.pill-btn.selected')
-    ).map(btn => btn.textContent);
+        document.querySelectorAll('#onb-culture-values .pill-btn.selected')
+    ).map(btn => btn.dataset.value);
     
     console.log('📱 Selected platforms:', selectedPlatforms);
-    console.log('💎 Selected values:', selectedValues);
+    console.log('💎 Selected culture values:', selectedValues);
     
     try {
         const user = getUser();
@@ -2734,8 +2741,12 @@ async function completeOnboarding() {
         await updateUserProfile(user.id, {
             brand_name: brandName,
             role: role,
-            founded_year: foundedYear ? parseInt(foundedYear) : null,
+            founded_year: foundedYear || null,
             industry: industry,
+            target_audience: targetAudience,
+            content_goals: contentGoals,
+            post_frequency: postFrequency,
+            production_level: productionLevel,
             platforms: selectedPlatforms,
             culture_values: selectedValues,
             onboarding_complete: true
