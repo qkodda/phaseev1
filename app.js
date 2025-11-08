@@ -1047,10 +1047,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const signInForm = document.getElementById('sign-in-form');
     const signUpForm = document.getElementById('sign-up-form');
     
+    console.log('Auth toggle setup:', { authToggle, signInForm, signUpForm });
+    
     if (authToggle && signInForm && signUpForm) {
         let isSignIn = true;
 
-        authToggle.addEventListener('click', () => {
+        authToggle.addEventListener('click', (e) => {
+            console.log('Auth toggle clicked!');
+            e.preventDefault();
             isSignIn = !isSignIn;
             
             if (isSignIn) {
@@ -1065,6 +1069,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 authToggle.className = 'btn-primary btn-back-signin';
             }
         });
+        console.log('✅ Auth toggle listener attached');
+    } else {
+        console.error('❌ Auth toggle elements not found!', { authToggle, signInForm, signUpForm });
     }
 
     // ============================================

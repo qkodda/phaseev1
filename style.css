@@ -220,12 +220,18 @@ body {
 .btn-text {
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.9);
+    color: #000000;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     padding: 8px;
     text-decoration: underline;
+    transition: all 0.2s;
+}
+
+.btn-text:hover {
+    color: #333333;
+    text-decoration-color: #667eea;
 }
 
 .btn-danger {
@@ -489,7 +495,7 @@ body {
     margin: 0 auto 12px;
     display: block;
     position: relative;
-    filter: brightness(0.3);
+    filter: brightness(0.3) drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
 }
 
 .auth-logo::after {
@@ -502,26 +508,37 @@ body {
     background: linear-gradient(
         to right,
         transparent 0%,
-        rgba(255, 255, 255, 0.6) 50%,
+        rgba(255, 255, 255, 0.8) 50%,
         transparent 100%
     );
-    animation: logoShine 3s ease infinite;
+    animation: logoShine 4s ease-in-out infinite;
     pointer-events: none;
 }
 
 @keyframes logoShine {
     0%, 100% {
         left: -100%;
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
     }
     50% {
         left: 100%;
+        opacity: 1;
+    }
+    60% {
+        opacity: 0;
     }
 }
 
 .app-tagline {
     font-size: 15px;
-    color: rgba(60, 60, 60, 0.95);
-    font-weight: 500;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: relative;
     overflow: hidden;
@@ -653,21 +670,44 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 8px 14px;
+    padding: 10px 16px;
     font-size: 14px;
     font-weight: 600;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    border-radius: 12px;
+    border-radius: 14px;
     cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.onboarding-back-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.onboarding-back-btn:hover::before {
+    left: 100%;
 }
 
 .onboarding-back-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.onboarding-back-btn:active {
+    transform: translateY(0) scale(0.98);
 }
 
 .onboarding-back-btn svg {
