@@ -202,6 +202,46 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
+ * Personalize hero section with user's profile data
+ */
+async function personalizeHeroSection() {
+    const user = getUser();
+    if (!user) return;
+    
+    try {
+        const profile = await getUserProfile(user.id);
+        if (!profile) return;
+        
+        // Update user name
+        const userNameEl = document.getElementById('user-name');
+        if (userNameEl && profile.brand_name) {
+            userNameEl.textContent = profile.brand_name;
+        }
+        
+        // Update subtitle based on content goals or industry
+        const subtitleEl = document.querySelector('.hero-subtitle');
+        if (subtitleEl) {
+            if (profile.content_goals) {
+                // Use their actual content goals
+                const goals = profile.content_goals.substring(0, 60); // Keep it short
+                subtitleEl.textContent = `${goals}${profile.content_goals.length > 60 ? '...' : ''}`;
+            } else if (profile.industry) {
+                // Use industry-specific message
+                subtitleEl.textContent = `Let's create amazing ${profile.industry} content!`;
+            } else {
+                // Default personalized message
+                subtitleEl.textContent = "Let's build some content...!";
+            }
+        }
+        
+        console.log('✅ Hero section personalized for:', profile.brand_name);
+        
+    } catch (error) {
+        console.error('Error personalizing hero:', error);
+    }
+}
+
+/**
  * Navigate between pages
  * @param {string} pageId - The ID of the page to navigate to
  */
@@ -251,8 +291,11 @@ function navigateTo(pageId) {
         stopTrialCountdown();
     }
     
-    // Generate cards when navigating to homepage for the first time
+    // Generate cards and personalize when navigating to homepage
     if (pageId === 'homepage') {
+        // Personalize hero section
+        personalizeHeroSection();
+        
         const cardStack = document.getElementById('card-stack');
         const existingCards = cardStack ? cardStack.querySelectorAll('.idea-card') : [];
         
@@ -1224,13 +1267,33 @@ document.addEventListener('DOMContentLoaded', () => {
             // Import the AI service
             const { generateContentIdeas } = await import('./openai-service.js');
             
-            // Get user profile (or use defaults)
-            const userProfile = {
+            // Get user profile from Supabase
+            const user = getUser();
+            let userProfile = {
                 contentType: 'creator',
                 targetAudience: 'Gen Z and Millennials',
                 platforms: ['tiktok', 'instagram', 'youtube'],
                 cultureValues: ['Authentic', 'Creative', 'Bold']
             };
+            
+            if (user) {
+                const profile = await getUserProfile(user.id);
+                if (profile) {
+                    console.log('✅ Using user profile for AI generation:', profile);
+                    userProfile = {
+                        brandName: profile.brand_name || 'your brand',
+                        contentType: profile.role || 'creator',
+                        targetAudience: profile.target_audience || 'Gen Z and Millennials',
+                        platforms: profile.platforms || ['tiktok', 'instagram', 'youtube'],
+                        cultureValues: profile.culture_values || ['Authentic', 'Creative', 'Bold'],
+                        contentGoals: profile.content_goals || '',
+                        industry: profile.industry || '',
+                        productionLevel: profile.production_level || 'intermediate'
+                    };
+                } else {
+                    console.log('⚠️ No profile found, using defaults');
+                }
+            }
             
             // Generate AI ideas
             const aiIdeas = await generateContentIdeas(userProfile, '', false);
