@@ -4,6 +4,26 @@
    ============================================ */
 
 // ============================================
+// IMPORTS
+// ============================================
+import {
+    initAuth,
+    isAuthenticated,
+    getUser,
+    handleSignUp,
+    handleSignIn,
+    handleSignOut,
+    getUserProfile,
+    updateUserProfile,
+    hasCompletedOnboarding,
+    markOnboardingComplete,
+    startTrial,
+    isTrialExpired,
+    hasActiveSubscription,
+    onAuthStateChange
+} from './auth-integration.js';
+
+// ============================================
 // CULTURE VALUES CAROUSEL
 // ============================================
 
@@ -1048,34 +1068,97 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================
 
     // Sign In Form
-    signInForm.addEventListener('submit', (e) => {
+    signInForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('signin-email').value;
         const password = document.getElementById('signin-password').value;
         
-        console.log('Sign In:', { email, password });
+        const submitBtn = signInForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing in...';
         
-        // TODO: Add actual authentication with Supabase
-        // For now, use local auth
-        handleUserSignIn(email);
+        try {
+            const result = await handleSignIn(email, password);
+            
+            if (result.success) {
+                console.log('✅ Sign in successful');
+                
+                const onboardingComplete = await hasCompletedOnboarding(result.user.id);
+                
+                if (onboardingComplete) {
+                    const trialExpired = await isTrialExpired(result.user.id);
+                    const hasSubscription = await hasActiveSubscription(result.user.id);
+                    
+                    if (trialExpired && !hasSubscription) {
+                        navigateTo('paywall-page');
+                    } else {
+                        navigateTo('homepage');
+                    }
+                } else {
+                    await startTrial(result.user.id);
+                    navigateTo('onboarding-1-page');
+                }
+            } else {
+                showAlertModal('Sign In Failed', result.error || 'Invalid email or password');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        } catch (error) {
+            console.error('Sign in error:', error);
+            showAlertModal('Error', 'An error occurred. Please try again.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
     });
 
     // Sign Up Form
-    signUpForm.addEventListener('submit', (e) => {
+    signUpForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const name = document.getElementById('signup-name').value;
         const email = document.getElementById('signup-email').value;
         const password = document.getElementById('signup-password').value;
         
-        console.log('Sign Up:', { name, email, password });
+        if (password.length < 6) {
+            showAlertModal('Invalid Password', 'Password must be at least 6 characters long');
+            return;
+        }
         
-        // TODO: Add actual authentication with Supabase
-        // For now, treat as new user sign-in
-        // Clear any existing data for fresh start
-        localStorage.removeItem('onboardingComplete');
-        localStorage.removeItem('trialStartedAt');
+        const submitBtn = signUpForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating account...';
         
-        handleUserSignIn(email);
+        try {
+            const result = await handleSignUp(name, email, password);
+            
+            if (result.success) {
+                if (result.requiresConfirmation) {
+                    showAlertModal(
+                        'Check Your Email',
+                        'We sent you a confirmation email. Please click the link to verify your account before signing in.',
+                        () => {
+                            signUpForm.reset();
+                            authToggle.click(); // Switch back to sign in
+                        }
+                    );
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                } else {
+                    await startTrial(result.user.id);
+                    navigateTo('onboarding-1-page');
+                }
+            } else {
+                showAlertModal('Sign Up Failed', result.error || 'Could not create account');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        } catch (error) {
+            console.error('Sign up error:', error);
+            showAlertModal('Error', 'An error occurred. Please try again.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
     });
 
     // Swipe handlers will be initialized when cards are generated
@@ -2547,28 +2630,52 @@ function populateProfileFields(data) {
     }
 }
 
-function completeOnboarding() {
-    const brandField = document.getElementById('onb-brand-name');
-    if (brandField && !brandField.value.trim()) {
-        showAlertModal('Missing Brand Name', 'Please provide your brand name to continue onboarding.');
+async function completeOnboarding() {
+    const brandName = document.getElementById('brand-name')?.value;
+    const role = document.getElementById('role')?.value;
+    const foundedYear = document.getElementById('founded-year')?.value;
+    const industry = document.getElementById('industry')?.value;
+    
+    if (!brandName || brandName.trim() === '') {
+        showAlertModal('Required Field', 'Please enter your brand name to continue.');
         return;
     }
-
-    const onboardingData = getProfileFormData('onb');
-    saveProfileData(onboardingData);
     
-    // Mark onboarding as complete (new system)
-    localStorage.setItem('onboardingComplete', 'true');
+    const selectedPlatforms = Array.from(
+        document.querySelectorAll('.platform-select-btn.selected')
+    ).map(btn => btn.dataset.platform);
     
-    // Legacy support
-    localStorage.setItem('hasCompletedOnboarding', 'true');
+    const selectedValues = Array.from(
+        document.querySelectorAll('.pill-btn.selected')
+    ).map(btn => btn.textContent);
     
-    loadProfileData();
-    generateNewIdeas();
-    
-    // Go to paywall (mandatory first time)
-    navigateTo('paywall-page');
-    updateTrialCountdownDisplay();
+    try {
+        const user = getUser();
+        
+        if (!user) {
+            showAlertModal('Error', 'No user session found. Please sign in again.');
+            navigateTo('sign-in-page');
+            return;
+        }
+        
+        await updateUserProfile(user.id, {
+            brand_name: brandName,
+            role: role,
+            founded_year: foundedYear ? parseInt(foundedYear) : null,
+            industry: industry,
+            platforms: selectedPlatforms,
+            culture_values: selectedValues,
+            onboarding_complete: true
+        });
+        
+        console.log('✅ Onboarding complete, profile saved to Supabase');
+        
+        navigateTo('paywall-page');
+        
+    } catch (error) {
+        console.error('Error completing onboarding:', error);
+        showAlertModal('Error', 'Could not save profile. Please try again.');
+    }
 }
 
 function saveProfileChanges() {
@@ -2801,15 +2908,7 @@ function getTrialTimeRemaining() {
     return Math.max(0, TRIAL_DURATION_MS - elapsed);
 }
 
-function isTrialExpired() {
-    const start = getTrialStartTimestamp();
-    if (!start) return false;
-    return Date.now() - start >= TRIAL_DURATION_MS;
-}
-
-function hasActiveSubscription() {
-    return localStorage.getItem('subscriptionStatus') === 'active';
-}
+// isTrialExpired and hasActiveSubscription are now imported from auth-integration.js
 
 function hasAccessToPaidContent() {
     if (hasActiveSubscription()) return true;
@@ -3244,59 +3343,92 @@ function handleUserSignIn(email) {
 /**
  * Handle user sign-out
  */
-function handleUserSignOut() {
-    // Keep trial data but mark as not authenticated
-    localStorage.setItem('userAuthenticated', 'false');
-    navigateTo('sign-in-page');
+async function handleUserSignOutLocal() {
+    try {
+        const result = await handleSignOut();
+        
+        if (result.success) {
+            localStorage.clear();
+            navigateTo('sign-in-page');
+        } else {
+            showAlertModal('Error', 'Could not sign out. Please try again.');
+        }
+    } catch (error) {
+        console.error('Sign out error:', error);
+        showAlertModal('Error', 'Could not sign out. Please try again.');
+    }
 }
+
+// Make it globally accessible
+window.handleUserSignOut = handleUserSignOutLocal;
 
 /**
  * Initialize app on load
  */
-function initializeApp() {
-    // Check if user is authenticated
-    if (!isUserAuthenticated()) {
-        // Not authenticated, show sign-in page
+async function initializeApp() {
+    try {
+        const user = await initAuth();
+        
+        if (!user) {
+            navigateTo('sign-in-page');
+            return;
+        }
+        
+        console.log('✅ User authenticated:', user.email);
+        
+        const onboardingComplete = await hasCompletedOnboarding(user.id);
+        
+        if (!onboardingComplete) {
+            navigateTo('onboarding-1-page');
+            return;
+        }
+        
+        const trialExpired = await isTrialExpired(user.id);
+        const hasSubscription = await hasActiveSubscription(user.id);
+        
+        if (trialExpired && !hasSubscription) {
+            navigateTo('paywall-page');
+            return;
+        }
+        
+        navigateTo('homepage');
+        
+    } catch (error) {
+        console.error('Error initializing app:', error);
         navigateTo('sign-in-page');
-        return;
     }
-    
-    // User is authenticated
-    // Check if onboarding is complete
-    if (!isOnboardingComplete()) {
-        // Onboarding not complete, return to start
-        navigateTo('onboarding-1-page');
-        return;
-    }
-    
-    // Check if trial is expired
-    if (isTrialExpired() && !hasActiveSubscription()) {
-        // Trial expired, show paywall
-        navigateTo('paywall-page');
-        return;
-    }
-    
-    // All good, go to homepage
-    navigateTo('homepage');
 }
 
 // completeOnboarding function is defined earlier in the file
 
 // Initialize feedback character counter
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     updateFeedbackCharCount();
     
+    // Listen for auth state changes
+    onAuthStateChange((event, session) => {
+        console.log('Auth event:', event);
+        
+        if (event === 'SIGNED_OUT') {
+            localStorage.clear();
+            navigateTo('sign-in-page');
+        }
+        
+        if (event === 'SIGNED_IN') {
+            console.log('User signed in:', session.user.email);
+        }
+        
+        if (event === 'TOKEN_REFRESHED') {
+            console.log('Token refreshed');
+        }
+    });
+    
     // Initialize app with auth check
-    initializeApp();
+    await initializeApp();
     
     // Track initial page view
     const currentPage = document.querySelector('.page.active')?.id || 'sign-in-page';
     trackPageView(currentPage);
-    
-    // Load ideas from Supabase if user is logged in
-    if (isUserAuthenticated()) {
-        loadIdeasFromSupabase();
-    }
 });
 
 // Make functions globally accessible
