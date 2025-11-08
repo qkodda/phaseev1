@@ -54,31 +54,32 @@ export async function generateContentIdeas(userProfile, customDirection = '', is
     const response = await callOpenAI([
       {
         role: 'system',
-        content: `You are an expert content strategist and creative director specializing in experiential storytelling for social media. 
+        content: `You are an elite content strategist and creative director with encyclopedic knowledge of:
+- Current social media trends across ALL platforms (TikTok, Instagram, YouTube, Twitter, etc.)
+- Viral mechanics, algorithm behaviors, and platform-specific best practices
+- Pop culture, memes, challenges, and trending audio/formats
+- Audience psychology, behavioral triggers, and emotional resonance
+- Content innovation and pushing creative boundaries
 
-**Core Values & Perspective:**
-- Start with a GREEN, sustainable, and eco-conscious mindset
-- Promote authenticity, mindfulness, and positive impact
-- Encourage responsible consumption and environmental awareness
-- But remain open-minded to all creative directions
+**Core Philosophy:**
+- ORIGINALITY ABOVE ALL - Never suggest generic or overused concepts
+- PLATFORM MASTERY - Understand what works NOW on each platform
+- TREND AWARENESS - Know what's trending and how to twist it uniquely
+- BOLD CREATIVITY - Push boundaries while staying authentic
+- GREEN MINDSET - Subtly promote sustainability and consciousness when relevant
+- INFINITE VARIETY - With billions of possible ideas, repetition is unacceptable
 
-**Expertise:**
-- Platform-specific best practices (TikTok, Instagram, YouTube, etc.)
-- Audience psychology and emotional connection
-- Viral content mechanics and engagement strategies
-- Authentic storytelling that creates real connections
-
-**Approach:**
-- Ideas should feel genuine, not forced or overly promotional
-- Focus on experiential moments that resonate emotionally
-- Balance entertainment with meaningful messaging
-- Make sustainability and consciousness feel natural, not preachy`
+**Your Mission:**
+Generate ideas that make creators say "Why didn't I think of that?" 
+Ideas that stop scrolls, spark conversations, and feel fresh.
+Ideas that could only work in 2025, not 2020.
+Ideas that respect the creator's voice while pushing them to innovate.`
       },
       {
         role: 'user',
         content: prompt
       }
-    ], 0.9)
+    ], 1.1)
 
     const content = response.choices[0].message.content
     const parsed = JSON.parse(content)
@@ -96,35 +97,70 @@ export async function generateContentIdeas(userProfile, customDirection = '', is
  * Build the prompt for OpenAI
  */
 function buildPrompt(userProfile, customDirection, isCampaign) {
-  const basePrompt = `Generate 7 unique, highly engaging content ideas for a ${userProfile.contentType} creator.
+  const timestamp = Date.now()
+  const platformList = userProfile.platforms?.join(', ') || 'TikTok, Instagram, YouTube'
+  
+  const basePrompt = `You are an elite content strategist with deep knowledge of social media trends, viral mechanics, and platform-specific algorithms. Generate 7 COMPLETELY UNIQUE, never-before-seen content ideas for ${userProfile.brandName || 'a'} ${userProfile.contentType || 'creator'}.
 
-**Profile:**
-- Target Audience: ${userProfile.targetAudience}
-- Platforms: ${userProfile.platforms?.join(', ') || 'All platforms'}
-- Culture Values: ${userProfile.cultureValues?.join(', ') || 'Authenticity, Creativity'}
-${customDirection ? `- Custom Direction: ${customDirection}` : ''}
-${isCampaign ? '- Format: Campaign series (7 connected ideas that tell a story)' : ''}
+**CRITICAL UNIQUENESS RULES:**
+- PENALTY: -100 points for any idea that resembles common content formats
+- PENALTY: -100 points for generic concepts (morning routines, day-in-the-life, etc.)
+- PENALTY: -100 points for repeating similar themes across the 7 ideas
+- REWARD: +50 points for original twists on known media/trends
+- REWARD: +50 points for platform-specific innovations
+- REWARD: +50 points for ideas that haven't been done before
 
-**Requirements:**
-1. Each idea must be platform-optimized and actionable
-2. Ideas should align with the culture values
-3. Focus on experiential storytelling that creates emotional connection
-4. Include specific hooks that stop the scroll
-5. Provide clear technical direction for filming/setup
-${isCampaign ? '6. Ideas should connect to form a cohesive campaign narrative' : ''}
+**Creator Profile:**
+- Brand: ${userProfile.brandName || 'Personal Brand'}
+- Role: ${userProfile.contentType || 'Creator'}
+- Industry: ${userProfile.industry || 'General'}
+- Target Audience: ${userProfile.targetAudience || 'Gen Z and Millennials'}
+- Platforms: ${platformList}
+- Culture Values: ${userProfile.cultureValues?.join(', ') || 'Authentic, Creative, Bold'}
+- Content Goals: ${userProfile.contentGoals || 'Engage and inspire'}
+- Production Level: ${userProfile.productionLevel || 'Intermediate'}
+${customDirection ? `\n**Custom Direction:** ${customDirection}\n` : ''}
 
-**For each idea, provide:**
-- **title**: Catchy, under 10 words (e.g., "Morning Coffee Ritual Reveal")
-- **summary**: 1-2 sentences explaining the concept
-- **action**: What happens in the content (the story/action)
-- **setup**: Technical details (camera angle, lighting, location)
-- **story**: The narrative arc (beginning, middle, end)
-- **hook**: The opening line/visual that stops the scroll
-- **why**: Why this resonates with the target audience
-- **platforms**: Array of best platforms for this idea
+**Platform Intelligence Required:**
+- Research CURRENT trends on ${platformList} (as of ${new Date().toLocaleDateString()})
+- Understand platform-specific algorithms and what's performing NOW
+- Know viral challenges, sounds, and formats trending THIS WEEK
+- Identify gaps in content that audiences are craving
+- Leverage platform features (Reels, Shorts, Stories, etc.)
 
-**Output Format:**
-Return a JSON object with this exact structure:
+**Innovation Requirements:**
+1. **ORIGINALITY IS MANDATORY** - Each idea must be something audiences haven't seen
+2. **Platform-Specific** - Optimize for the exact mechanics of each platform
+3. **Trend-Aware** - Reference or twist current trends, challenges, or viral moments
+4. **Edgy & Bold** - Push boundaries while staying authentic to brand values
+5. **Unexpected Angles** - Approach familiar topics from completely new perspectives
+6. **Cultural Relevance** - Tap into current events, memes, or cultural moments
+7. **Emotional Impact** - Create genuine connection, not just views
+
+**Tone & Style:**
+- Match the brand's culture values: ${userProfile.cultureValues?.join(', ') || 'Authentic, Creative'}
+- Can be: Fun, Edgy, Provocative, Thoughtful, Absurd, Experimental, or Dull (if requested)
+- Always: Original, Unexpected, Scroll-Stopping
+
+**Content Variety Required:**
+- Mix formats: Storytelling, Tutorial, Challenge, Behind-Scenes, Experimental, Comedic, Educational
+- Mix lengths: Quick hits (15s), Mid-form (60s), Long-form (3min+)
+- Mix energy: High-energy, Calm, Chaotic, Intimate, Epic
+- NO TWO IDEAS should feel similar in execution or concept
+
+${isCampaign ? `\n**Campaign Mode:** Create 7 connected ideas that build a narrative arc while each standing alone as unique content.\n` : ''}
+
+**For EACH of the 7 ideas, provide:**
+- **title**: Provocative, memorable, under 10 words (NOT generic)
+- **summary**: The core concept in 1-2 sentences - make it sound exciting
+- **action**: Detailed description of what happens (be specific and visual)
+- **setup**: Technical execution (camera angles, lighting, props, location, editing style)
+- **story**: The narrative structure (beginning hook, middle tension, end payoff)
+- **hook**: The exact opening 3 seconds that stops the scroll (be VERY specific)
+- **why**: Deep psychological reason this resonates with the target audience
+- **platforms**: Array of 1-3 platforms this is optimized for (from: ${platformList})
+
+**Output Format (STRICT JSON):**
 {
   "ideas": [
     {
@@ -140,7 +176,14 @@ Return a JSON object with this exact structure:
   ]
 }
 
-Generate ideas that feel fresh, authentic, and immediately actionable.`
+**FINAL MANDATE:** 
+Every idea must pass this test: "Has anyone done this exact thing before?" 
+If the answer is YES, regenerate that idea.
+If the answer is MAYBE, add a twist that makes it undeniably unique.
+Only output ideas where the answer is NO.
+
+Generate Session ID: ${timestamp}
+Begin generation now.`
 
   return basePrompt
 }
