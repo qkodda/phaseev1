@@ -3447,17 +3447,27 @@ function handleUserSignIn(email) {
  */
 async function handleUserSignOutLocal() {
     try {
+        console.log('🔄 Starting sign out...');
         const result = await handleSignOut();
         
-        if (result.success) {
-            localStorage.clear();
-            navigateTo('sign-in-page');
+        console.log('📦 Sign out result:', result);
+        
+        // Always clear local storage and navigate, even if there's an error
+        // (user might be offline, but we still want to sign them out locally)
+        localStorage.clear();
+        navigateTo('sign-in-page');
+        
+        // Only show error if there was a real problem
+        if (result && !result.success && result.error) {
+            console.warn('⚠️ Sign out had an error, but user is signed out locally:', result.error);
         } else {
-            showAlertModal('Error', 'Could not sign out. Please try again.');
+            console.log('✅ Sign out completed successfully');
         }
     } catch (error) {
-        console.error('Sign out error:', error);
-        showAlertModal('Error', 'Could not sign out. Please try again.');
+        console.error('❌ Sign out error:', error);
+        // Still sign out locally even if there's an error
+        localStorage.clear();
+        navigateTo('sign-in-page');
     }
 }
 

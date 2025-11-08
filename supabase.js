@@ -59,8 +59,13 @@ export async function signIn(email, password) {
  * Sign out current user
  */
 export async function signOut() {
-  const { error } = await supabase.auth.signOut()
-  if (error) throw error
+  try {
+    const { error } = await supabase.auth.signOut()
+    return { error }
+  } catch (error) {
+    console.error('Supabase signOut error:', error)
+    return { error }
+  }
 }
 
 /**
