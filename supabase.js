@@ -23,27 +23,36 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 /**
  * Sign up a new user
  */
-export async function signUp(email, password) {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  })
-  
-  if (error) throw error
-  return data
+export async function signUp(email, password, options = {}) {
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options
+    })
+    
+    return { data, error }
+  } catch (error) {
+    console.error('Supabase signUp error:', error)
+    return { data: null, error }
+  }
 }
 
 /**
  * Sign in existing user
  */
 export async function signIn(email, password) {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
-  
-  if (error) throw error
-  return data
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+    
+    return { data, error }
+  } catch (error) {
+    console.error('Supabase signIn error:', error)
+    return { data: null, error }
+  }
 }
 
 /**

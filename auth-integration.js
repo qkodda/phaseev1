@@ -138,11 +138,22 @@ export async function handleSignIn(email, password) {
     try {
         console.log('🔐 Signing in user:', email);
         
-        const { data, error } = await signIn(email, password);
+        const result = await signIn(email, password);
+        console.log('📦 Sign in result:', result);
+        
+        if (!result) {
+            throw new Error('No response from sign in');
+        }
+        
+        const { data, error } = result;
         
         if (error) {
             console.error('Sign in error:', error);
             throw new Error(error.message);
+        }
+        
+        if (!data) {
+            throw new Error('No data returned from sign in');
         }
         
         if (data.session && data.user) {
@@ -158,13 +169,14 @@ export async function handleSignIn(email, password) {
             };
         }
         
-        throw new Error('No session returned');
+        throw new Error('No session or user in response');
         
     } catch (error) {
-        console.error('Sign in error:', error);
+        console.error('❌ Sign in error:', error);
+        console.error('Error stack:', error.stack);
         return {
             success: false,
-            error: error.message
+            error: error.message || 'Sign in failed'
         };
     }
 }
