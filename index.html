@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Content Idea Generator</title>
+    <link rel="stylesheet" href="style.css?v=2.1">
+</head>
+<body>
+    <div class="app-container">
+        <!-- SIGN IN PAGE -->
+        <div id="sign-in-page" class="page active">
+            <div class="page-content">
+                <div class="auth-header">
+                    <img src="PHasse-Logo.png" alt="Phasee Logo" class="auth-logo">
+                    <p class="app-tagline">Experiential storytelling with Phasee!</p>
+                </div>
+
+                <div class="auth-container">
+                    <!-- Sign In Form -->
+                    <form id="sign-in-form" class="auth-form active">
+                        <h2 class="form-title">Welcome Back</h2>
+                        
+                        <div class="input-group">
+                            <label for="signin-email">Email</label>
+                            <input type="email" id="signin-email" placeholder="your@email.com" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="signin-password">Password</label>
+                            <input type="password" id="signin-password" placeholder="••••••••" required>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Sign In</button>
+                        
+                        <button type="button" class="btn-text">Forgot Password?</button>
+                    </form>
+
+                    <!-- Sign Up Form -->
+                    <form id="sign-up-form" class="auth-form">
+                        <h2 class="form-title">Create Account</h2>
+                        
+                        <div class="input-group">
+                            <label for="signup-name">Full Name</label>
+                            <input type="text" id="signup-name" placeholder="John Doe" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="signup-email">Email</label>
+                            <input type="email" id="signup-email" placeholder="your@email.com" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="signup-password">Password</label>
+                            <input type="password" id="signup-password" placeholder="••••••••" required>
+                        </div>
+
+                        <button type="submit" class="btn-signup btn-create">Create Account</button>
+                    </form>
+
+                    <!-- Sign Up Button -->
+                    <button id="auth-toggle" class="btn-signup">
+                        Create New Account
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ONBOARDING PAGE 1 -->
+        <div id="onboarding-1-page" class="page">
+            <div class="page-content">
+                <div class="onboarding-header">
+                    <div class="progress-dots">
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                    </div>
+                </div>
+
+                <div class="onboarding-content">
+                    <h2 class="onboarding-title">Tell Us About Your Brand</h2>
+                    
+                    <div class="input-group">
+                        <label for="onb-brand-name">Brand Name</label>
+                        <input type="text" id="onb-brand-name" placeholder="Enter your brand name" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="onb-role">Your Role</label>
+                        <select id="onb-role" class="custom-dropdown">
+                            <option value="">Select your role</option>
+                            <option value="founder">Founder/CEO</option>
+                            <option value="marketing">Marketing Manager</option>
+                            <option value="content">Content Creator</option>
+                            <option value="social-media">Social Media Manager</option>
+                            <option value="influencer">Influencer</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="onb-founded">Founded Year</label>
+                        <select id="onb-founded" class="custom-dropdown">
+                            <option value="">Select year</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                            <option value="2021">2021</option>
+                            <option value="2020">2020</option>
+                            <option value="before-2020">Before 2020</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="onb-industry">Industry</label>
+                        <select id="onb-industry" class="custom-dropdown">
+                            <option value="">Select industry</option>
+                            <option value="fashion">Fashion &amp; Beauty</option>
+                            <option value="tech">Technology</option>
+                            <option value="food">Food &amp; Beverage</option>
+                            <option value="fitness">Fitness &amp; Wellness</option>
+                            <option value="education">Education</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="business">Business</option>
+                            <option value="lifestyle">Lifestyle</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="onb-location">Location</label>
+                        <div class="location-input">
+                            <input type="text" id="onb-location" placeholder="City, Country">
+                            <button type="button" class="btn-secondary find-location-btn" data-target="onb-location">Find Location</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="onb-target-audience">Target Audience</label>
+                        <textarea id="onb-target-audience" rows="3" placeholder="Describe your target audience"></textarea>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="navigateTo('onboarding-2-page')">Continue</button>
+            </div>
+        </div>
+
+        <!-- ONBOARDING PAGE 2 -->
+        <div id="onboarding-2-page" class="page">
+            <div class="page-content">
+                <div class="onboarding-header">
+                    <button class="btn-secondary onboarding-back-btn" onclick="navigateTo('onboarding-1-page')">
+                        ← Back
+                    </button>
+                    <div class="progress-dots">
+                        <span class="dot active"></span>
+                        <span class="dot active"></span>
+                    </div>
+                </div>
+
+                <div class="onboarding-content">
+                    <h2 class="onboarding-title">Customize Your Content</h2>
+                    
+                    <div class="input-group">
+                        <label>Culture Values</label>
+                        <div class="pill-selection" id="onb-culture-values">
+                            <div class="pill-row" data-speed="28">
+                                <button type="button" class="pill-btn" data-value="innovation">Innovation</button>
+                                <button type="button" class="pill-btn" data-value="authenticity">Authenticity</button>
+                                <button type="button" class="pill-btn" data-value="community">Community</button>
+                                <button type="button" class="pill-btn" data-value="creativity">Creativity</button>
+                                <button type="button" class="pill-btn" data-value="sustainability">Sustainability</button>
+                                <button type="button" class="pill-btn" data-value="quality">Quality</button>
+                                <button type="button" class="pill-btn" data-value="excellence">Excellence</button>
+                                <button type="button" class="pill-btn" data-value="boldness">Boldness</button>
+                                <button type="button" class="pill-btn" data-value="curiosity">Curiosity</button>
+                                <button type="button" class="pill-btn" data-value="kindness">Kindness</button>
+                            </div>
+                            <div class="pill-row" data-speed="32" data-direction="reverse">
+                                <button type="button" class="pill-btn" data-value="integrity">Integrity</button>
+                                <button type="button" class="pill-btn" data-value="playfulness">Playfulness</button>
+                                <button type="button" class="pill-btn" data-value="leadership">Leadership</button>
+                                <button type="button" class="pill-btn" data-value="humility">Humility</button>
+                                <button type="button" class="pill-btn" data-value="collaboration">Collaboration</button>
+                                <button type="button" class="pill-btn" data-value="adventure">Adventure</button>
+                                <button type="button" class="pill-btn" data-value="focus">Focus</button>
+                                <button type="button" class="pill-btn" data-value="empathy">Empathy</button>
+                                <button type="button" class="pill-btn" data-value="craftsmanship">Craftsmanship</button>
+                                <button type="button" class="pill-btn" data-value="joy">Joy</button>
+                            </div>
+                            <div class="pill-row" data-speed="36">
+                                <button type="button" class="pill-btn" data-value="resilience">Resilience</button>
+                                <button type="button" class="pill-btn" data-value="clarity">Clarity</button>
+                                <button type="button" class="pill-btn" data-value="gratitude">Gratitude</button>
+                                <button type="button" class="pill-btn" data-value="precision">Precision</button>
+                                <button type="button" class="pill-btn" data-value="growth">Growth</button>
+                                <button type="button" class="pill-btn" data-value="fun">Fun</button>
+                                <button type="button" class="pill-btn" data-value="trust">Trust</button>
+                                <button type="button" class="pill-btn" data-value="balance">Balance</button>
+                                <button type="button" class="pill-btn" data-value="courage">Courage</button>
+                                <button type="button" class="pill-btn" data-value="insight">Insight</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="onb-content-goals">Content Goals</label>
+                        <textarea id="onb-content-goals" rows="3" placeholder="What do you want to achieve with your content?"></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Platforms</label>
+                        <div class="platform-selection" id="onb-platforms">
+                            <button type="button" class="platform-select-btn" data-platform="tiktok">
+                                <img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok">
+                            </button>
+                            <button type="button" class="platform-select-btn" data-platform="instagram">
+                                <img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram">
+                            </button>
+                            <button type="button" class="platform-select-btn" data-platform="youtube">
+                                <img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube">
+                            </button>
+                            <button type="button" class="platform-select-btn" data-platform="twitter">
+                                <img src="https://cdn.simpleicons.org/x/000000" alt="Twitter">
+                            </button>
+                            <button type="button" class="platform-select-btn" data-platform="facebook">
+                                <img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook">
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="onb-post-frequency">Post Frequency</label>
+                        <select id="onb-post-frequency" class="custom-dropdown">
+                            <option value="">Select frequency</option>
+                            <option value="daily">Daily</option>
+                            <option value="3-per-week">3x per week</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="bi-weekly">Bi-weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="onb-production-level">Production Level</label>
+                        <select id="onb-production-level" class="custom-dropdown">
+                            <option value="">Select level</option>
+                            <option value="basic">Basic (Phone camera, natural lighting)</option>
+                            <option value="intermediate">Intermediate (DSLR, basic editing)</option>
+                            <option value="professional">Professional (Full production team)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="completeOnboarding()">Complete Setup</button>
+            </div>
+        </div>
+
+        <!-- PAYWALL PAGE -->
+        <div id="paywall-page" class="page">
+            <header class="app-header">
+                <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
+                    <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
+                </button>
+                <button class="profile-pill-btn" onclick="navigateTo('settings-page')" aria-label="Back">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="white" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="page-content">
+                <div class="paywall-header">
+                    <h2 class="paywall-title">Unlock Unlimited Ideas</h2>
+                    <p class="paywall-subtitle">Generate endless content ideas with AI</p>
+                </div>
+
+                <div class="paywall-card">
+                    <div class="paywall-price">
+                        <span class="price-amount">$6.99</span>
+                        <span class="price-period">/month</span>
+                    </div>
+                    <p class="trial-text">3-Day Free Trial</p>
+                    
+                    <ul class="feature-list">
+                        <li>✓ Always know what to post</li>
+                        <li>✓ Brainfog-free idea creation</li>
+                        <li>✓ Edit &amp; schedule ideas instantly</li>
+                        <li>✓ Tailored prompts for every platform</li>
+                        <li>✓ Cancel anytime</li>
+                    </ul>
+
+                    <button class="btn-primary paywall-trial-btn" id="start-trial-btn" onclick="startFreeTrial()">Start Free Trial</button>
+                    <p class="trial-countdown" id="trial-countdown"></p>
+                    <p class="terms-text">Cancel anytime. No commitment.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- HOMEPAGE -->
+        <div id="homepage" class="page">
+            <!-- Header Component -->
+            <header class="app-header" id="app-header">
+                <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
+                    <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
+                </button>
+                <button class="profile-pill-btn" onclick="navigateTo('profile-page')" aria-label="Profile">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="white" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="homepage-content">
+                <!-- Hero Section -->
+                <section class="hero-section" id="hero-section">
+                    <h2 class="hero-title">Welcome back, <span id="user-name">John</span></h2>
+                    <p class="hero-subtitle">Let's build some content...!</p>
+                </section>
+
+                <!-- Idea Swiper Component -->
+                <section class="idea-swiper" id="idea-swiper">
+                    <div class="card-stack" id="card-stack">
+                        <!-- Idea Generator Card (shown when all cards are swiped) -->
+                        <div class="idea-generator-card" id="idea-generator-card">
+                            <h3 class="generator-title">✨ Ready for More?</h3>
+                            
+                            <!-- Direction Input -->
+                            <div class="generator-section">
+                                <label class="generator-label">What's the direction?</label>
+                                <input type="text" class="generator-input" id="idea-direction-input" placeholder="e.g., Morning routine, product review...">
+                            </div>
+
+                            <!-- Campaign Toggle -->
+                            <div class="generator-section">
+                                <label class="generator-label">Make it a Campaign?</label>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="campaign-toggle">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+
+                            <!-- Platform Selector -->
+                            <div class="generator-section">
+                                <label class="generator-label">Platforms</label>
+                                <div class="platform-selector-inline">
+                                    <button class="platform-icon-btn" data-platform="tiktok" aria-label="TikTok">
+                                        <img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok">
+                                    </button>
+                                    <button class="platform-icon-btn" data-platform="instagram" aria-label="Instagram">
+                                        <img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram">
+                                    </button>
+                                    <button class="platform-icon-btn" data-platform="youtube" aria-label="YouTube">
+                                        <img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube">
+                                    </button>
+                                    <button class="platform-icon-btn" data-platform="twitter" aria-label="Twitter">
+                                        <img src="https://cdn.simpleicons.org/x/000000" alt="Twitter">
+                                    </button>
+                                    <button class="platform-icon-btn" data-platform="facebook" aria-label="Facebook">
+                                        <img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook">
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="generator-actions">
+                                <button class="random-btn" onclick="generateRandomIdeas()" aria-label="Generate Random Ideas">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                        <g transform="translate(-1, 0)">
+                                            <!-- First Die -->
+                                            <rect x="2" y="3" width="9" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                                            <circle cx="4.5" cy="5.5" r="0.8"/>
+                                            <circle cx="6.5" cy="7.5" r="0.8"/>
+                                            <circle cx="8.5" cy="9.5" r="0.8"/>
+                                            <circle cx="4.5" cy="9.5" r="0.8"/>
+                                            <circle cx="8.5" cy="5.5" r="0.8"/>
+                                        </g>
+                                        <g transform="translate(2, 2)">
+                                            <!-- Second Die -->
+                                            <rect x="12" y="10" width="9" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                                            <circle cx="14.5" cy="12.5" r="0.8"/>
+                                            <circle cx="18.5" cy="12.5" r="0.8"/>
+                                            <circle cx="16.5" cy="14.5" r="0.8"/>
+                                            <circle cx="14.5" cy="16.5" r="0.8"/>
+                                            <circle cx="18.5" cy="16.5" r="0.8"/>
+                                        </g>
+                                    </svg>
+                                </button>
+                                <button class="build-idea-btn" onclick="buildCustomIdeas()">Build Idea!</button>
+                            </div>
+                        </div>
+                        <!-- Idea cards will be dynamically inserted here -->
+                    </div>
+                </section>
+
+                <!-- Swiper Info -->
+                <div class="swiper-info" id="swiper-info">
+                    <span id="ideas-count">7 Ideas</span> - Refreshed <span id="refresh-time">just now</span>
+                </div>
+
+                <!-- Pinned Ideas Component -->
+                <section class="pinned-ideas" id="pinned-ideas">
+                    <h3 class="component-title">Pinned Ideas <span class="count">(0)</span></h3>
+                    <div class="ideas-grid">
+                        <div class="empty-state">
+                            <p>No pinned ideas yet. Start swiping!</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Schedule Component -->
+                <section class="schedule-component" id="schedule-component">
+                    <div class="schedule-header">
+                        <h3 class="component-title">Schedule</h3>
+                        <div class="schedule-header-icons">
+                            <button class="schedule-icon-btn" id="calendar-toggle-btn" aria-label="Toggle Calendar">
+                                <svg viewBox="0 0 24 24" width="20" height="20">
+                                    <path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                                </svg>
+                            </button>
+                            <button class="schedule-icon-btn" id="share-btn" aria-label="Share">
+                                <svg viewBox="0 0 24 24" width="20" height="20">
+                                    <path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Expandable Calendar -->
+                    <div class="schedule-calendar-container" id="schedule-calendar-container">
+                        <div class="schedule-calendar" id="schedule-calendar">
+                            <!-- Calendar will be generated here -->
+                        </div>
+                    </div>
+                    <div class="schedule-list">
+                        <div class="empty-state">
+                            <p>No scheduled content. Pin ideas and schedule them here!</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Bottom Action Buttons -->
+                <div class="bottom-action-buttons">
+                    <button class="action-icon-btn" id="how-it-works-btn" aria-label="How it Works">
+                        <svg viewBox="0 0 24 24" width="22" height="22">
+                            <path fill="white" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                        </svg>
+                    </button>
+                    <button class="action-icon-btn" onclick="navigateTo('settings-page')" aria-label="Settings">
+                        <svg viewBox="0 0 24 24" width="22" height="22">
+                            <path fill="white" d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- How it Works Modal -->
+        <div id="how-it-works-modal" class="modal">
+            <div class="modal-content">
+                <button class="modal-close" id="close-how-it-works">&times;</button>
+                <h3 class="modal-title">How it Works</h3>
+                
+                <div class="modal-body">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-text">
+                            <h4>Generate Ideas</h4>
+                            <p>AI creates personalized content ideas based on your profile</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-text">
+                            <h4>Swipe & Save</h4>
+                            <p>Skip ideas you don't like or pin the ones you love</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-text">
+                            <h4>Schedule</h4>
+                            <p>Organize your pinned ideas and plan your content calendar</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-text">
+                            <h4>Create</h4>
+                            <p>Use the detailed breakdowns to create engaging content</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Date Picker Modal -->
+        <div id="calendar-modal" class="modal">
+            <div class="modal-content calendar-picker-modal-content">
+                <button class="modal-close" id="close-calendar">&times;</button>
+                <h3 class="modal-title">Schedule Date</h3>
+                
+                <div id="calendar-picker-container"></div>
+            </div>
+        </div>
+
+        <!-- Expanded Idea Card Modal -->
+        <div id="expanded-idea-modal" class="modal">
+            <div class="modal-content expanded-idea-content">
+                <button class="modal-close" id="close-expanded-idea">&times;</button>
+                
+                <div id="expanded-idea-card" class="idea-card expanded-idea-card">
+                    <!-- Idea card content will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Confirm Modal -->
+        <div id="custom-confirm-modal" class="modal">
+            <div class="modal-content" style="width: 340px; max-width: 90%; height: auto;">
+                <h3 id="confirm-modal-title" style="font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px;"></h3>
+                <p id="confirm-modal-message" style="font-size: 15px; color: rgba(60, 60, 60, 0.9); line-height: 1.6; margin-bottom: 24px;"></p>
+                <div style="display: flex; gap: 12px;">
+                    <button id="confirm-modal-cancel" class="btn-secondary" style="flex: 1;">Cancel</button>
+                    <button id="confirm-modal-confirm" class="btn-primary" style="flex: 1;">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Alert Modal -->
+        <div id="custom-alert-modal" class="modal">
+            <div class="modal-content" style="width: 340px; max-width: 90%; height: auto;">
+                <h3 id="alert-modal-title" style="font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px;"></h3>
+                <p id="alert-modal-message" style="font-size: 15px; color: rgba(60, 60, 60, 0.9); line-height: 1.6; margin-bottom: 24px;"></p>
+                <button id="alert-modal-ok" class="btn-primary" style="width: 100%;">OK</button>
+            </div>
+        </div>
+
+        <!-- Share Modal -->
+        <div id="share-modal" class="share-modal">
+            <div class="share-modal-content">
+                <div class="share-modal-header">
+                    <h3 class="share-modal-title">Select which ideas to share!</h3>
+                </div>
+                <div class="share-ideas-list" id="share-ideas-list">
+                    <!-- Collapsed idea cards will be dynamically inserted here -->
+                </div>
+                <div class="share-modal-footer">
+                    <button class="select-all-btn" id="select-all-btn">Select All</button>
+                    <button class="share-final-btn" id="share-final-btn" aria-label="Share">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="white" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROFILE PAGE -->
+        <div id="profile-page" class="page">
+            <header class="app-header" id="profile-header">
+                <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
+                    <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
+                </button>
+                <button class="profile-pill-btn" id="profile-back-btn" onclick="navigateTo('homepage')" aria-label="Back">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="white" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="page-content">
+                <h2 class="page-section-title">Profile</h2>
+
+                <div class="profile-content">
+                    <div class="input-group">
+                        <label for="profile-brand-name">Brand Name</label>
+                        <input type="text" id="profile-brand-name" placeholder="Enter your brand name">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="profile-role">Your Role</label>
+                        <select id="profile-role" class="custom-dropdown">
+                            <option value="">Select your role</option>
+                            <option value="founder">Founder/CEO</option>
+                            <option value="marketing">Marketing Manager</option>
+                            <option value="content">Content Creator</option>
+                            <option value="social-media">Social Media Manager</option>
+                            <option value="influencer">Influencer</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="profile-founded">Founded Year</label>
+                        <select id="profile-founded" class="custom-dropdown">
+                            <option value="">Select year</option>
+                            <option value="2024">2024</option>
+                            <option value="2023">2023</option>
+                            <option value="2022">2022</option>
+                            <option value="2021">2021</option>
+                            <option value="2020">2020</option>
+                            <option value="before-2020">Before 2020</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="profile-industry">Industry</label>
+                        <select id="profile-industry" class="custom-dropdown">
+                            <option value="">Select industry</option>
+                            <option value="fashion">Fashion & Beauty</option>
+                            <option value="tech">Technology</option>
+                            <option value="food">Food & Beverage</option>
+                            <option value="fitness">Fitness & Wellness</option>
+                            <option value="education">Education</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="business">Business</option>
+                            <option value="lifestyle">Lifestyle</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="profile-location">Location</label>
+                        <div class="location-input">
+                            <input type="text" id="profile-location" placeholder="City, Country">
+                            <button type="button" class="btn-secondary find-location-btn" data-target="profile-location">Find Location</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="profile-target-audience">Target Audience</label>
+                        <textarea id="profile-target-audience" rows="3" placeholder="Describe your target audience"></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Culture Values</label>
+                        <div class="pill-selection" id="profile-culture-values">
+                            <div class="pill-row" data-speed="28">
+                                <button class="pill-btn" data-value="innovation">Innovation</button>
+                                <button class="pill-btn" data-value="authenticity">Authenticity</button>
+                                <button class="pill-btn" data-value="community">Community</button>
+                                <button class="pill-btn" data-value="creativity">Creativity</button>
+                                <button class="pill-btn" data-value="sustainability">Sustainability</button>
+                                <button class="pill-btn" data-value="quality">Quality</button>
+                                <button class="pill-btn" data-value="excellence">Excellence</button>
+                                <button class="pill-btn" data-value="boldness">Boldness</button>
+                                <button class="pill-btn" data-value="curiosity">Curiosity</button>
+                                <button class="pill-btn" data-value="kindness">Kindness</button>
+                            </div>
+                            <div class="pill-row" data-speed="32" data-direction="reverse">
+                                <button class="pill-btn" data-value="integrity">Integrity</button>
+                                <button class="pill-btn" data-value="playfulness">Playfulness</button>
+                                <button class="pill-btn" data-value="leadership">Leadership</button>
+                                <button class="pill-btn" data-value="humility">Humility</button>
+                                <button class="pill-btn" data-value="collaboration">Collaboration</button>
+                                <button class="pill-btn" data-value="adventure">Adventure</button>
+                                <button class="pill-btn" data-value="focus">Focus</button>
+                                <button class="pill-btn" data-value="empathy">Empathy</button>
+                                <button class="pill-btn" data-value="craftsmanship">Craftsmanship</button>
+                                <button class="pill-btn" data-value="joy">Joy</button>
+                            </div>
+                            <div class="pill-row" data-speed="36">
+                                <button class="pill-btn" data-value="resilience">Resilience</button>
+                                <button class="pill-btn" data-value="clarity">Clarity</button>
+                                <button class="pill-btn" data-value="gratitude">Gratitude</button>
+                                <button class="pill-btn" data-value="precision">Precision</button>
+                                <button class="pill-btn" data-value="growth">Growth</button>
+                                <button class="pill-btn" data-value="fun">Fun</button>
+                                <button class="pill-btn" data-value="trust">Trust</button>
+                                <button class="pill-btn" data-value="balance">Balance</button>
+                                <button class="pill-btn" data-value="courage">Courage</button>
+                                <button class="pill-btn" data-value="insight">Insight</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="profile-content-goals">Content Goals</label>
+                        <textarea id="profile-content-goals" rows="3" placeholder="What do you want to achieve with your content?"></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Platforms</label>
+                        <div class="platform-selection" id="profile-platforms">
+                            <button class="platform-select-btn" data-platform="tiktok">
+                                <img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok">
+                            </button>
+                            <button class="platform-select-btn" data-platform="instagram">
+                                <img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram">
+                            </button>
+                            <button class="platform-select-btn" data-platform="youtube">
+                                <img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube">
+                            </button>
+                            <button class="platform-select-btn" data-platform="twitter">
+                                <img src="https://cdn.simpleicons.org/x/000000" alt="Twitter">
+                            </button>
+                            <button class="platform-select-btn" data-platform="facebook">
+                                <img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook">
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="profile-post-frequency">Post Frequency</label>
+                        <select id="profile-post-frequency" class="custom-dropdown">
+                            <option value="">Select frequency</option>
+                            <option value="daily">Daily</option>
+                            <option value="3-per-week">3x per week</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="bi-weekly">Bi-weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="profile-production-level">Production Level</label>
+                        <select id="profile-production-level" class="custom-dropdown">
+                            <option value="">Select level</option>
+                            <option value="basic">Basic (Phone camera, natural lighting)</option>
+                            <option value="intermediate">Intermediate (DSLR, basic editing)</option>
+                            <option value="professional">Professional (Full production team)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn-primary" onclick="saveProfileChanges()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACCOUNT DETAILS PAGE -->
+        <div id="account-details-page" class="page">
+            <header class="app-header">
+                <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
+                    <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
+                </button>
+                <button class="profile-pill-btn" onclick="navigateTo('settings-page')" aria-label="Back">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="white" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="page-content">
+                <h2 class="page-section-title">Account Details</h2>
+
+                <div class="input-group">
+                    <label for="account-name">Full Name <span style="color: #e53e3e;">*</span></label>
+                    <input type="text" id="account-name" placeholder="John Doe" value="John Doe" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="account-email">Email <span style="color: #e53e3e;">*</span></label>
+                    <input type="email" id="account-email" placeholder="john@example.com" value="john@example.com" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="account-phone">Phone Number</label>
+                    <input type="tel" id="account-phone" placeholder="+1 (555) 123-4567" value="">
+                </div>
+
+                <!-- Platform preference removed as requested -->
+
+                <div style="margin-top: 40px; display: flex; flex-direction: column; gap: 12px;">
+                    <button class="btn-primary" onclick="navigateTo('change-password-page')">
+                        Change Password
+                    </button>
+                    <button class="btn-danger" onclick="navigateTo('delete-account-page')">
+                        Delete Account
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHANGE PASSWORD PAGE -->
+        <div id="change-password-page" class="page">
+            <header class="app-header">
+                <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
+                    <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
+                </button>
+                <button class="profile-pill-btn" onclick="navigateTo('account-details-page')" aria-label="Back">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="white" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="page-content">
+                <h2 class="page-section-title">Change Password</h2>
+
+                <p style="color: rgba(60, 60, 60, 0.9); margin-bottom: 24px; line-height: 1.6;">
+                    Please enter your current password and choose a new one. Your new password must be at least 8 characters long.
+                </p>
+
+                <div class="input-group">
+                    <label for="current-password">Current Password</label>
+                    <input type="password" id="current-password" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="new-password">New Password</label>
+                    <input type="password" id="new-password" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="confirm-password">Confirm New Password</label>
+                    <input type="password" id="confirm-password" required>
+                </div>
+
+                <div style="margin-top: 32px; display: flex; gap: 12px;">
+                    <button class="btn-secondary" onclick="navigateTo('account-details-page')" style="flex: 1;">Cancel</button>
+                    <button class="btn-primary" onclick="handleChangePassword()" style="flex: 1;">Change Password</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- DELETE ACCOUNT PAGE -->
+        <div id="delete-account-page" class="page">
+            <header class="app-header">
+                <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
+                    <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
+                </button>
+                <button class="profile-pill-btn" onclick="navigateTo('account-details-page')" aria-label="Back">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="white" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="page-content">
+                <h2 class="page-section-title">Delete Account</h2>
+
+                <div style="padding: 20px; background: rgba(239, 68, 68, 0.1); border-radius: 12px; margin-bottom: 24px;">
+                    <h3 style="color: #e53e3e; font-size: 18px; font-weight: 700; margin-bottom: 12px;">⚠️ Warning</h3>
+                    <p style="color: rgba(60, 60, 60, 0.9); line-height: 1.6; margin-bottom: 12px;">
+                        Deleting your account will permanently remove:
+                    </p>
+                    <ul style="color: rgba(60, 60, 60, 0.9); line-height: 1.8; margin-left: 20px;">
+                        <li>All your content ideas (pinned and scheduled)</li>
+                        <li>Your profile information and preferences</li>
+                        <li>Your subscription and payment history</li>
+                        <li>All saved settings and customizations</li>
+                    </ul>
+                    <p style="color: #e53e3e; font-weight: 600; margin-top: 16px;">
+                        This action cannot be undone.
+                    </p>
+                </div>
+
+                <div class="input-group">
+                    <label for="delete-confirm-password">Enter your password to confirm</label>
+                    <input type="password" id="delete-confirm-password" placeholder="Your password" required>
+                </div>
+
+                <div style="margin-top: 32px; display: flex; gap: 12px;">
+                    <button class="btn-secondary" onclick="navigateTo('account-details-page')" style="flex: 1;">Cancel</button>
+                    <button class="btn-danger" onclick="handleDeleteAccount()" style="flex: 1;">Delete My Account</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOTIFICATIONS PAGE -->
+        <div id="notifications-page" class="page">
+            <header class="app-header">
+                <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
+                    <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
+                </button>
+                <button class="profile-pill-btn" onclick="navigateTo('settings-page')" aria-label="Back">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="white" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="page-content">
+                <h2 class="page-section-title">Notifications</h2>
+
+                <div class="notification-item">
+                    <div class="notification-info">
+                        <h4 class="notification-title">General Notifications</h4>
+                        <p class="notification-desc">Receive updates about your account and app features</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="general-notifications" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="notification-item">
+                    <div class="notification-info">
+                        <h4 class="notification-title">Daily Ideas</h4>
+                        <p class="notification-desc">Get fresh content ideas delivered every day</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="daily-ideas" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETTINGS PAGE -->
+        <div id="settings-page" class="page">
+            <header class="app-header" id="settings-header">
+                <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
+                    <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
+                </button>
+                <button class="profile-pill-btn" id="settings-back-btn" onclick="navigateTo('homepage')" aria-label="Back">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="white" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="page-content">
+                <h2 class="page-section-title">Settings</h2>
+
+                <div class="settings-content">
+                    <div class="settings-group">
+                        <h3 class="settings-group-title">Account</h3>
+                        <button class="settings-item" onclick="navigateTo('account-details-page')">
+                            <span>Account Details</span>
+                            <span>→</span>
+                        </button>
+                        <button class="settings-item" onclick="navigateTo('notifications-page')">
+                            <span>Notifications</span>
+                            <span>→</span>
+                        </button>
+                        <button class="settings-item settings-item-highlight" onclick="navigateTo('paywall-page')">
+                            <span>Subscription</span>
+                            <span>→</span>
+                        </button>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3 class="settings-group-title">Legal</h3>
+                        <button class="settings-item" onclick="navigateTo('privacy-page')">
+                            <span>Privacy Policy</span>
+                            <span>→</span>
+                        </button>
+                        <button class="settings-item" onclick="navigateTo('terms-page')">
+                            <span>Terms & Conditions</span>
+                            <span>→</span>
+                        </button>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3 class="settings-group-title">Support</h3>
+                        <button class="settings-item" onclick="navigateTo('help-page')">
+                            <span>Help Center</span>
+                            <span>→</span>
+                        </button>
+                    </div>
+
+                    <button class="btn-danger" style="margin-top: 24px;">Sign Out</button>
+                    
+                    <div class="settings-footer">
+                        <p class="copyright-text">© 2025 Phasee. All rights reserved.</p>
+                        <p class="version-text">Version 1.0.0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRIVACY POLICY PAGE -->
+        <div id="privacy-page" class="page">
+            <header class="app-header">
+                <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
+                    <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
+                </button>
+                <button class="profile-pill-btn" onclick="navigateTo('settings-page')" aria-label="Back">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="white" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="page-content">
+                <h2 class="page-section-title">Privacy Policy</h2>
+
+                <div class="text-content">
+                    <h3>Privacy Policy</h3>
+                    <p><strong>Last Updated:</strong> November 2025</p>
+                    
+                    <h4>1. Information We Collect</h4>
+                    <p>We collect information you provide directly to us, including your name, email address, and content preferences.</p>
+                    
+                    <h4>2. How We Use Your Information</h4>
+                    <p>We use the information we collect to provide, maintain, and improve our services, including generating personalized content ideas.</p>
+                    
+                    <h4>3. Data Security</h4>
+                    <p>We take reasonable measures to protect your personal information from unauthorized access and disclosure.</p>
+                    
+                    <h4>4. Contact Us</h4>
+                    <p>If you have questions about this Privacy Policy, please contact us at privacy@contentgen.com</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TERMS & CONDITIONS PAGE -->
+        <div id="terms-page" class="page">
+            <header class="app-header">
+                <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
+                    <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
+                </button>
+                <button class="profile-pill-btn" onclick="navigateTo('settings-page')" aria-label="Back">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="white" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="page-content">
+                <h2 class="page-section-title">Terms & Conditions</h2>
+
+                <div class="text-content">
+                    <h3>Terms & Conditions</h3>
+                    <p><strong>Last Updated:</strong> November 2025</p>
+                    
+                    <h4>1. Acceptance of Terms</h4>
+                    <p>By accessing and using this application, you accept and agree to be bound by these Terms and Conditions.</p>
+                    
+                    <h4>2. Subscription Terms</h4>
+                    <p>The service is provided on a subscription basis at $6.99/month with a 3-day free trial. You may cancel at any time.</p>
+                    
+                    <h4>3. Use of Service</h4>
+                    <p>You agree to use the service only for lawful purposes and in accordance with these Terms.</p>
+                    
+                    <h4>4. Intellectual Property</h4>
+                    <p>All content generated remains your property. Our platform and technology are protected by copyright.</p>
+                    
+                    <h4>5. Termination</h4>
+                    <p>We reserve the right to terminate or suspend access to our service immediately, without prior notice.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- HELP CENTER PAGE -->
+        <div id="help-page" class="page">
+            <header class="app-header">
+                <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
+                    <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
+                </button>
+                <button class="profile-pill-btn" onclick="navigateTo('settings-page')" aria-label="Back">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="white" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="page-content">
+                <h2 class="page-section-title">Help Center</h2>
+
+                <div class="help-content">
+                    <div class="help-section">
+                        <h3>Frequently Asked Questions</h3>
+                        
+                        <details class="faq-item">
+                            <summary>How do I generate content ideas?</summary>
+                            <p>On the homepage, tap the refresh icon button to generate 7 new AI-powered content ideas based on your profile.</p>
+                        </details>
+
+                        <details class="faq-item">
+                            <summary>How does the swipe feature work?</summary>
+                            <p>Swipe left or tap the X button to skip an idea. Swipe right or tap the heart button to pin an idea for later.</p>
+                        </details>
+
+                        <details class="faq-item">
+                            <summary>Can I edit pinned ideas?</summary>
+                            <p>Yes! Tap any pinned idea to view and edit its details before scheduling.</p>
+                        </details>
+
+                        <details class="faq-item">
+                            <summary>How do I schedule content?</summary>
+                            <p>From your pinned ideas, tap the calendar icon to add it to your schedule.</p>
+                        </details>
+
+                        <details class="faq-item">
+                            <summary>Can I cancel my subscription?</summary>
+                            <p>Yes, you can cancel anytime from Settings > Manage Subscription. You'll retain access until the end of your billing period.</p>
+                        </details>
+
+                        <details class="faq-item">
+                            <summary>How do I update my content preferences?</summary>
+                            <p>Go to your Profile page to update your content type, platform, audience, and other preferences.</p>
+                        </details>
+                    </div>
+
+                    <div class="help-section">
+                        <h3>Contact Support</h3>
+                        <p>Need more help? Reach out to our team:</p>
+                        <a href="mailto:support@contentgen.com" class="contact-link">support@contentgen.com</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js?v=2.0"></script>
+</body>
+</html>

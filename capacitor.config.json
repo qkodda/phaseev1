@@ -1,0 +1,14 @@
+{
+  "appId": "com.phasee.app",
+  "appName": "Phasee",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#ffffff"
+  }
+}
+
