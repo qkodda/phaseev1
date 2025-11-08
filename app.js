@@ -301,7 +301,7 @@ function navigateTo(pageId) {
         
         // Only generate if cards haven't been generated yet
         if (existingCards.length === 0) {
-            generateNewIdeas();
+            generateNewIdeas({ showLoading: false });
         }
     }
     
@@ -1072,7 +1072,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Generate initial 7 cards (only if homepage is active)
     if (document.getElementById('homepage').classList.contains('active')) {
-        generateNewIdeas();
+        generateNewIdeas({ showLoading: false });
     }
 
     // Platform selector toggle in generator card
@@ -1244,13 +1244,84 @@ document.addEventListener('DOMContentLoaded', () => {
     // SWIPE CARD SYSTEM
     // ============================================
 
+    let isGeneratingIdeas = false;
+    let generatorStatusTimer = null;
+
+    /**
+     * Update generator button/loading state
+     */
+    function setGeneratorLoadingState(state, options = {}) {
+        const buildBtn = document.querySelector('.build-idea-btn');
+        const randomBtn = document.querySelector('.random-btn');
+        const generatorCard = document.getElementById('idea-generator-card');
+        const showLoading = options.showLoading !== false;
+
+        if (!buildBtn) return;
+
+        switch (state) {
+            case 'building':
+                if (!showLoading) return;
+                buildBtn.textContent = 'Building!';
+                buildBtn.disabled = true;
+                buildBtn.classList.add('loading');
+                if (randomBtn) randomBtn.disabled = true;
+                generatorCard?.classList.add('loading');
+                break;
+            case 'incoming':
+                if (!showLoading) return;
+                buildBtn.textContent = 'Ideas incoming!';
+                break;
+            default:
+                buildBtn.textContent = 'Build Idea!';
+                buildBtn.disabled = false;
+                buildBtn.classList.remove('loading');
+                if (randomBtn) randomBtn.disabled = false;
+                generatorCard?.classList.remove('loading');
+                break;
+        }
+    }
+
     /**
      * Generate 7 new AI-powered idea cards
      */
-    async function generateNewIdeas() {
+    async function generateNewIdeas(options = {}) {
+        if (isGeneratingIdeas) {
+            console.warn('⚠️ Already generating ideas. Please wait for current batch to finish.');
+            return;
+        }
+
+        const {
+            customDirection = '',
+            isCampaign = false,
+            preferredPlatforms = [],
+            showLoading = true
+        } = options;
+
+        isGeneratingIdeas = true;
+        setGeneratorLoadingState('building', { showLoading });
+        if (showLoading) {
+            if (generatorStatusTimer) clearTimeout(generatorStatusTimer);
+            generatorStatusTimer = setTimeout(() => {
+                setGeneratorLoadingState('incoming', { showLoading });
+            }, 1000);
+        }
+
+        const cleanup = () => {
+            if (generatorStatusTimer) {
+                clearTimeout(generatorStatusTimer);
+                generatorStatusTimer = null;
+            }
+            setGeneratorLoadingState('idle', { showLoading });
+            isGeneratingIdeas = false;
+        };
+
         const cardStack = document.getElementById('card-stack');
         const generatorCard = document.getElementById('idea-generator-card');
-        if (!cardStack || !generatorCard) return;
+        if (!cardStack || !generatorCard) {
+            console.warn('⚠️ Idea stack or generator card not found.');
+            cleanup();
+            return;
+        }
 
         // Remove all existing idea cards
         const existingCards = cardStack.querySelectorAll('.idea-card');
@@ -1261,7 +1332,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ideasStack = [];
 
         // Show loading state
-        console.log('🤖 Generating AI-powered ideas...');
+        console.log('🤖 Generating AI-powered ideas...', {
+            customDirection,
+            isCampaign,
+            preferredPlatforms
+        });
         
         try {
             // Import the AI service
@@ -1288,15 +1363,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         cultureValues: profile.culture_values || ['Authentic', 'Creative', 'Bold'],
                         contentGoals: profile.content_goals || '',
                         industry: profile.industry || '',
-                        productionLevel: profile.production_level || 'intermediate'
+                        productionLevel: profile.production_level || 'intermediate',
+                        preferredPlatforms: preferredPlatforms.length > 0 ? preferredPlatforms : undefined
                     };
                 } else {
                     console.log('⚠️ No profile found, using defaults');
                 }
             }
             
+            if (preferredPlatforms.length > 0) {
+                userProfile.preferredPlatforms = preferredPlatforms;
+            }
+            
             // Generate AI ideas
-            const aiIdeas = await generateContentIdeas(userProfile, '', false);
+            const aiIdeas = await generateContentIdeas(userProfile, customDirection, isCampaign, preferredPlatforms);
             
             console.log('✅ Generated', aiIdeas.length, 'AI ideas');
             
@@ -1310,6 +1390,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch (error) {
             console.error('❌ AI generation failed, using fallback:', error);
+            showAlertModal('AI Temporarily Unavailable', 'Using backup idea templates while we reconnect to the idea engine.');
             // Fallback to template ideas - create 7 different random ideas
             ideasStack = [];
             for (let i = 0; i < 7; i++) {
@@ -1349,6 +1430,8 @@ document.addEventListener('DOMContentLoaded', () => {
         updateIdeaGeneratorVisibility();
 
         console.log('✅ Created', ideasStack.length, 'AI-powered idea cards');
+
+        cleanup();
     }
 
     window.generateNewIdeas = generateNewIdeas;
@@ -1358,7 +1441,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     window.generateRandomIdeas = function() {
         console.log('🎲 Generating random ideas');
-        generateNewIdeas();
+        generateNewIdeas({ showLoading: true });
     };
 
     /**
@@ -1379,8 +1462,12 @@ document.addEventListener('DOMContentLoaded', () => {
             platforms
         });
         
-        // For now, just generate ideas (later can be customized based on input)
-        generateNewIdeas();
+        generateNewIdeas({
+            customDirection: direction,
+            isCampaign,
+            preferredPlatforms: platforms,
+            showLoading: true
+        });
         
         // Clear inputs
         if (directionInput) directionInput.value = '';

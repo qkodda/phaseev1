@@ -1400,6 +1400,21 @@ body {
     transform: translateY(0);
 }
 
+.build-idea-btn.loading {
+    cursor: wait;
+    opacity: 0.8;
+    box-shadow: 0 2px 12px rgba(107, 70, 193, 0.35);
+}
+
+.build-idea-btn:disabled {
+    pointer-events: none;
+}
+
+.idea-generator-card.loading {
+    opacity: 0.9;
+    transition: opacity 0.3s ease;
+}
+
 @keyframes cardShake {
     0%, 96%, 100% {
         transform: translate(0, 0) rotate(0deg);

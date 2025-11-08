@@ -54,9 +54,9 @@ async function callOpenAI(messages, temperature = 0.9) {
  * @param {boolean} isCampaign - Whether to generate campaign ideas
  * @returns {Promise<Array>} Array of 7 generated ideas
  */
-export async function generateContentIdeas(userProfile, customDirection = '', isCampaign = false) {
+export async function generateContentIdeas(userProfile, customDirection = '', isCampaign = false, preferredPlatforms = []) {
   try {
-    const prompt = buildPrompt(userProfile, customDirection, isCampaign)
+    const prompt = buildPrompt(userProfile, customDirection, isCampaign, preferredPlatforms)
     
     const response = await callOpenAI([
       {
@@ -103,9 +103,10 @@ Ideas that respect the creator's voice while pushing them to innovate.`
 /**
  * Build the prompt for OpenAI
  */
-function buildPrompt(userProfile, customDirection, isCampaign) {
+function buildPrompt(userProfile, customDirection, isCampaign, preferredPlatforms = []) {
   const timestamp = Date.now()
-  const platformList = userProfile.platforms?.join(', ') || 'TikTok, Instagram, YouTube'
+  const profilePlatforms = userProfile.platforms?.length ? userProfile.platforms.join(', ') : 'TikTok, Instagram, YouTube'
+  const requestPlatforms = preferredPlatforms?.length ? preferredPlatforms.join(', ') : null
   
   const basePrompt = `You are an elite content strategist with deep knowledge of social media trends, viral mechanics, and platform-specific algorithms. Generate 7 COMPLETELY UNIQUE, never-before-seen content ideas for ${userProfile.brandName || 'a'} ${userProfile.contentType || 'creator'}.
 
@@ -122,14 +123,15 @@ function buildPrompt(userProfile, customDirection, isCampaign) {
 - Role: ${userProfile.contentType || 'Creator'}
 - Industry: ${userProfile.industry || 'General'}
 - Target Audience: ${userProfile.targetAudience || 'Gen Z and Millennials'}
-- Platforms: ${platformList}
+- Signature Platforms: ${profilePlatforms}
 - Culture Values: ${userProfile.cultureValues?.join(', ') || 'Authentic, Creative, Bold'}
 - Content Goals: ${userProfile.contentGoals || 'Engage and inspire'}
 - Production Level: ${userProfile.productionLevel || 'Intermediate'}
-${customDirection ? `\n**Custom Direction:** ${customDirection}\n` : ''}
+${customDirection ? `\n**User Direction:** ${customDirection}\n` : ''}
+${requestPlatforms ? `**User-Requested Platforms (priority order):** ${requestPlatforms}\n` : ''}
 
 **Platform Intelligence Required:**
-- Research CURRENT trends on ${platformList} (as of ${new Date().toLocaleDateString()})
+- Research CURRENT trends on ${requestPlatforms || profilePlatforms} (as of ${new Date().toLocaleDateString()})
 - Understand platform-specific algorithms and what's performing NOW
 - Know viral challenges, sounds, and formats trending THIS WEEK
 - Identify gaps in content that audiences are craving
@@ -165,7 +167,7 @@ ${isCampaign ? `\n**Campaign Mode:** Create 7 connected ideas that build a narra
 - **story**: The narrative structure (beginning hook, middle tension, end payoff)
 - **hook**: The exact opening 3 seconds that stops the scroll (be VERY specific)
 - **why**: Deep psychological reason this resonates with the target audience
-- **platforms**: Array of 1-3 platforms this is optimized for (from: ${platformList})
+- **platforms**: Array of 1-3 platforms this is optimized for (choose from ${requestPlatforms || profilePlatforms}, but ONLY include platforms where the idea would outperform)
 
 **Output Format (STRICT JSON):**
 {
@@ -223,12 +225,12 @@ function generateIdeaId() {
 /**
  * Generate ideas with retry logic
  */
-export async function generateIdeasWithRetry(userProfile, customDirection = '', isCampaign = false, maxRetries = 3) {
+export async function generateIdeasWithRetry(userProfile, customDirection = '', isCampaign = false, preferredPlatforms = [], maxRetries = 3) {
   let lastError
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      return await generateContentIdeas(userProfile, customDirection, isCampaign)
+      return await generateContentIdeas(userProfile, customDirection, isCampaign, preferredPlatforms)
     } catch (error) {
       lastError = error
       console.warn(`Attempt ${attempt} failed:`, error.message)
@@ -256,8 +258,8 @@ export function estimateTokens(userProfile, customDirection = '') {
  * Check if API key is configured
  */
 export function isConfigured() {
-  const apiKey = process.env.VITE_OPENAI_API_KEY
-  return apiKey && apiKey !== 'YOUR_OPENAI_API_KEY' && apiKey.startsWith('sk-')
+  const apiKey = import.meta.env?.VITE_OPENAI_API_KEY || OPENAI_API_KEY
+  return apiKey && apiKey.startsWith('sk-')
 }
 
 /**
