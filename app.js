@@ -1167,13 +1167,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     submitBtn.textContent = originalText;
                 }
             } else {
-                showAlertModal('Sign Up Failed', result.error || 'Could not create account');
+                // Generic error message for security (don't reveal email status)
+                const errorMessage = result.error && result.error.includes('Password') 
+                    ? result.error 
+                    : 'This email cannot be used. Please try a different email address.';
+                    
+                showAlertModal('Sign Up Failed', errorMessage);
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
             }
         } catch (error) {
             console.error('Sign up error:', error);
-            showAlertModal('Error', 'An error occurred. Please try again.');
+            
+            // Generic error message for security (don't reveal if email exists)
+            let errorMessage = 'This email cannot be used. Please try a different email address.';
+            
+            // Only show specific errors for non-security issues
+            if (error.message && error.message.includes('40 seconds')) {
+                errorMessage = 'Please wait a moment before trying again.';
+            } else if (error.message && error.message.includes('Password')) {
+                errorMessage = error.message; // Show password requirements
+            }
+            
+            showAlertModal('Sign Up Failed', errorMessage);
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
         }
