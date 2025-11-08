@@ -1055,19 +1055,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         console.log('Sign In:', { email, password });
         
-        const hasOnboarded = localStorage.getItem('hasCompletedOnboarding') === 'true';
-        if (!hasOnboarded) {
-            navigateTo('onboarding-1-page');
-            return;
-        }
-
-        if (!hasAccessToPaidContent()) {
-            navigateTo('paywall-page');
-            updateTrialCountdownDisplay();
-            return;
-        }
-        
-        navigateTo('homepage');
+        // TODO: Add actual authentication with Supabase
+        // For now, use local auth
+        handleUserSignIn(email);
     });
 
     // Sign Up Form
@@ -1079,9 +1069,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         console.log('Sign Up:', { name, email, password });
         
-        localStorage.removeItem('hasCompletedOnboarding');
+        // TODO: Add actual authentication with Supabase
+        // For now, treat as new user sign-in
+        // Clear any existing data for fresh start
+        localStorage.removeItem('onboardingComplete');
         localStorage.removeItem('trialStartedAt');
-        navigateTo('onboarding-1-page');
+        
+        handleUserSignIn(email);
     });
 
     // Swipe handlers will be initialized when cards are generated
@@ -2562,9 +2556,17 @@ function completeOnboarding() {
 
     const onboardingData = getProfileFormData('onb');
     saveProfileData(onboardingData);
+    
+    // Mark onboarding as complete (new system)
+    localStorage.setItem('onboardingComplete', 'true');
+    
+    // Legacy support
     localStorage.setItem('hasCompletedOnboarding', 'true');
+    
     loadProfileData();
     generateNewIdeas();
+    
+    // Go to paywall (mandatory first time)
     navigateTo('paywall-page');
     updateTrialCountdownDisplay();
 }
@@ -2817,6 +2819,8 @@ function hasAccessToPaidContent() {
 
 function startFreeTrial() {
     if (hasActiveSubscription()) {
+        // Mark onboarding as complete
+        localStorage.setItem('onboardingComplete', 'true');
         navigateTo('homepage');
         return;
     }
@@ -2829,11 +2833,16 @@ function startFreeTrial() {
             return;
         }
 
+        // Mark onboarding as complete
+        localStorage.setItem('onboardingComplete', 'true');
         navigateTo('homepage');
         return;
     }
 
+    // This should not happen as trial starts on sign-in now
+    // But keep as fallback
     localStorage.setItem('trialStartedAt', Date.now().toString());
+    localStorage.setItem('onboardingComplete', 'true');
     updateTrialCountdownDisplay();
     navigateTo('homepage');
 }
@@ -2925,11 +2934,20 @@ async function submitFeedback() {
     submitBtn.textContent = 'Sending...';
     
     try {
-        // Import submitFeedback from supabase.js
-        const { submitFeedback: submitToSupabase } = await import('./supabase.js');
-        
-        // Submit feedback
-        await submitToSupabase(message);
+        // Try to submit to Supabase if available
+        try {
+            const { submitFeedback: submitToSupabase } = await import('./supabase.js');
+            await submitToSupabase(message);
+        } catch (supabaseError) {
+            // If Supabase fails, store locally as fallback
+            console.warn('Supabase not available, storing feedback locally:', supabaseError);
+            const localFeedback = JSON.parse(localStorage.getItem('phasee_feedback') || '[]');
+            localFeedback.push({
+                message,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('phasee_feedback', JSON.stringify(localFeedback));
+        }
         
         // Show success message
         textarea.value = '';
@@ -2939,12 +2957,16 @@ async function submitFeedback() {
         successMsg.style.display = 'flex';
         
         // Track analytics
-        trackAppEvent({
-            page_name: 'feedback',
-            event_type: 'feedback_submitted'
-        });
+        try {
+            trackAppEvent({
+                page_name: 'feedback',
+                event_type: 'feedback_submitted'
+            });
+        } catch (e) {
+            console.warn('Analytics tracking failed:', e);
+        }
         
-        // Reset after 3 seconds
+        // Reset after 2 seconds
         setTimeout(() => {
             navigateTo('settings-page');
         }, 2000);
@@ -2954,13 +2976,6 @@ async function submitFeedback() {
         showAlertModal('Error', 'Failed to submit feedback. Please try again later.');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit Feedback';
-        
-        // Track error
-        trackAppEvent({
-            page_name: 'feedback',
-            error_type: 'feedback_submission_error',
-            error_message: error.message
-        });
     }
 }
 
@@ -3184,15 +3199,104 @@ async function loadIdeasFromSupabase() {
 // INITIALIZATION
 // ============================================
 
+// ============================================
+// AUTH & ONBOARDING FLOW
+// ============================================
+
+/**
+ * Check if user is authenticated
+ */
+function isUserAuthenticated() {
+    return localStorage.getItem('userAuthenticated') === 'true';
+}
+
+/**
+ * Check if onboarding is complete
+ */
+function isOnboardingComplete() {
+    return localStorage.getItem('onboardingComplete') === 'true';
+}
+
+/**
+ * Handle user sign-in (start trial immediately)
+ */
+function handleUserSignIn(email) {
+    // Mark user as authenticated
+    localStorage.setItem('userAuthenticated', 'true');
+    localStorage.setItem('userEmail', email);
+    
+    // Start trial immediately on first sign-in
+    if (!isTrialStarted()) {
+        localStorage.setItem('trialStartedAt', Date.now().toString());
+        console.log('✅ Trial started on sign-in');
+    }
+    
+    // Check if onboarding is complete
+    if (isOnboardingComplete()) {
+        // User has completed onboarding before, go to homepage
+        navigateTo('homepage');
+    } else {
+        // First time user, start onboarding
+        navigateTo('onboarding-1-page');
+    }
+}
+
+/**
+ * Handle user sign-out
+ */
+function handleUserSignOut() {
+    // Keep trial data but mark as not authenticated
+    localStorage.setItem('userAuthenticated', 'false');
+    navigateTo('sign-in-page');
+}
+
+/**
+ * Initialize app on load
+ */
+function initializeApp() {
+    // Check if user is authenticated
+    if (!isUserAuthenticated()) {
+        // Not authenticated, show sign-in page
+        navigateTo('sign-in-page');
+        return;
+    }
+    
+    // User is authenticated
+    // Check if onboarding is complete
+    if (!isOnboardingComplete()) {
+        // Onboarding not complete, return to start
+        navigateTo('onboarding-1-page');
+        return;
+    }
+    
+    // Check if trial is expired
+    if (isTrialExpired() && !hasActiveSubscription()) {
+        // Trial expired, show paywall
+        navigateTo('paywall-page');
+        return;
+    }
+    
+    // All good, go to homepage
+    navigateTo('homepage');
+}
+
+// completeOnboarding function is defined earlier in the file
+
 // Initialize feedback character counter
 document.addEventListener('DOMContentLoaded', () => {
     updateFeedbackCharCount();
     
+    // Initialize app with auth check
+    initializeApp();
+    
     // Track initial page view
-    trackPageView('homepage');
+    const currentPage = document.querySelector('.page.active')?.id || 'sign-in-page';
+    trackPageView(currentPage);
     
     // Load ideas from Supabase if user is logged in
-    loadIdeasFromSupabase();
+    if (isUserAuthenticated()) {
+        loadIdeasFromSupabase();
+    }
 });
 
 // Make functions globally accessible
@@ -3201,4 +3305,7 @@ window.trackGenerationEvent = trackGenerationEvent;
 window.trackAppEvent = trackAppEvent;
 window.savePinnedIdeaToSupabase = savePinnedIdeaToSupabase;
 window.saveScheduledIdeaToSupabase = saveScheduledIdeaToSupabase;
+window.handleUserSignIn = handleUserSignIn;
+window.handleUserSignOut = handleUserSignOut;
+window.completeOnboarding = completeOnboarding;
 

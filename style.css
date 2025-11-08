@@ -614,31 +614,32 @@ body {
 }
 
 /* ============================================
-   ONBOARDING PAGES
+   ONBOARDING PAGES - Compact, No Scroll
    ============================================ */
 .onboarding-header {
-    margin-bottom: 32px;
+    margin-bottom: 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 16px;
+    padding-top: 0;
 }
 
 .onboarding-back-btn {
-    padding: 10px 14px;
-    font-size: 14px;
+    padding: 8px 12px;
+    font-size: 13px;
 }
 
 .progress-dots {
     display: flex;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     flex: 1;
 }
 
 .dot {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background: rgba(17, 24, 39, 0.25);
     transition: all 0.3s;
@@ -646,20 +647,20 @@ body {
 
 .dot.active {
     background: #1f2937;
-    width: 24px;
+    width: 20px;
     border-radius: 4px;
 }
 
 .onboarding-title {
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 700;
     color: #1f2937;
     text-align: center;
-    margin-bottom: 32px;
+    margin-bottom: 16px;
 }
 
 .onboarding-content {
-    margin-bottom: 32px;
+    margin-bottom: 16px;
 }
 
 /* ============================================
@@ -683,9 +684,13 @@ body {
 .paywall-title {
     font-size: 24px;
     font-weight: 800;
-    color: #111827;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: 4px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    filter: drop-shadow(0 2px 8px rgba(118, 75, 162, 0.3));
 }
 
 .paywall-subtitle {
@@ -712,13 +717,19 @@ body {
 .price-amount {
     font-size: 36px;
     font-weight: 800;
-    color: #111827;
-    text-shadow: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 2px 8px rgba(102, 126, 234, 0.4));
 }
 
 .price-period {
     font-size: 16px;
-    color: rgba(31, 41, 55, 0.75);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .trial-text {
@@ -731,8 +742,9 @@ body {
 .trial-countdown {
     margin-top: 8px;
     font-size: 13px;
-    font-weight: 600;
-    color: #1f2937;
+    font-weight: 700;
+    color: #dc2626;
+    text-shadow: 0 1px 2px rgba(220, 38, 38, 0.2);
 }
 
 .feature-list {
@@ -759,15 +771,36 @@ body {
 }
 
 .paywall-trial-btn {
-    background: #f97316;
-    border: 1px solid #f97316;
+    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+    border: none;
     padding: 14px 32px;
     font-size: 15px;
+    box-shadow: 0 4px 16px rgba(255, 107, 0, 0.4), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.paywall-trial-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s;
+}
+
+.paywall-trial-btn:hover::before {
+    left: 100%;
 }
 
 .paywall-trial-btn:hover {
-    background: #ea580c;
-    border-color: #ea580c;
+    background: linear-gradient(135deg, #ff9500 0%, #ff7700 100%);
+    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.5), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
 }
 
 /* ============================================

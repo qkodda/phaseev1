@@ -132,16 +132,8 @@
                     </div>
 
                     <div class="input-group">
-                        <label for="onb-location">Location</label>
-                        <div class="location-input">
-                            <input type="text" id="onb-location" placeholder="City, Country">
-                            <button type="button" class="btn-secondary find-location-btn" data-target="onb-location">Find Location</button>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
                         <label for="onb-target-audience">Target Audience</label>
-                        <textarea id="onb-target-audience" rows="3" placeholder="Describe your target audience"></textarea>
+                        <textarea id="onb-target-audience" rows="2" placeholder="Describe your target audience"></textarea>
                     </div>
                 </div>
 
@@ -291,12 +283,12 @@
                         <li>✓ Brainfog-free idea creation</li>
                         <li>✓ Edit &amp; schedule ideas instantly</li>
                         <li>✓ Tailored prompts for every platform</li>
-                        <li>✓ Cancel anytime</li>
+                        <li>✓ Unlimited Generation</li>
                     </ul>
 
                     <button class="btn-primary paywall-trial-btn" id="start-trial-btn" onclick="startFreeTrial()">Start Free Trial</button>
                     <p class="trial-countdown" id="trial-countdown"></p>
-                    <p class="terms-text">Cancel anytime. No commitment.</p>
+                    <p class="terms-text">No commitment required.</p>
                 </div>
             </div>
         </div>
@@ -961,7 +953,7 @@
                         </button>
                     </div>
 
-                    <button class="btn-danger" style="margin-top: 24px;">Sign Out</button>
+                    <button class="btn-danger" style="margin-top: 24px;" onclick="handleUserSignOut()">Sign Out</button>
                     
                     <div class="settings-footer">
                         <p class="copyright-text">© 2025 Phasee. All rights reserved.</p>
@@ -1120,7 +1112,7 @@
             <div class="page-content feedback-page-content">
                 <div class="feedback-container">
                     <h2 class="feedback-title">Feedback</h2>
-                    <p class="feedback-subtitle">Help us make Phasee better</p>
+                    <p class="feedback-subtitle">Help make Phasee better!</p>
                     <p class="feedback-prompt">Any feedback or comments?</p>
 
                     <textarea 
