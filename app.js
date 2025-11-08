@@ -2890,7 +2890,7 @@ function updateTrialCountdownDisplay() {
 
     const remaining = getTrialTimeRemaining();
     countdownEl.textContent = `Time remaining: ${formatTrialDuration(remaining)}`;
-    startBtn.textContent = 'Continue to App';
+    startBtn.textContent = 'Start Building!';
     startBtn.disabled = false;
 }
 
