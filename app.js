@@ -314,7 +314,8 @@ function navigateTo(pageId) {
         'notifications-page',
         'privacy-page',
         'terms-page',
-        'help-page'
+        'help-page',
+        'subscription-page'
     ]);
 
     if (restrictedPages.has(pageId) && !hasAccessToPaidContent()) {
@@ -523,7 +524,8 @@ function createScheduledCard(idea) {
         'twitter': '<img src="https://cdn.simpleicons.org/x/000000" alt="Twitter" class="platform-icon">',
         'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
     };
-    const platformIconsHTML = idea.platforms.map(p => iconMap[p] || '').join('');
+    const scheduledPlatforms = Array.isArray(idea.platforms) ? idea.platforms : [];
+    const platformIconsHTML = scheduledPlatforms.map(p => iconMap[p] || '').join('');
 
     const scheduledCard = document.createElement('div');
     scheduledCard.className = 'idea-card-collapsed';
@@ -547,7 +549,7 @@ function createScheduledCard(idea) {
 
     // Store full idea data
     scheduledCard.dataset.idea = JSON.stringify(idea);
-    scheduledCard.dataset.platforms = (idea.platforms || []).join(', ');
+    scheduledCard.dataset.platforms = scheduledPlatforms.join(', ');
 
     // Add click handler for expansion (entire card, except date badge)
     scheduledCard.addEventListener('click', (e) => {
@@ -1363,6 +1365,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } = options;
 
         isGeneratingIdeas = true;
+        if (showLoading) {
+            isIdeasLoading = true;
+            updateSwiperInfo();
+        }
         setGeneratorLoadingState('building', { showLoading });
         if (showLoading) {
             if (generatorStatusTimer) clearTimeout(generatorStatusTimer);
@@ -1378,6 +1384,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             setGeneratorLoadingState('idle', { showLoading });
             isGeneratingIdeas = false;
+            if (showLoading) {
+                isIdeasLoading = false;
+                lastRefreshTime = new Date();
+                updateSwiperInfo();
+            }
         };
 
         const cardStack = document.getElementById('card-stack');
@@ -1694,12 +1705,12 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
 
             <div class="card-section">
-                <span class="section-label">Hook/Caption:</span>
+                <span class="section-label">Hook:</span>
                 <p class="section-text">${ideaData.hook}</p>
             </div>
 
             <div class="card-section">
-                <span class="section-label">Why It Works:</span>
+                <span class="section-label">Why:</span>
                 <p class="section-text">${ideaData.why}</p>
             </div>
 
@@ -2199,24 +2210,22 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function refreshPinnedCount() {
         const countElement = document.querySelector('.pinned-ideas .count');
-        if (!countElement) return;
-
         const grid = document.querySelector('.pinned-ideas .ideas-grid');
-        const total = grid ? grid.querySelectorAll('.idea-card-collapsed').length : 0;
+        if (!countElement || !grid) return;
+
+        const total = grid.querySelectorAll('.idea-card-collapsed').length;
         countElement.textContent = `(${total})`;
 
-        if (grid) {
-            const existingEmptyState = grid.querySelector('.empty-state');
-            if (total === 0) {
-                if (!existingEmptyState) {
-                    const emptyState = document.createElement('div');
-                    emptyState.className = 'empty-state';
-                    emptyState.innerHTML = '<p>No pinned ideas yet. Start swiping!</p>';
-                    grid.appendChild(emptyState);
-                }
-            } else if (existingEmptyState) {
-                existingEmptyState.remove();
+        const existingEmptyState = grid.querySelector('.empty-state');
+        if (total === 0) {
+            if (!existingEmptyState) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-state';
+                emptyState.innerHTML = '<p>No pinned ideas yet. Start swiping!</p>';
+                grid.appendChild(emptyState);
             }
+        } else if (existingEmptyState) {
+            existingEmptyState.remove();
         }
     }
 
@@ -2224,7 +2233,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Add a pinned idea to the pinned ideas section
      */
     function addPinnedIdea(idea) {
-        const grid = document.querySelector('.ideas-grid');
+        const grid = document.querySelector('.pinned-ideas .ideas-grid');
         if (!grid) return null;
 
         if (!idea.id) {
@@ -2406,6 +2415,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let ideasRemaining = 7;
     let lastRefreshTime = new Date();
+    let isIdeasLoading = false;
 
     function updateSwiperInfo() {
         const ideasCountElement = document.getElementById('ideas-count');
@@ -2417,7 +2427,9 @@ document.addEventListener('DOMContentLoaded', () => {
         ideasRemaining = actualCards;
         
         if (ideasCountElement) {
-            if (ideasRemaining === 0) {
+            if (isIdeasLoading) {
+                ideasCountElement.textContent = 'Loading ideas…';
+            } else if (ideasRemaining === 0) {
                 ideasCountElement.textContent = 'No ideas left';
             } else {
                 ideasCountElement.textContent = `${ideasRemaining} ${ideasRemaining === 1 ? 'Idea' : 'Ideas'}`;
@@ -2425,12 +2437,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         if (refreshTimeElement) {
-            const hours = lastRefreshTime.getHours();
-            const minutes = lastRefreshTime.getMinutes();
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            const displayHours = hours % 12 || 12;
-            const displayMinutes = minutes.toString().padStart(2, '0');
-            refreshTimeElement.textContent = `Refreshed ${displayHours}:${displayMinutes} ${ampm}`;
+            if (isIdeasLoading) {
+                refreshTimeElement.textContent = 'Fetching fresh ideas…';
+            } else {
+                const hours = lastRefreshTime.getHours();
+                const minutes = lastRefreshTime.getMinutes();
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                const displayHours = hours % 12 || 12;
+                const displayMinutes = minutes.toString().padStart(2, '0');
+                refreshTimeElement.textContent = `Refreshed ${displayHours}:${displayMinutes} ${ampm}`;
+            }
         }
     }
 
@@ -3989,7 +4005,7 @@ async function loadIdeasFromSupabase() {
         }
         
         // Clear existing pinned ideas to prevent duplicates
-        const pinnedGrid = document.querySelector('.ideas-grid');
+        const pinnedGrid = document.querySelector('.pinned-ideas .ideas-grid');
         if (pinnedGrid) {
             pinnedGrid.innerHTML = '';
         }

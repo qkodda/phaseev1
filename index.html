@@ -11,7 +11,8 @@
     <title>Phasee - Content Generator</title>
     
     <!-- CRITICAL: Preload background image to prevent black screen -->
-    <link rel="preload" href="phasee-background1.jpg" as="image" importance="high">
+    <link rel="preload" href="phasee-background1.jpg" as="image" importance="high" fetchpriority="high">
+    <link rel="prefetch" href="phasee-background1.jpg" as="image">
     
     <!-- Inline critical styles to show background color immediately -->
     <style>
@@ -303,6 +304,41 @@
 
                     <button class="btn-primary paywall-trial-btn" id="start-trial-btn" onclick="startFreeTrial()">Start Free Trial</button>
                     <p class="trial-countdown" id="trial-countdown"></p>
+                    <p class="terms-text">No commitment required.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUBSCRIPTION PAGE (Settings) -->
+        <div id="subscription-page" class="page">
+            <header class="app-header">
+                <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
+                    <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
+                </button>
+                <button class="profile-pill-btn" onclick="navigateTo('settings-page')" aria-label="Back">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="white" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                    </svg>
+                </button>
+            </header>
+
+            <div class="page-content">
+                <h2 class="page-section-title">Subscription</h2>
+
+                <div class="paywall-card" style="margin-top: 12px;">
+                    <div class="paywall-price">
+                        <span class="price-amount">$6.99</span>
+                        <span class="price-period">/month</span>
+                    </div>
+                    <p class="trial-text">3-Day Free Trial</p>
+                    <ul class="feature-list">
+                        <li>✓ Always know what to post</li>
+                        <li>✓ Brainfog-free idea creation</li>
+                        <li>✓ Edit &amp; schedule ideas instantly</li>
+                        <li>✓ Tailored prompts for every platform</li>
+                        <li>✓ Unlimited Generation</li>
+                    </ul>
+                    <button class="btn-primary paywall-trial-btn" onclick="startFreeTrial()">Start Free Trial</button>
                     <p class="terms-text">No commitment required.</p>
                 </div>
             </div>
@@ -964,7 +1000,7 @@
                             <span>Notifications</span>
                             <span>→</span>
                         </button>
-                        <button class="settings-item settings-item-highlight" onclick="navigateTo('paywall-page')">
+                        <button class="settings-item settings-item-highlight" onclick="navigateTo('subscription-page')">
                             <span>Subscription</span>
                             <span>→</span>
                         </button>
@@ -1034,7 +1070,7 @@
                     <p>We take reasonable measures to protect your personal information from unauthorized access and disclosure.</p>
                     
                     <h4>4. Contact Us</h4>
-                    <p>If you have questions about this Privacy Policy, please contact us at privacy@contentgen.com</p>
+                    <p>If you have questions about this Privacy Policy, please contact us at Support@Phasee.App</p>
                 </div>
             </div>
         </div>
@@ -1131,7 +1167,7 @@
                     <div class="help-section">
                         <h3>Contact Support</h3>
                         <p>Need more help? Reach out to our team:</p>
-                        <a href="mailto:support@contentgen.com" class="contact-link">support@contentgen.com</a>
+                        <a href="mailto:Support@Phasee.App" class="contact-link">Support@Phasee.App</a>
                     </div>
                 </div>
             </div>

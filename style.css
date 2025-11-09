@@ -1077,20 +1077,20 @@ body {
 .swiper-info {
     text-align: center;
     font-size: 11px;
-    color: rgba(0, 0, 0, 0.2);
-    font-weight: 400;
-    margin-top: 0;
-    margin-bottom: 20px;
-    letter-spacing: 0.2px;
+    color: rgba(0, 0, 0, 0.26);
+    font-weight: 500;
+    margin-top: -15px;
+    margin-bottom: 16px;
+    letter-spacing: 0.3px;
 }
 
 .swiper-info span {
-    color: rgba(0, 0, 0, 0.25);
+    color: rgba(0, 0, 0, 0.4);
 }
 
 /* Idea Swiper Component */
 .idea-swiper {
-    margin-bottom: 5px;
+    margin-bottom: 0;
     display: flex;
     justify-content: center;
     position: relative;
@@ -1755,7 +1755,7 @@ body {
 }
 
 .schedule-calendar-container.expanded {
-    max-height: 280px;
+    max-height: 325px;
     margin-bottom: 16px;
 }
 
@@ -1773,9 +1773,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 10px;
 }
 
 .calendar-month-title {
