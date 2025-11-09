@@ -1125,6 +1125,7 @@ body {
     cursor: grab;
     transition: transform 0.1s ease;
     user-select: none;
+    touch-action: none;
 }
 
 .idea-card:active {
@@ -1564,6 +1565,7 @@ body {
     flex: 1;
     justify-content: center;
     align-items: flex-start;
+    pointer-events: none;
 }
 
 .card-title {
@@ -1634,6 +1636,7 @@ body {
     flex-shrink: 0;
     position: relative;
     z-index: 20;
+    pointer-events: none;
 }
 
 .card-action-btn {
@@ -1650,6 +1653,7 @@ body {
     overflow: hidden;
     z-index: 21;
     pointer-events: all;
+    touch-action: auto;
 }
 
 .card-action-btn::after {
@@ -3438,7 +3442,7 @@ select.custom-dropdown {
     justify-content: center;
     height: 100%;
     text-align: center;
-    padding: 40px 20px;
+    padding: 30px 20px;
     position: relative;
 }
 
@@ -3447,10 +3451,10 @@ select.custom-dropdown {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 16px;
+    gap: 8px;
     width: 100%;
     max-width: 320px;
-    margin: 0 auto;
+    margin: 10px auto 0 auto;
     position: relative;
 }
 
@@ -3533,13 +3537,13 @@ select.custom-dropdown {
     background: transparent;
     border: none;
     border-radius: 8px;
-    padding: 16px;
-    margin: 12px auto;
+    padding: 12px;
+    margin: -8px auto 12px auto;
     font-family: 'Courier New', monospace;
     font-size: 11px;
     color: white;
     text-align: left;
-    height: 160px;
+    height: 120px;
     width: 85%;
     max-width: 320px;
     display: flex;
