@@ -299,14 +299,22 @@ function navigateTo(pageId) {
     const pages = document.querySelectorAll('.page');
     pages.forEach(page => page.classList.remove('active'));
     
+    // Pages that require active subscription (allow settings and profile even when expired)
     const restrictedPages = new Set([
-        'homepage',
+        'homepage'
+    ]);
+    
+    // Settings and profile are always accessible to keep users engaged
+    const alwaysAccessiblePages = new Set([
         'profile-page',
         'settings-page',
         'account-details-page',
         'change-password-page',
         'delete-account-page',
-        'notifications-page'
+        'notifications-page',
+        'privacy-page',
+        'terms-page',
+        'help-page'
     ]);
 
     if (restrictedPages.has(pageId) && !hasAccessToPaidContent()) {
@@ -334,6 +342,11 @@ function navigateTo(pageId) {
     const authPages = ['sign-in-page', 'sign-up-page'];
     if (!authPages.includes(pageId)) {
         trackPageView(pageId);
+    }
+    
+    // Check subscription status when navigating to homepage
+    if (pageId === 'homepage') {
+        setTimeout(() => checkAndEnforceSubscription(), 100);
     }
     
     if (pageId === 'paywall-page') {
@@ -1877,6 +1890,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Touch Start
             card.addEventListener('touchstart', (e) => {
+                // Block swipe if subscription expired
+                if (window.swipeHandlersDisabled) {
+                    return;
+                }
+                
                 console.log(`📱 Card ${index} touchstart`);
                 
                 // Only allow dragging the top card
@@ -4161,6 +4179,87 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+// ============================================
+// SUBSCRIPTION ENFORCEMENT
+// ============================================
+
+/**
+ * Check subscription status and enforce hard paywall if trial expired
+ */
+async function checkAndEnforceSubscription() {
+    const user = getUser();
+    if (!user) return;
+    
+    const homePage = document.getElementById('homepage');
+    if (!homePage || !homePage.classList.contains('active')) return;
+    
+    const trialExpired = await isTrialExpired(user.id);
+    const hasSubscription = await hasActiveSubscription(user.id);
+    
+    if (trialExpired && !hasSubscription) {
+        enforceSubscriptionPaywall();
+    } else {
+        removeSubscriptionPaywall();
+    }
+}
+
+/**
+ * Show unmovable subscription card and block all features
+ */
+function enforceSubscriptionPaywall() {
+    const expiredCard = document.getElementById('subscription-expired-card');
+    const generatorCard = document.getElementById('idea-generator-card');
+    const pinnedSection = document.querySelector('.pinned-ideas');
+    const scheduleSection = document.querySelector('.schedule-component');
+    const ideaCards = document.querySelectorAll('.idea-card:not(.subscription-expired-card)');
+    
+    // Show expired card (unmovable)
+    if (expiredCard) {
+        expiredCard.classList.add('visible');
+        expiredCard.style.display = 'flex';
+    }
+    
+    // Hide generator card
+    if (generatorCard) {
+        generatorCard.classList.remove('visible');
+        generatorCard.style.display = 'none';
+    }
+    
+    // Hide all idea cards
+    ideaCards.forEach(card => {
+        card.style.display = 'none';
+    });
+    
+    // Hide pinned and scheduled sections
+    if (pinnedSection) pinnedSection.style.display = 'none';
+    if (scheduleSection) scheduleSection.style.display = 'none';
+    
+    // Disable swipe functionality
+    window.swipeHandlersDisabled = true;
+}
+
+/**
+ * Remove subscription paywall and restore normal functionality
+ */
+function removeSubscriptionPaywall() {
+    const expiredCard = document.getElementById('subscription-expired-card');
+    const pinnedSection = document.querySelector('.pinned-ideas');
+    const scheduleSection = document.querySelector('.schedule-component');
+    
+    // Hide expired card
+    if (expiredCard) {
+        expiredCard.classList.remove('visible');
+        expiredCard.style.display = 'none';
+    }
+    
+    // Show pinned and scheduled sections
+    if (pinnedSection) pinnedSection.style.display = 'block';
+    if (scheduleSection) scheduleSection.style.display = 'block';
+    
+    // Re-enable swipe functionality
+    window.swipeHandlersDisabled = false;
+}
+
 // Make functions globally accessible for onclick handlers
 window.navigateTo = navigateTo;
 window.completeOnboarding = completeOnboarding;
@@ -4182,4 +4281,5 @@ window.closeExpandedCard = closeExpandedCard;
 window.editIdeaCard = editIdeaCard;
 window.saveIdeaCard = saveIdeaCard;
 window.scheduleFromExpanded = scheduleFromExpanded;
+window.checkAndEnforceSubscription = checkAndEnforceSubscription;
 

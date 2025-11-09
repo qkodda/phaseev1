@@ -332,6 +332,18 @@
                 <!-- Idea Swiper Component -->
                 <section class="idea-swiper" id="idea-swiper">
                     <div class="card-stack" id="card-stack">
+                        <!-- SUBSCRIPTION EXPIRED CARD (Unmovable - shown when trial expires) -->
+                        <div class="subscription-expired-card" id="subscription-expired-card" style="display: none;">
+                            <div class="expired-card-content">
+                                <div class="expired-icon">⚠️</div>
+                                <h2 class="expired-title">Your Trial Has Ended</h2>
+                                <p class="expired-message">Subscribe now to continue generating amazing content ideas and keep your creative flow going!</p>
+                                <button class="expired-subscribe-btn" onclick="navigateTo('paywall-page')">
+                                    View Subscription Plans
+                                </button>
+                            </div>
+                        </div>
+                        
                         <!-- Idea Generator Card (shown when all cards are swiped) -->
                         <div class="idea-generator-card" id="idea-generator-card">
                             <h3 class="generator-title">✨ Ready for More?</h3>

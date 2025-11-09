@@ -1212,6 +1212,92 @@ body {
     pointer-events: all;
 }
 
+/* ============================================
+   SUBSCRIPTION EXPIRED CARD (UNMOVABLE)
+   ============================================ */
+.subscription-expired-card {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border-radius: 16px;
+    padding: 24px;
+    width: 300px;
+    height: 320px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 12px 32px rgba(239, 68, 68, 0.5);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: all;
+}
+
+.subscription-expired-card.visible {
+    display: flex !important;
+}
+
+.expired-card-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.expired-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.expired-title {
+    color: white;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.expired-message {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 15px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.expired-subscribe-btn {
+    background: white;
+    color: #ef4444;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.expired-subscribe-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.expired-subscribe-btn:active {
+    transform: translateY(0);
+}
+
+/* ============================================ */
+
 .generator-title {
     color: white;
     font-size: 18px;
