@@ -204,6 +204,64 @@ document.addEventListener('DOMContentLoaded', () => {
 /**
  * Personalize hero section with user's profile data
  */
+/**
+ * Generate a unique, personalized subtitle based on user profile
+ */
+function generatePersonalizedSubtitle(profile) {
+    // Get specific profile details
+    const brandName = profile.brand_name || 'your brand';
+    const industry = profile.industry || 'content';
+    const platform = profile.platforms?.[0] || 'social media';
+    const audience = profile.target_audience || 'your audience';
+    const cultureValue = profile.culture_values?.[0] || 'authentic';
+    const goal = profile.content_goals || 'connect and inspire';
+    const productionLevel = profile.production_level || 'intermediate';
+    
+    const templates = [
+        // Hyper-personalized with multiple data points
+        `${brandName}: where ${cultureValue} ${industry} meets ${platform} mastery`,
+        `Building ${industry} content that makes ${audience} stop scrolling`,
+        `${brandName}'s secret weapon for ${platform} domination`,
+        `Turning ${goal} into ${platform} gold, one idea at a time`,
+        
+        // Goal + Audience specific
+        `${audience} won't scroll past this—let's make it happen`,
+        `Content that speaks ${audience}'s language on ${platform}`,
+        `${goal}? We're about to make that your reality`,
+        
+        // Industry + Platform combo
+        `${industry} content that ${platform} algorithms love`,
+        `Your ${industry} brand's ${platform} breakthrough starts here`,
+        `${platform}-native ${industry} ideas that actually convert`,
+        
+        // Culture + Production aware
+        `${productionLevel === 'professional' ? 'Studio-grade' : productionLevel === 'basic' ? 'Raw & real' : 'Elevated'} ${cultureValue} content, zero BS`,
+        `${cultureValue} storytelling meets ${platform} strategy`,
+        
+        // Motivational + Personal
+        `${brandName}: Ideas worth filming right now`,
+        `Your ${industry} content, but make it ${cultureValue}`,
+        `${platform} success isn't luck—it's strategy. Let's build yours.`,
+        
+        // Additional context integration
+        profile.additional_context 
+            ? `"${profile.additional_context.substring(0, 50)}..." — Let's make this viral`
+            : null,
+        
+        // Time-sensitive
+        `Today's the day ${brandName} breaks through on ${platform}`,
+        `${audience} is waiting for this. Let's give it to them.`,
+        
+        // Unique angles
+        `${cultureValue} ${industry} content that ${audience} can't help but share`,
+        `From concept to ${platform} viral: ${brandName}'s playbook`,
+        `${goal}—but make it scroll-stopping`
+    ].filter(Boolean);
+    
+    // Pick a random template
+    return templates[Math.floor(Math.random() * templates.length)];
+}
+
 async function personalizeHeroSection() {
     const user = getUser();
     if (!user) return;
@@ -218,20 +276,11 @@ async function personalizeHeroSection() {
             userNameEl.textContent = profile.brand_name;
         }
         
-        // Update subtitle based on content goals or industry
+        // Generate AI-powered unique subtitle
         const subtitleEl = document.querySelector('.hero-subtitle');
         if (subtitleEl) {
-            if (profile.content_goals) {
-                // Use their actual content goals
-                const goals = profile.content_goals.substring(0, 60); // Keep it short
-                subtitleEl.textContent = `${goals}${profile.content_goals.length > 60 ? '...' : ''}`;
-            } else if (profile.industry) {
-                // Use industry-specific message
-                subtitleEl.textContent = `Let's create amazing ${profile.industry} content!`;
-            } else {
-                // Default personalized message
-                subtitleEl.textContent = "Let's build some content...!";
-            }
+            const subtitle = generatePersonalizedSubtitle(profile);
+            subtitleEl.textContent = subtitle;
         }
         
         console.log('✅ Hero section personalized for:', profile.brand_name);
@@ -436,6 +485,11 @@ function confirmScheduleDate(selectedDateStr) {
         calendarModal.classList.remove('active');
     }
 
+    // Save to Supabase
+    saveScheduledIdeaToSupabase(ideaData, selectedDateStr).catch(err => {
+        console.error('Failed to save scheduled idea:', err);
+    });
+    
     pendingScheduleCard = null;
     generateScheduleCalendar();
     console.log('Scheduled idea for:', month, day);
@@ -604,11 +658,6 @@ function expandIdeaCard(card) {
             <div class="card-section">
                 <span class="section-label">Shot/Setup:</span>
                 <p class="section-text" contenteditable="false">${ideaData.setup}</p>
-            </div>
-
-            <div class="card-section">
-                <span class="section-label">Story:</span>
-                <p class="section-text" contenteditable="false">${ideaData.story}</p>
             </div>
 
             <div class="card-section">
@@ -843,7 +892,6 @@ function copyIdeaToClipboard() {
     copyText += `Summary: ${ideaData.summary}\n\n`;
     copyText += `Action/Story: ${ideaData.action}\n\n`;
     copyText += `Shot/Setup: ${ideaData.setup}\n\n`;
-    copyText += `Story: ${ideaData.story}\n\n`;
     copyText += `Hook: ${ideaData.hook}\n\n`;
     copyText += `Why: ${ideaData.why}\n\n`;
     copyText += `Platforms: ${ideaData.platforms.join(', ')}\n\n`;
@@ -1324,15 +1372,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Remove all existing idea cards
-        const existingCards = cardStack.querySelectorAll('.idea-card');
+        const existingCards = cardStack.querySelectorAll('.idea-card:not(.loading-placeholder)');
         existingCards.forEach(card => card.remove());
 
         // Reset cards remaining
         cardsRemaining = 7;
         ideasStack = [];
 
+        // Show loading placeholders (7 cards with "Building New Ideas" animation)
+        for (let i = 0; i < 7; i++) {
+            const placeholder = createLoadingPlaceholder(i + 1);
+            cardStack.insertBefore(placeholder, generatorCard);
+        }
+
         // Show loading state
-        console.log('🤖 Generating AI-powered ideas...', {
+        console.log('🤖 Generating AI-powered ideas (progressive loading)...', {
             customDirection,
             isCampaign,
             preferredPlatforms
@@ -1375,28 +1429,107 @@ document.addEventListener('DOMContentLoaded', () => {
                 userProfile.preferredPlatforms = preferredPlatforms;
             }
             
-            // Generate AI ideas
-            const aiIdeas = await generateContentIdeas(userProfile, customDirection, isCampaign, preferredPlatforms);
+            // INCREMENTAL LOADING: 3 → 2 → 2 for seamless experience
             
-            console.log('✅ Generated', aiIdeas.length, 'AI ideas');
+            // Start live thinking animation with personalized steps
+            startLiveThinking(userProfile);
             
-            // Log each idea title to verify uniqueness
-            aiIdeas.forEach((idea, idx) => {
+            // BATCH 1: Generate first 3 ideas
+            console.log('⚡ BATCH 1: Generating first 3 ideas...');
+            const firstBatch = await generateContentIdeas(userProfile, customDirection, isCampaign, preferredPlatforms, 3);
+            
+            console.log('✅ First batch ready:', firstBatch.length, 'ideas');
+            firstBatch.forEach((idea, idx) => {
                 console.log(`  ${idx + 1}. "${idea.title}"`);
             });
             
-            // Use AI ideas
-            ideasStack = aiIdeas;
+            // Replace first 3 placeholders with real cards
+            let placeholders = cardStack.querySelectorAll('.loading-placeholder');
+            for (let i = 0; i < Math.min(3, firstBatch.length); i++) {
+                const ideaInstance = cloneIdeaTemplate(firstBatch[i]);
+                const card = createIdeaCard(ideaInstance);
+                if (placeholders[i]) {
+                    cardStack.replaceChild(card, placeholders[i]);
+                }
+                ideasStack.push(ideaInstance);
+            }
+            
+            // Initialize swipe handlers for first batch
+            initSwipeHandlers();
+            
+            // Update counter to show "7 Ideas" immediately (even though 4 are still loading)
+            ideasRemaining = 7;
+            lastRefreshTime = new Date();
+            updateSwiperInfo();
+            
+            // BATCH 2 & 3: Start generating remaining ideas immediately (in parallel)
+            console.log('⚡ BATCH 2 & 3: Generating remaining 4 ideas...');
+            const [secondBatch, thirdBatch] = await Promise.all([
+                generateContentIdeas(userProfile, customDirection, isCampaign, preferredPlatforms, 2),
+                generateContentIdeas(userProfile, customDirection, isCampaign, preferredPlatforms, 2)
+            ]);
+            
+            console.log('✅ Second batch ready:', secondBatch.length, 'ideas');
+            secondBatch.forEach((idea, idx) => {
+                console.log(`  ${idx + 4}. "${idea.title}"`);
+            });
+            
+            // Replace next 2 placeholders
+            placeholders = cardStack.querySelectorAll('.loading-placeholder');
+            for (let i = 0; i < Math.min(2, secondBatch.length); i++) {
+                const ideaInstance = cloneIdeaTemplate(secondBatch[i]);
+                const card = createIdeaCard(ideaInstance);
+                if (placeholders[i]) {
+                    cardStack.replaceChild(card, placeholders[i]);
+                }
+                ideasStack.push(ideaInstance);
+            }
+            
+            // Re-initialize swipe handlers
+            initSwipeHandlers();
+            
+            console.log('✅ Third batch ready:', thirdBatch.length, 'ideas');
+            thirdBatch.forEach((idea, idx) => {
+                console.log(`  ${idx + 6}. "${idea.title}"`);
+            });
+            
+            // Replace final 2 placeholders
+            placeholders = cardStack.querySelectorAll('.loading-placeholder');
+            for (let i = 0; i < Math.min(2, thirdBatch.length); i++) {
+                const ideaInstance = cloneIdeaTemplate(thirdBatch[i]);
+                const card = createIdeaCard(ideaInstance);
+                if (placeholders[i]) {
+                    cardStack.replaceChild(card, placeholders[i]);
+                }
+                ideasStack.push(ideaInstance);
+            }
+            
+            // Final swipe handler initialization
+            initSwipeHandlers();
+            
+            // Stop live thinking animation
+            stopLiveThinking();
             
         } catch (error) {
             console.error('❌ AI generation failed, using fallback:', error);
+            stopLiveThinking();
             showAlertModal('AI Temporarily Unavailable', 'Using backup idea templates while we reconnect to the idea engine.');
+            
+            // Remove all placeholders
+            const placeholders = cardStack.querySelectorAll('.loading-placeholder');
+            placeholders.forEach(p => p.remove());
+            
             // Fallback to template ideas - create 7 different random ideas
             ideasStack = [];
             for (let i = 0; i < 7; i++) {
                 const randomIdea = ideaTemplates[Math.floor(Math.random() * ideaTemplates.length)];
-                ideasStack.push(cloneIdeaTemplate(randomIdea));
+                const ideaInstance = cloneIdeaTemplate(randomIdea);
+                ideasStack.push(ideaInstance);
+                const card = createIdeaCard(ideaInstance);
+                cardStack.insertBefore(card, generatorCard);
             }
+            
+            initSwipeHandlers();
         }
 
         // Ensure we have exactly 7 ideas
@@ -1404,26 +1537,9 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn(`⚠️ Expected 7 ideas, got ${ideasStack.length}`);
         }
 
-        // Create 7 cards from the AI-generated ideas
-        // Insert BEFORE the generator card so nth-child CSS works correctly
-        for (let i = 6; i >= 0; i--) {
-            const ideaData = ideasStack[i];
-            if (!ideaData) {
-                console.error(`❌ Missing idea at index ${i}`);
-                continue;
-            }
-            const ideaInstance = cloneIdeaTemplate(ideaData);
-            console.log(`📝 Creating card ${i + 1}: "${ideaInstance.title}"`);
-            const card = createIdeaCard(ideaInstance);
-            cardStack.insertBefore(card, generatorCard);
-        }
-
-        // Initialize swipe handlers
-        initSwipeHandlers();
-
-        // Update swiper info
+        // Update swiper info - ALWAYS show 7 regardless
         lastRefreshTime = new Date();
-        ideasRemaining = ideasStack.length;
+        ideasRemaining = 7;
         updateSwiperInfo();
 
         // Hide idea generator
@@ -1435,6 +1551,188 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     window.generateNewIdeas = generateNewIdeas;
+
+    /**
+     * Create a loading placeholder card with live AI thinking process
+     */
+    function createLoadingPlaceholder(number) {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'idea-card loading-placeholder';
+        placeholder.innerHTML = `
+            <div class="card-content loading-content">
+                <div class="loading-animation">
+                    <div class="loading-icon">
+                        <svg viewBox="0 0 100 100" width="80" height="80">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="white" stroke-width="2" stroke-dasharray="283" stroke-dashoffset="75" class="loading-circle"/>
+                            <text x="50" y="58" text-anchor="middle" fill="white" font-size="24" font-weight="bold">✨</text>
+                        </svg>
+                    </div>
+                    <h3 class="loading-title">Phasee is building!</h3>
+                    <div class="ai-thinking-window">
+                        <div class="thinking-line">▸ Loading brand profile...</div>
+                        <div class="thinking-line">▸ Analyzing target audience...</div>
+                        <div class="thinking-line">▸ Scanning platform trends...</div>
+                        <div class="thinking-line">▸ Generating unique concepts...</div>
+                    </div>
+                    <div class="loading-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        `;
+        return placeholder;
+    }
+
+    /**
+     * Animate AI thinking process with live updates
+     */
+    let thinkingInterval = null;
+    function startLiveThinking(userProfile = {}) {
+        // Personalize thinking steps with user's actual data
+        const brandName = userProfile.brandName || 'your brand';
+        const audience = userProfile.targetAudience || 'target audience';
+        const platform = userProfile.platforms?.[0] || userProfile.preferredPlatforms?.[0] || 'platform';
+        const industry = userProfile.industry || 'industry';
+        const productionLevel = userProfile.productionLevel || 'production';
+        const cultureValue = userProfile.cultureValues?.[0] || 'authentic';
+        
+        const thinkingSteps = [
+            `▸ Loading ${brandName} profile...`,
+            `▸ Analyzing ${audience} behavior...`,
+            `▸ Scanning ${platform} trends...`,
+            `▸ Studying ${industry} content gaps...`,
+            `▸ Evaluating ${productionLevel} resources...`,
+            `▸ Researching ${platform} algorithms...`,
+            `▸ Generating ${cultureValue} concepts...`,
+            `▸ Crafting ${audience} hooks...`,
+            `▸ Optimizing for ${platform} virality...`,
+            `▸ Refining ${brandName} voice...`,
+            `▸ Building scroll-stopping ideas...`,
+            `▸ Finalizing unique angles...`
+        ];
+        
+        let stepIndex = 0;
+        const windows = document.querySelectorAll('.ai-thinking-window');
+        
+        if (thinkingInterval) clearInterval(thinkingInterval);
+        
+        thinkingInterval = setInterval(() => {
+            windows.forEach(window => {
+                const lines = window.querySelectorAll('.thinking-line');
+                
+                // Shift lines up
+                lines[0].textContent = lines[1].textContent;
+                lines[1].textContent = lines[2].textContent;
+                lines[2].textContent = lines[3].textContent;
+                lines[3].textContent = thinkingSteps[stepIndex % thinkingSteps.length];
+                
+                // Add fade-in animation
+                lines[3].style.animation = 'fadeInLine 0.3s ease';
+                setTimeout(() => {
+                    lines[3].style.animation = '';
+                }, 300);
+            });
+            
+            stepIndex++;
+        }, 800); // Update every 800ms
+    }
+
+    function stopLiveThinking() {
+        if (thinkingInterval) {
+            clearInterval(thinkingInterval);
+            thinkingInterval = null;
+        }
+    }
+
+    /**
+     * Expand idea card to show full details
+     */
+    window.expandIdeaCard = function(button) {
+        const card = button.closest('.idea-card');
+        if (!card) return;
+        
+        const ideaData = JSON.parse(card.dataset.idea);
+        
+        // Replace card content with expanded view
+        const cardContent = card.querySelector('.card-content');
+        cardContent.innerHTML = `
+            <h3 class="card-title">"${ideaData.title}"</h3>
+            
+            <div class="card-section">
+                <span class="section-label">Summary:</span>
+                <p class="section-text">${ideaData.summary}</p>
+            </div>
+
+            <div class="card-section">
+                <span class="section-label">Action/Story:</span>
+                <p class="section-text">${ideaData.action}</p>
+            </div>
+
+            <div class="card-section">
+                <span class="section-label">Shot/Setup:</span>
+                <p class="section-text">${ideaData.setup}</p>
+            </div>
+
+            <div class="card-section">
+                <span class="section-label">Hook/Caption:</span>
+                <p class="section-text">${ideaData.hook}</p>
+            </div>
+
+            <div class="card-section">
+                <span class="section-label">Why It Works:</span>
+                <p class="section-text">${ideaData.why}</p>
+            </div>
+
+            <button class="collapse-idea-btn" onclick="collapseIdeaCard(this)">
+                <svg viewBox="0 0 24 24" width="16" height="16" style="margin-right: 6px;">
+                    <path fill="currentColor" d="M19 13H5v-2h14v2z"/>
+                </svg>
+                Collapse
+            </button>
+        `;
+        
+        // Add expanded class for styling
+        card.classList.add('expanded');
+    };
+
+    /**
+     * Collapse idea card back to summary view
+     */
+    window.collapseIdeaCard = function(button) {
+        const card = button.closest('.idea-card');
+        if (!card) return;
+        
+        const ideaData = JSON.parse(card.dataset.idea);
+        
+        // Replace card content with collapsed view
+        const cardContent = card.querySelector('.card-content');
+        cardContent.innerHTML = `
+            <h3 class="card-title">"${ideaData.title}"</h3>
+            
+            <div class="card-section">
+                <span class="section-label">Summary:</span>
+                <p class="section-text">${ideaData.summary}</p>
+            </div>
+
+            <div class="card-section">
+                <span class="section-label">Why It Works:</span>
+                <p class="section-text">${ideaData.why}</p>
+            </div>
+
+            <button class="build-idea-btn" onclick="expandIdeaCard(this)">
+                <svg viewBox="0 0 24 24" width="16" height="16" style="margin-right: 6px;">
+                    <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                Build Idea
+            </button>
+        `;
+        
+        // Remove expanded class
+        card.classList.remove('expanded');
+    };
 
     /**
      * Generate random ideas (dice button)
@@ -1496,27 +1794,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 <div class="card-section">
-                    <span class="section-label">Action/Story:</span>
-                    <p class="section-text">${idea.action}</p>
-                </div>
-
-                <div class="card-section">
-                    <span class="section-label">Shot/Setup:</span>
-                    <p class="section-text">${idea.setup}</p>
-                </div>
-
-                <div class="card-section">
-                    <span class="section-label">Story:</span>
-                    <p class="section-text">${idea.story}</p>
-                </div>
-
-                <div class="card-section">
-                    <span class="section-label">Hook:</span>
-                    <p class="section-text">${idea.hook}</p>
-                </div>
-
-                <div class="card-section">
-                    <span class="section-label">Why:</span>
+                    <span class="section-label">Why It Works:</span>
                     <p class="section-text">${idea.why}</p>
                 </div>
             </div>
@@ -1547,6 +1825,12 @@ document.addEventListener('DOMContentLoaded', () => {
      * Generate platform icons HTML
      */
     function generatePlatformIcons(platforms) {
+        // Safety check
+        if (!platforms || !Array.isArray(platforms) || platforms.length === 0) {
+            console.warn('⚠️ No platforms provided:', platforms);
+            return '';
+        }
+
         const iconMap = {
             tiktok: 'https://cdn.simpleicons.org/tiktok/000000',
             instagram: 'https://cdn.simpleicons.org/instagram/E4405F',
@@ -1555,9 +1839,16 @@ document.addEventListener('DOMContentLoaded', () => {
             facebook: 'https://cdn.simpleicons.org/facebook/1877F2'
         };
 
-        return platforms.map(platform => 
-            `<img src="${iconMap[platform]}" alt="${platform}" class="platform-icon">`
-        ).join('');
+        console.log('🎨 Generating platform icons for:', platforms);
+
+        return platforms.map(platform => {
+            const iconUrl = iconMap[platform.toLowerCase()];
+            if (!iconUrl) {
+                console.warn('⚠️ Unknown platform:', platform);
+                return '';
+            }
+            return `<img src="${iconUrl}" alt="${platform}" class="platform-icon" onerror="console.error('Failed to load icon:', this.src)">`;
+        }).join('');
     }
 
     /**
@@ -1747,6 +2038,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Pin the card
             addPinnedIdea(ideaData);
             updatePinnedCount();
+            
+            // Save to Supabase
+            savePinnedIdeaToSupabase(ideaData).catch(err => {
+                console.error('Failed to save pinned idea:', err);
+            });
         }
 
         // Clear inline styles and trigger animation
@@ -1791,10 +2087,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const generatorCard = document.getElementById('idea-generator-card');
         if (!generatorCard) return;
 
-        if (cardsRemaining === 0) {
+        // Count actual remaining cards (excluding generator and loading placeholders)
+        const cardStack = document.getElementById('card-stack');
+        const actualCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.loading-placeholder)').length : 0;
+        
+        console.log('🔄 Updating generator visibility. Remaining cards:', actualCards);
+
+        if (actualCards === 0) {
             generatorCard.classList.add('visible');
+            console.log('✅ Generator card now visible');
         } else {
             generatorCard.classList.remove('visible');
+            console.log('❌ Generator card hidden');
         }
     }
 
@@ -2043,8 +2347,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const ideasCountElement = document.getElementById('ideas-count');
         const refreshTimeElement = document.getElementById('refresh-time');
         
+        // Count actual remaining cards in the DOM (excluding generator card and loading placeholders)
+        const cardStack = document.getElementById('card-stack');
+        const actualCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.loading-placeholder)').length : 0;
+        ideasRemaining = actualCards;
+        
         if (ideasCountElement) {
-            ideasCountElement.textContent = `${ideasRemaining} ${ideasRemaining === 1 ? 'Idea' : 'Ideas'}`;
+            if (ideasRemaining === 0) {
+                ideasCountElement.textContent = 'No ideas left';
+            } else {
+                ideasCountElement.textContent = `${ideasRemaining} ${ideasRemaining === 1 ? 'Idea' : 'Ideas'}`;
+            }
         }
         
         if (refreshTimeElement) {
@@ -2053,7 +2366,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const ampm = hours >= 12 ? 'PM' : 'AM';
             const displayHours = hours % 12 || 12;
             const displayMinutes = minutes.toString().padStart(2, '0');
-            refreshTimeElement.textContent = `${displayHours}:${displayMinutes} ${ampm}`;
+            refreshTimeElement.textContent = `Refreshed ${displayHours}:${displayMinutes} ${ampm}`;
         }
     }
 
@@ -2785,6 +3098,8 @@ function getProfileFormData(prefix) {
     data.contentGoals = document.getElementById(`${prefix}-content-goals`)?.value.trim() || '';
     data.postFrequency = document.getElementById(`${prefix}-post-frequency`)?.value || '';
     data.productionLevel = document.getElementById(`${prefix}-production-level`)?.value || '';
+    data.additionalContext = document.getElementById(`${prefix}-additional-context`)?.value.trim() || '';
+    
     const cultureSet = new Set();
     document.querySelectorAll(`#${prefix}-culture-values .pill-btn.selected`).forEach(pill => {
         if (pill.dataset.value) {
@@ -2808,29 +3123,42 @@ function saveProfileData(data) {
     localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(data));
 }
 
-function loadProfileData() {
-    const stored = localStorage.getItem(PROFILE_STORAGE_KEY);
-    if (!stored) return;
+async function loadProfileData() {
+    console.log('📥 Loading profile data from Supabase...');
+    
     try {
-        const data = JSON.parse(stored);
-        populateProfileFields(data);
+        const user = getUser();
+        if (!user) {
+            console.log('⚠️ No user found, skipping profile load');
+            return;
+        }
+        
+        const profile = await getUserProfile(user.id);
+        if (!profile) {
+            console.log('⚠️ No profile found in Supabase');
+            return;
+        }
+        
+        console.log('✅ Profile loaded from Supabase:', profile);
+        populateProfileFields(profile);
     } catch (err) {
-        console.error('Failed to parse profile data:', err);
+        console.error('❌ Failed to load profile data:', err);
     }
 }
 
 function populateProfileFields(data) {
     if (!data) return;
     const mapping = {
-        'profile-brand-name': data.brandName || '',
+        'profile-brand-name': data.brand_name || data.brandName || '',
         'profile-role': data.role || '',
-        'profile-founded': data.founded || '',
+        'profile-founded': data.founded_year || data.founded || '',
         'profile-industry': data.industry || '',
         'profile-location': data.location || '',
-        'profile-target-audience': data.targetAudience || '',
-        'profile-content-goals': data.contentGoals || '',
-        'profile-post-frequency': data.postFrequency || '',
-        'profile-production-level': data.productionLevel || ''
+        'profile-target-audience': data.target_audience || data.targetAudience || '',
+        'profile-content-goals': data.content_goals || data.contentGoals || '',
+        'profile-post-frequency': data.post_frequency || data.postFrequency || '',
+        'profile-production-level': data.production_level || data.productionLevel || '',
+        'profile-additional-context': data.additional_context || ''
     };
 
     Object.entries(mapping).forEach(([id, value]) => {
@@ -2846,15 +3174,17 @@ function populateProfileFields(data) {
 
     const cultureContainer = document.getElementById('profile-culture-values');
     if (cultureContainer) {
+        const cultureValues = data.culture_values || data.cultureValues || [];
         cultureContainer.querySelectorAll('.pill-btn').forEach(pill => {
-            pill.classList.toggle('selected', data.cultureValues?.includes(pill.dataset.value));
+            pill.classList.toggle('selected', cultureValues.includes(pill.dataset.value));
         });
     }
 
     const platformContainer = document.getElementById('profile-platforms');
     if (platformContainer) {
+        const platforms = data.platforms || [];
         platformContainer.querySelectorAll('.platform-select-btn').forEach(btn => {
-            btn.classList.toggle('selected', data.platforms?.includes(btn.dataset.platform));
+            btn.classList.toggle('selected', platforms.includes(btn.dataset.platform));
         });
     }
 }
@@ -2931,11 +3261,34 @@ async function completeOnboarding() {
     }
 }
 
-function saveProfileChanges() {
-    const profileData = getProfileFormData('profile');
-    saveProfileData(profileData);
-    loadProfileData();
-    showAlertModal('Profile Updated', 'Your profile details have been saved.');
+async function saveProfileChanges() {
+    console.log('💾 Saving profile changes to Supabase...');
+    
+    try {
+        const user = getUser();
+        if (!user) {
+            showAlertModal('Error', 'No user session found. Please sign in again.');
+            return;
+        }
+        
+        const profileData = getProfileFormData('profile');
+        console.log('📝 Profile data to save:', profileData);
+        
+        // Save to Supabase
+        await updateUserProfile(user.id, profileData);
+        
+        // Also save to localStorage as backup
+        saveProfileData(profileData);
+        
+        // Reload profile data to confirm
+        await loadProfileData();
+        
+        showAlertModal('Profile Updated', 'Your profile details have been saved.');
+        console.log('✅ Profile saved successfully');
+    } catch (err) {
+        console.error('❌ Failed to save profile:', err);
+        showAlertModal('Error', 'Failed to save profile. Please try again.');
+    }
 }
 
 function updateDropdownTrigger(select) {
@@ -3408,6 +3761,7 @@ function trackPageView(pageName) {
     if (currentPage && pageStartTime) {
         const sessionDuration = Math.floor((Date.now() - pageStartTime) / 1000);
         trackAppEvent({
+            event_type: 'page_view',
             page_name: currentPage,
             session_duration: sessionDuration
         });
@@ -3546,21 +3900,93 @@ async function saveScheduledIdeaToSupabase(ideaData, scheduledDate) {
  */
 async function loadIdeasFromSupabase() {
     try {
-        const { getIdeas, getCurrentUser } = await import('./supabase.js');
-        const user = await getCurrentUser();
+        console.log('📥 Loading ideas from Supabase...');
+        const user = getUser();
         
-        if (!user) return;
+        if (!user) {
+            console.log('⚠️ No user found, skipping idea load');
+            return;
+        }
+        
+        // Import Supabase functions
+        const { supabase } = await import('./supabase.js');
         
         // Load pinned ideas
-        const pinnedIdeas = await getIdeas(user.id, { isPinned: true });
-        // TODO: Render pinned ideas to UI
+        const { data: pinnedIdeas, error: pinnedError } = await supabase
+            .from('ideas')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('is_pinned', true)
+            .order('created_at', { ascending: false });
+        
+        if (pinnedError) {
+            console.error('❌ Error loading pinned ideas:', pinnedError);
+        } else if (pinnedIdeas && pinnedIdeas.length > 0) {
+            console.log('✅ Loaded', pinnedIdeas.length, 'pinned ideas');
+            pinnedIdeas.forEach(idea => {
+                addPinnedIdea({
+                    id: idea.id,
+                    title: idea.title,
+                    summary: idea.summary,
+                    action: idea.action,
+                    setup: idea.setup,
+                    hook: idea.hook,
+                    why: idea.why,
+                    platforms: idea.platforms || []
+                });
+            });
+            updatePinnedCount();
+        }
         
         // Load scheduled ideas
-        const scheduledIdeas = await getIdeas(user.id, { isScheduled: true });
-        // TODO: Render scheduled ideas to calendar
+        const { data: scheduledIdeas, error: scheduledError } = await supabase
+            .from('ideas')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('is_scheduled', true)
+            .order('scheduled_date', { ascending: true });
+        
+        if (scheduledError) {
+            console.error('❌ Error loading scheduled ideas:', scheduledError);
+        } else if (scheduledIdeas && scheduledIdeas.length > 0) {
+            console.log('✅ Loaded', scheduledIdeas.length, 'scheduled ideas');
+            
+            const scheduleList = document.querySelector('.schedule-list');
+            if (scheduleList) {
+                // Remove empty state if present
+                const emptyState = scheduleList.querySelector('.empty-state');
+                if (emptyState) {
+                    emptyState.remove();
+                }
+                
+                scheduledIdeas.forEach(idea => {
+                    const selectedDate = new Date(idea.scheduled_date);
+                    const month = selectedDate.toLocaleDateString('en-US', { month: 'short' });
+                    const day = selectedDate.getDate();
+                    
+                    const scheduledCard = createScheduledCard({
+                        id: idea.id,
+                        title: idea.title,
+                        summary: idea.summary,
+                        action: idea.action,
+                        setup: idea.setup,
+                        hook: idea.hook,
+                        why: idea.why,
+                        platforms: idea.platforms || [],
+                        scheduledDate: idea.scheduled_date,
+                        scheduledMonth: month,
+                        scheduledDay: day
+                    });
+                    
+                    scheduleList.appendChild(scheduledCard);
+                });
+            }
+            
+            generateScheduleCalendar();
+        }
         
     } catch (error) {
-        console.error('Error loading ideas from Supabase:', error);
+        console.error('❌ Error loading ideas from Supabase:', error);
     }
 }
 
@@ -3673,6 +4099,9 @@ async function initializeApp() {
         
         navigateTo('homepage');
         
+        // Load saved ideas from Supabase
+        await loadIdeasFromSupabase();
+        
     } catch (error) {
         console.error('Error initializing app:', error);
         navigateTo('sign-in-page');
@@ -3684,6 +4113,17 @@ async function initializeApp() {
 // Initialize feedback character counter
 document.addEventListener('DOMContentLoaded', async () => {
     updateFeedbackCharCount();
+    
+    // Initialize platform icon button click handlers for generator card
+    const platformIconBtns = document.querySelectorAll('.platform-icon-btn');
+    platformIconBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            btn.classList.toggle('selected');
+            console.log('Platform toggled:', btn.dataset.platform, 'Selected:', btn.classList.contains('selected'));
+        });
+    });
+    console.log('✅ Platform icon buttons initialized:', platformIconBtns.length);
     
     // Listen for auth state changes
     onAuthStateChange((event, session) => {

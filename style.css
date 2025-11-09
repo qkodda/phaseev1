@@ -22,14 +22,16 @@ body {
 .app-container {
     width: 390px;
     height: 844px;
-    background: linear-gradient(
-        135deg,
-        #ffffff 0%,
-        #fafbff 25%,
-        #f7f9ff 50%,
-        #f4f6ff 75%,
-        #f0f2ff 100%
-    );
+    background-image: url('./phasee-background1.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
     display: flex;
     flex-direction: column;
     position: relative;
@@ -922,13 +924,15 @@ body {
     transform: translateX(-50%);
     width: 390px;
     height: 60px;
-    display: flex;
+    display: flex !important;
     align-items: center;
     justify-content: space-between;
     padding: 0 16px;
     background: white;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    z-index: 100;
+    z-index: 1000;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .logo-btn {
@@ -1038,7 +1042,7 @@ body {
 }
 
 .hero-title {
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 800;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
     background-size: 200% auto;
@@ -1063,7 +1067,7 @@ body {
 }
 
 .hero-subtitle {
-    font-size: 16px;
+    font-size: 13px;
     color: rgba(80, 80, 80, 0.9);
     font-weight: 500;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -1469,7 +1473,7 @@ body {
 }
 
 .idea-card .card-title {
-    text-align: left;
+    text-align: center;
     width: 100%;
     margin: 0 0 8px 0;
     padding: 0;
@@ -1571,11 +1575,12 @@ body {
 }
 
 .platform-icon {
-    width: 14px;
-    height: 14px;
-    opacity: 0.7;
+    width: 18px;
+    height: 18px;
+    opacity: 0.8;
     transition: all 0.2s;
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    object-fit: contain;
 }
 
 .platform-icon:hover {
@@ -2713,7 +2718,9 @@ body {
 
 .expanded-idea-card {
     width: 320px;
-    height: 350px;
+    min-height: 570px;
+    max-height: 750px;
+    height: auto;
     margin: 0 auto;
     position: relative;
     background: white;
@@ -2725,15 +2732,19 @@ body {
     outline: none !important;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     text-align: left;
+    overflow-y: auto;
 }
 
 .expanded-idea-card .card-content {
-    padding: 40px 16px 50px 16px;
-    justify-content: center;
+    padding: 100px 16px 110px 16px;
+    justify-content: flex-start;
     align-items: flex-start;
     text-align: left;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .expanded-idea-card .card-section {
@@ -3289,4 +3300,208 @@ select.custom-dropdown {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* ============================================
+   LOADING PLACEHOLDER CARDS
+   ============================================ */
+.loading-placeholder {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    pointer-events: none;
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.loading-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    padding: 40px 20px;
+    position: relative;
+}
+
+.loading-animation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.loading-sparkle {
+    font-size: 48px;
+    animation: sparkleRotate 3s linear infinite;
+}
+
+@keyframes sparkleRotate {
+    0%, 100% {
+        transform: rotate(0deg) scale(1);
+    }
+    25% {
+        transform: rotate(90deg) scale(1.2);
+    }
+    50% {
+        transform: rotate(180deg) scale(1);
+    }
+    75% {
+        transform: rotate(270deg) scale(1.2);
+    }
+}
+
+.loading-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 100%;
+}
+
+.loading-dots {
+    display: none;
+}
+
+.loading-subtitle {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+.loading-icon {
+    margin: 0 auto 12px auto;
+    transform: scale(0.75) translateY(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.loading-icon svg {
+    width: 60px;
+    height: 60px;
+    display: block;
+    margin: 0 auto;
+}
+
+.loading-circle {
+    animation: rotateCircle 2s linear infinite;
+    transform-origin: center;
+}
+
+@keyframes rotateCircle {
+    0% {
+        stroke-dashoffset: 75;
+        transform: rotate(0deg);
+    }
+    50% {
+        stroke-dashoffset: 200;
+    }
+    100% {
+        stroke-dashoffset: 75;
+        transform: rotate(360deg);
+    }
+}
+
+.ai-thinking-window {
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px auto;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: white;
+    text-align: left;
+    height: 160px;
+    width: 85%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+}
+
+.thinking-line {
+    opacity: 0.9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.6;
+}
+
+@keyframes fadeInLine {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 0.9;
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5);
+        transform: scale(1.02);
+    }
+}
+
+/* ============================================
+   BUILD IDEA BUTTON (Swiper Cards)
+   ============================================ */
+.build-idea-btn,
+.collapse-idea-btn {
+    width: 100%;
+    padding: 12px 20px;
+    margin-top: 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.build-idea-btn:hover,
+.collapse-idea-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.build-idea-btn:active,
+.collapse-idea-btn:active {
+    transform: translateY(0);
+}
+
+.collapse-idea-btn {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+}
+
+.collapse-idea-btn:hover {
+    box-shadow: 0 6px 16px rgba(100, 116, 139, 0.4);
+}
+
+/* Expanded card state */
+.idea-card.expanded {
+    transform: scale(1.02);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
 }

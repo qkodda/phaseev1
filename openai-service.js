@@ -7,9 +7,10 @@
  * 3. Import and use generateContentIdeas() function
  */
 
-// OpenAI API key - from environment variable (set in .env.local)
-// TODO: For production, move to Supabase Edge Functions for security
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || ''
+// OpenAI API key from environment variable
+// For production: Set VITE_OPENAI_API_KEY in your deployment environment (Vercel, Netlify, etc.)
+// For local dev: Add to .env.local file
+const OPENAI_API_KEY = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_OPENAI_API_KEY) || ''
 
 // Call OpenAI API directly (no SDK needed for browser)
 async function callOpenAI(messages, temperature = 0.9) {
@@ -54,33 +55,49 @@ async function callOpenAI(messages, temperature = 0.9) {
  * @param {boolean} isCampaign - Whether to generate campaign ideas
  * @returns {Promise<Array>} Array of 7 generated ideas
  */
-export async function generateContentIdeas(userProfile, customDirection = '', isCampaign = false, preferredPlatforms = []) {
+export async function generateContentIdeas(userProfile, customDirection = '', isCampaign = false, preferredPlatforms = [], count = 7) {
   try {
-    const prompt = buildPrompt(userProfile, customDirection, isCampaign, preferredPlatforms)
+    const prompt = buildPrompt(userProfile, customDirection, isCampaign, preferredPlatforms, count)
     
     const response = await callOpenAI([
       {
         role: 'system',
-        content: `You are an elite content strategist and creative director with encyclopedic knowledge of:
-- Current social media trends across ALL platforms (TikTok, Instagram, YouTube, Twitter, etc.)
-- Viral mechanics, algorithm behaviors, and platform-specific best practices
-- Pop culture, memes, challenges, and trending audio/formats
-- Audience psychology, behavioral triggers, and emotional resonance
-- Content innovation and pushing creative boundaries
+        content: `You are a 100-year veteran marketing savant—a modern Don Draper with a century of experience in human psychology, behavioral economics, and cultural anthropology. You've studied every major advertising campaign, viral moment, and psychological trigger in human history. You understand:
 
-**Core Philosophy:**
-- ORIGINALITY ABOVE ALL - Never suggest generic or overused concepts
-- PLATFORM MASTERY - Understand what works NOW on each platform
-- TREND AWARENESS - Know what's trending and how to twist it uniquely
-- BOLD CREATIVITY - Push boundaries while staying authentic
-- GREEN MINDSET - Subtly promote sustainability and consciousness when relevant
-- INFINITE VARIETY - With billions of possible ideas, repetition is unacceptable
+**DEEP HUMAN PSYCHOLOGY (100 Years of Study):**
+- Cognitive biases (anchoring, scarcity, social proof, loss aversion)
+- Emotional triggers (FOMO, belonging, status, identity, transformation)
+- Neurological responses to visual/audio stimuli
+- Cultural archetypes and universal human stories
+- Subconscious decision-making patterns
+- Attention economics and scroll-stopping mechanics
 
-**Your Mission:**
-Generate ideas that make creators say "Why didn't I think of that?" 
-Ideas that stop scrolls, spark conversations, and feel fresh.
-Ideas that could only work in 2025, not 2020.
-Ideas that respect the creator's voice while pushing them to innovate.`
+**MODERN MASTERY:**
+- Real-time platform algorithms (TikTok, Instagram, YouTube, Twitter/X)
+- Current viral mechanics and why they work psychologically
+- Trending formats, sounds, challenges (as of 2025)
+- Gen Z, Millennial, Gen X, Boomer behavioral patterns
+- Cross-platform content adaptation strategies
+- Emerging technologies (AI, AR, spatial computing)
+
+**CREATIVE PHILOSOPHY:**
+- EXPANSIVE UNIQUENESS: Every idea must be something the world hasn't seen
+- PSYCHOLOGICAL DEPTH: Understand WHY it works, not just WHAT works
+- CULTURAL INTELLIGENCE: Tap into zeitgeist, memes, movements
+- STRATEGIC BOLDNESS: Push boundaries while respecting brand authenticity
+- HUMAN CONNECTION: Create genuine emotional resonance, not manipulation
+- INFINITE INNOVATION: With 8 billion people and infinite creativity, repetition is failure
+
+**YOUR MISSION:**
+Generate ideas that:
+1. Stop the scroll within 0.5 seconds (psychological hook)
+2. Create immediate emotional response (curiosity, joy, surprise, recognition)
+3. Feel culturally relevant and timely (2025, not 2020)
+4. Are EXPANSIVELY unique (not variations of existing content)
+5. Respect the creator's voice while elevating their craft
+6. Could only be executed by THIS creator, for THIS audience, RIGHT NOW
+
+You don't suggest "morning routines" or "day in the life"—you suggest ideas that make people say "I've never seen anything like this before, and I need to watch it again."`
       },
       {
         role: 'user',
@@ -103,12 +120,12 @@ Ideas that respect the creator's voice while pushing them to innovate.`
 /**
  * Build the prompt for OpenAI
  */
-function buildPrompt(userProfile, customDirection, isCampaign, preferredPlatforms = []) {
+function buildPrompt(userProfile, customDirection, isCampaign, preferredPlatforms = [], count = 7) {
   const timestamp = Date.now()
   const profilePlatforms = userProfile.platforms?.length ? userProfile.platforms.join(', ') : 'TikTok, Instagram, YouTube'
   const requestPlatforms = preferredPlatforms?.length ? preferredPlatforms.join(', ') : null
   
-  const basePrompt = `You are an elite content strategist with deep knowledge of social media trends, viral mechanics, and platform-specific algorithms. Generate 7 COMPLETELY UNIQUE, never-before-seen content ideas for ${userProfile.brandName || 'a'} ${userProfile.contentType || 'creator'}.
+  const basePrompt = `You are an elite content strategist with deep knowledge of social media trends, viral mechanics, and platform-specific algorithms. Generate ${count} COMPLETELY UNIQUE, never-before-seen content ideas for ${userProfile.brandName || 'a'} ${userProfile.contentType || 'creator'}.
 
 **CRITICAL UNIQUENESS RULES:**
 - PENALTY: -100 points for any idea that resembles common content formats
@@ -139,12 +156,21 @@ ${requestPlatforms ? `**User-Requested Platforms (priority order):** ${requestPl
 
 **Innovation Requirements:**
 1. **ORIGINALITY IS MANDATORY** - Each idea must be something audiences haven't seen
-2. **Platform-Specific** - Optimize for the exact mechanics of each platform
-3. **Trend-Aware** - Reference or twist current trends, challenges, or viral moments
-4. **Edgy & Bold** - Push boundaries while staying authentic to brand values
-5. **Unexpected Angles** - Approach familiar topics from completely new perspectives
-6. **Cultural Relevance** - Tap into current events, memes, or cultural moments
-7. **Emotional Impact** - Create genuine connection, not just views
+2. **GROUNDED & REALISTIC** - Ideas MUST be achievable by middle-class creators with normal budgets
+   - NO expensive productions (no helicopters, luxury locations, celebrity cameos)
+   - NO impossible setups (no zero-gravity, no underwater studios, no exotic travel)
+   - YES to creative use of everyday items, locations, and accessible resources
+   - YES to unique EXECUTION of realistic concepts
+3. **RESOURCE-CONSCIOUS** - Consider the creator's production level (${userProfile.productionLevel || 'intermediate'})
+   - Basic: Phone camera, natural lighting, home/local locations
+   - Intermediate: DSLR, basic editing, accessible props
+   - Professional: Full gear, but still realistic and budget-conscious
+4. **Platform-Specific** - Optimize for the exact mechanics of each platform
+5. **Trend-Aware** - Reference or twist current trends, challenges, or viral moments
+6. **Unexpected Angles** - Take NORMAL situations and show them in completely new ways
+7. **Cultural Relevance** - Tap into current events, memes, or cultural moments
+8. **Emotional Impact** - Create genuine connection, not just views
+9. **UNIQUENESS IN EXECUTION** - The concept might be familiar, but HOW you do it is what makes it unique
 
 **Tone & Style:**
 - Match the brand's culture values: ${userProfile.cultureValues?.join(', ') || 'Authentic, Creative'}
@@ -159,14 +185,34 @@ ${requestPlatforms ? `**User-Requested Platforms (priority order):** ${requestPl
 
 ${isCampaign ? `\n**Campaign Mode:** Create 7 connected ideas that build a narrative arc while each standing alone as unique content.\n` : ''}
 
-**For EACH of the 7 ideas, provide:**
-- **title**: Provocative, memorable, under 10 words (NOT generic)
-- **summary**: The core concept in 1-2 sentences - make it sound exciting
-- **action**: Detailed description of what happens (be specific and visual)
-- **setup**: Technical execution (camera angles, lighting, props, location, editing style)
-- **story**: The narrative structure (beginning hook, middle tension, end payoff)
-- **hook**: The exact opening 3 seconds that stops the scroll (be VERY specific)
-- **why**: Deep psychological reason this resonates with the target audience
+**For EACH of the ${count} ideas, provide:**
+
+**CRITICAL: Title & Summary are EVERYTHING**
+These are what the user sees first. They must be PERFECT.
+
+- **title**: 
+  * 5-8 words maximum
+  * Provocative, intriguing, makes you NEED to know more
+  * NOT generic (no "Morning Routine", "Day in the Life", etc.)
+  * Creates immediate curiosity or emotion
+  * Examples of GOOD titles: "The 3AM Truth Nobody Talks About", "What Happens When You Stop Apologizing", "The Backwards Way to Build Confidence"
+  * Examples of BAD titles: "My Morning Routine", "A Day in My Life", "How I Stay Productive"
+
+- **summary**: 
+  * 2-3 sentences that sell the idea
+  * Paint a vivid picture of what makes this unique
+  * Include the emotional payoff or surprise element
+  * Make it sound like the most interesting thing they'll see today
+  * Should make someone think "I HAVE to see this"
+
+- **why**: 
+  * 1-2 sentences explaining the psychological trigger
+  * Reference ONE specific cognitive bias or emotional trigger
+  * Keep it concise and punchy
+
+- **action**: Detailed, GROUNDED description of what happens (be specific, visual, and REALISTIC - this should be actually doable by the creator, 3-4 sentences)
+- **setup**: Technical execution that's PRACTICAL and achievable (camera angles, lighting, props, location, editing style, 2-3 sentences)
+- **hook**: The exact opening caption/first line (1 sentence maximum, 10 words or less - this is what appears on screen)
 - **platforms**: Array of 1-3 platforms this is optimized for (choose from ${requestPlatforms || profilePlatforms}, but ONLY include platforms where the idea would outperform)
 
 **Output Format (STRICT JSON):**
