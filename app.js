@@ -1912,9 +1912,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 console.log(`📱 Card ${index} touchstart`);
                 
-                // Only allow dragging the top card
-                const topCard = cardStack.querySelector('.idea-card:first-child');
-                if (card !== topCard) {
+                // Only allow dragging the current top idea card (ignore other siblings)
+                const topCard = cardStack.querySelector('.idea-card:not(.swipe-left):not(.swipe-right)');
+                if (!topCard || card !== topCard) {
                     console.log('Not top card');
                     return;
                 }
@@ -2006,8 +2006,8 @@ document.addEventListener('DOMContentLoaded', () => {
             let mouseStartY = 0;
 
             card.addEventListener('mousedown', (e) => {
-                const topCard = cardStack.querySelector('.idea-card:first-child');
-                if (card !== topCard || e.target.closest('button')) return;
+                const topCard = cardStack.querySelector('.idea-card:not(.swipe-left):not(.swipe-right)');
+                if (!topCard || card !== topCard || e.target.closest('button')) return;
 
                 mouseDown = true;
                 mouseStartX = e.clientX;
