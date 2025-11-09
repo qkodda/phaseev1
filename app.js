@@ -2252,7 +2252,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'twitter': '<img src="https://cdn.simpleicons.org/x/000000" alt="Twitter" class="platform-icon">',
             'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
         };
-        const platformIconsHTML = idea.platforms.map(p => iconMap[p] || '').join('');
+        const platformsArray = Array.isArray(idea.platforms) ? idea.platforms : [];
+        const platformIconsHTML = platformsArray.map(p => iconMap[p] || '').join('');
 
         // Create collapsed card
         const collapsedCard = document.createElement('div');
@@ -2281,7 +2282,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Store full idea data
         collapsedCard.dataset.idea = JSON.stringify(idea);
-        collapsedCard.dataset.platforms = (idea.platforms || []).join(', ');
+        collapsedCard.dataset.platforms = platformsArray.join(', ');
 
         // Add click handler for expansion (entire card, except buttons)
         collapsedCard.addEventListener('click', (e) => {
