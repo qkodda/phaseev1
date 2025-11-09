@@ -1108,14 +1108,14 @@ body {
     border-radius: 16px;
     padding: 14px;
     width: 300px;
-    height: 320px;
+    height: 270px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: stretch;
     text-align: left;
     position: absolute;
-    top: 0;
+    top: 25px;
     left: 0;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     overflow: hidden;
@@ -1194,12 +1194,12 @@ body {
     border-radius: 16px;
     padding: 16px;
     width: 300px;
-    height: 320px;
+    height: 270px;
     display: flex;
     flex-direction: column;
     box-shadow: 0 8px 24px rgba(107, 70, 193, 0.4);
     position: absolute;
-    top: 0;
+    top: 25px;
     left: 0;
     z-index: 1;
     opacity: 0;
@@ -1220,14 +1220,14 @@ body {
     border-radius: 16px;
     padding: 24px;
     width: 300px;
-    height: 320px;
+    height: 270px;
     display: none;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     box-shadow: 0 12px 32px rgba(239, 68, 68, 0.5);
     position: absolute;
-    top: 0;
+    top: 25px;
     left: 0;
     z-index: 999;
     user-select: none;
@@ -1294,6 +1294,28 @@ body {
 
 .expired-subscribe-btn:active {
     transform: translateY(0);
+}
+
+/* ============================================ */
+
+/* Shadow Container (under cards, uninteractive) */
+.card-shadow-container {
+    width: 350px;
+    height: 220px;
+    background: linear-gradient(180deg, 
+        rgba(255, 255, 255, 0.3) 0%, 
+        rgba(248, 248, 248, 0.5) 25%,
+        rgba(242, 242, 242, 0.7) 50%,
+        rgba(235, 235, 235, 0.85) 75%,
+        rgba(230, 230, 230, 1) 100%
+    );
+    border-radius: 16px;
+    position: absolute;
+    top: 50px;
+    left: -25px;
+    pointer-events: none;
+    z-index: 0;
+    user-select: none;
 }
 
 /* ============================================ */
