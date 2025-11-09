@@ -1107,7 +1107,7 @@ body {
 
 .idea-card {
     background: #ffffff;
-    border: 2px solid rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 16px;
     padding: 14px;
     width: 300px;
@@ -1565,7 +1565,6 @@ body {
     flex: 1;
     justify-content: center;
     align-items: flex-start;
-    pointer-events: none;
 }
 
 .card-title {

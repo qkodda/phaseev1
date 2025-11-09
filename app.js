@@ -361,6 +361,11 @@ function navigateTo(pageId) {
         // Personalize hero section
         personalizeHeroSection();
         
+        // Reload saved ideas from Supabase (pinned/scheduled)
+        loadIdeasFromSupabase().catch(err => {
+            console.error('Failed to reload ideas:', err);
+        });
+        
         const cardStack = document.getElementById('card-stack');
         const existingCards = cardStack ? cardStack.querySelectorAll('.idea-card') : [];
         
@@ -3933,6 +3938,18 @@ async function loadIdeasFromSupabase() {
             return;
         }
         
+        // Clear existing pinned ideas to prevent duplicates
+        const pinnedGrid = document.querySelector('.ideas-grid');
+        if (pinnedGrid) {
+            pinnedGrid.innerHTML = '';
+        }
+        
+        // Clear existing scheduled ideas
+        const scheduleList = document.querySelector('.schedule-list');
+        if (scheduleList) {
+            scheduleList.innerHTML = '';
+        }
+        
         // Import Supabase functions
         const { supabase } = await import('./supabase.js');
         
@@ -3961,6 +3978,11 @@ async function loadIdeasFromSupabase() {
                 });
             });
             updatePinnedCount();
+        } else {
+            // Add empty state if no pinned ideas
+            if (pinnedGrid) {
+                pinnedGrid.innerHTML = '<div class="empty-state"><p>No pinned ideas yet. Start swiping!</p></div>';
+            }
         }
         
         // Load scheduled ideas
@@ -3976,14 +3998,7 @@ async function loadIdeasFromSupabase() {
         } else if (scheduledIdeas && scheduledIdeas.length > 0) {
             console.log('✅ Loaded', scheduledIdeas.length, 'scheduled ideas');
             
-            const scheduleList = document.querySelector('.schedule-list');
             if (scheduleList) {
-                // Remove empty state if present
-                const emptyState = scheduleList.querySelector('.empty-state');
-                if (emptyState) {
-                    emptyState.remove();
-                }
-                
                 scheduledIdeas.forEach(idea => {
                     const selectedDate = new Date(idea.scheduled_date);
                     const month = selectedDate.toLocaleDateString('en-US', { month: 'short' });
@@ -4008,6 +4023,11 @@ async function loadIdeasFromSupabase() {
             }
             
             generateScheduleCalendar();
+        } else {
+            // Add empty state if no scheduled ideas
+            if (scheduleList) {
+                scheduleList.innerHTML = '<div class="empty-state"><p>No scheduled ideas yet. Pin an idea and set a date!</p></div>';
+            }
         }
         
     } catch (error) {
