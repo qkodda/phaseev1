@@ -39,7 +39,8 @@ export default async function handler(request) {
         'Authorization': `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4-turbo-preview',
+        // gpt-4o-mini keeps costs low + responds faster while maintaining strong quality
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -85,8 +86,8 @@ You don't suggest "morning routines" or "day in the life"—you suggest ideas th
             content: prompt
           }
         ],
-        temperature: 0.9,
-        max_tokens: 3000,
+        temperature: 0.85,
+        max_tokens: 1800,
         response_format: { type: "json_object" }
       }),
     });
