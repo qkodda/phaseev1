@@ -1037,7 +1037,7 @@ body {
 .hero-section {
     text-align: center;
     margin-top: 25px;
-    margin-bottom: 12px;
+    margin-bottom: 5px;
     padding: 0 8px;
 }
 
@@ -1104,7 +1104,7 @@ body {
 }
 
 .idea-card {
-    background: white;
+    background: #ffffff;
     border-radius: 16px;
     padding: 14px;
     width: 300px;
@@ -1122,6 +1122,7 @@ body {
     cursor: grab;
     transition: transform 0.1s ease, opacity 0.1s ease;
     user-select: none;
+    opacity: 1 !important;
 }
 
 .idea-card:active {
@@ -1162,12 +1163,14 @@ body {
 
 .idea-swiper .idea-card:nth-child(1) {
     z-index: 10;
+    opacity: 1 !important;
+    transform: translateY(0);
 }
 
 .idea-swiper .idea-card:nth-child(2) {
     z-index: 9;
     transform: scale(0.98) translateY(4px);
-    opacity: 0.9;
+    opacity: 0.9 !important;
     pointer-events: none;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
@@ -1175,7 +1178,7 @@ body {
 .idea-swiper .idea-card:nth-child(3) {
     z-index: 8;
     transform: scale(0.96) translateY(8px);
-    opacity: 0.8;
+    opacity: 0.8 !important;
     pointer-events: none;
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
 }
@@ -1183,7 +1186,7 @@ body {
 .idea-swiper .idea-card:nth-child(n+4) {
     z-index: 7;
     transform: scale(0.94) translateY(12px);
-    opacity: 0;
+    opacity: 0 !important;
     pointer-events: none;
     box-shadow: 0 0px 4px rgba(0, 0, 0, 0.35);
 }
@@ -1312,7 +1315,8 @@ body {
     border-radius: 16px;
     position: absolute;
     top: 50px;
-    left: -25px;
+    left: 50%;
+    transform: translateX(-50%);
     pointer-events: none;
     z-index: 0;
     user-select: none;
