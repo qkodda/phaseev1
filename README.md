@@ -233,6 +233,7 @@ All major components have clear ID attributes and descriptive class names:
 
 1. **Set up your environment** - Copy `env.example` to `.env.local` and add your API keys
 2. **Run the database schema** - Execute `SUPABASE_FRESH_START.sql` in your Supabase project
+   - Upgrading an existing Supabase project? Run `SUPABASE_MIGRATION_2024_11_09.sql` to add the latest idea columns (pin/schedule support)
 3. **Test locally** - Run `npm run dev` and verify all features work
 4. **Build for iOS** - Run `npm run cap:ios` to open in Xcode
 5. **Submit to App Store** - Follow the complete guide in `DISTRIBUTION_READY.md`

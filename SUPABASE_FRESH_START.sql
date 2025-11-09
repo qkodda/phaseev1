@@ -47,13 +47,19 @@ CREATE TABLE ideas (
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
     title TEXT NOT NULL,
     summary TEXT,
+    action TEXT,
+    setup TEXT,
+    story TEXT,
+    hook TEXT,
     why TEXT,
     platforms TEXT[],
     direction TEXT,
     is_campaign BOOLEAN DEFAULT FALSE,
-    method TEXT,
-    status TEXT DEFAULT 'pinned',
+    generation_method TEXT,
+    is_pinned BOOLEAN DEFAULT FALSE,
+    is_scheduled BOOLEAN DEFAULT FALSE,
     scheduled_date DATE,
+    status TEXT DEFAULT 'idea',
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -96,6 +102,8 @@ CREATE TABLE feedback (
 -- STEP 4: Create indexes
 CREATE INDEX idx_ideas_user_id ON ideas(user_id);
 CREATE INDEX idx_ideas_status ON ideas(status);
+CREATE INDEX idx_ideas_is_pinned ON ideas(is_pinned);
+CREATE INDEX idx_ideas_is_scheduled ON ideas(is_scheduled);
 CREATE INDEX idx_ideas_scheduled_date ON ideas(scheduled_date);
 CREATE INDEX idx_generation_analytics_user_id ON generation_analytics(user_id);
 CREATE INDEX idx_generation_analytics_created_at ON generation_analytics(created_at);

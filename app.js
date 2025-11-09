@@ -484,34 +484,30 @@ function confirmScheduleDate(selectedDateStr) {
 
     // Remove from pinned
     pendingScheduleCard.remove();
-
-    // Update pinned count
-    const countElement = document.querySelector('.pinned-ideas .count');
-    if (countElement) {
-        const currentCount = parseInt(countElement.textContent.match(/\d+/)[0]);
-        countElement.textContent = `(${Math.max(0, currentCount - 1)})`;
-        
-        // Re-add empty state if no cards left
-        if (currentCount - 1 === 0) {
-            const grid = document.querySelector('.ideas-grid');
-            if (grid && grid.children.length === 0) {
-                grid.innerHTML = '<div class="empty-state"><p>No pinned ideas yet. Start swiping!</p></div>';
-            }
-        }
-    }
-
-    // Close calendar modal
-    const calendarModal = document.getElementById('calendar-modal');
-    if (calendarModal) {
-        calendarModal.classList.remove('active');
-    }
+    refreshPinnedCount();
 
     // Save to Supabase
-    saveScheduledIdeaToSupabase(ideaData, selectedDateStr).catch(err => {
-        console.error('Failed to save scheduled idea:', err);
-    });
+    saveScheduledIdeaToSupabase(ideaData, selectedDateStr)
+        .then(savedIdea => {
+            if (savedIdea) {
+                try {
+                    scheduledCard.dataset.idea = JSON.stringify({
+                        ...savedIdea,
+                        scheduledDate: savedIdea.scheduled_date || ideaData.scheduledDate,
+                        scheduledMonth: month,
+                        scheduledDay: day,
+                        platforms: savedIdea.platforms || ideaData.platforms || []
+                    });
+                    scheduledCard.dataset.platforms = (savedIdea.platforms || ideaData.platforms || []).join(', ');
+                } catch (err) {
+                    console.warn('Failed to sync scheduled card dataset with Supabase record:', err);
+                }
+            }
+        })
+        .catch(err => {
+            console.error('Failed to save scheduled idea:', err);
+        });
     
-    pendingScheduleCard = null;
     generateScheduleCalendar();
     console.log('Scheduled idea for:', month, day);
 }
@@ -2071,14 +2067,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 return; // Don't swipe the card away
             }
             
-            // Pin the card
-            addPinnedIdea(ideaData);
-            updatePinnedCount();
+            // Pin the card locally and persist
+            const pinnedCard = addPinnedIdea(ideaData);
             
-            // Save to Supabase
-            savePinnedIdeaToSupabase(ideaData).catch(err => {
-                console.error('Failed to save pinned idea:', err);
-            });
+            if (pinnedCard) {
+                savePinnedIdeaToSupabase(ideaData)
+                    .then(savedIdea => {
+                        if (savedIdea) {
+                            try {
+                                pinnedCard.dataset.idea = JSON.stringify({
+                                    ...savedIdea,
+                                    platforms: savedIdea.platforms || ideaData.platforms || []
+                                });
+                                pinnedCard.dataset.platforms = (savedIdea.platforms || ideaData.platforms || []).join(', ');
+                            } catch (err) {
+                                console.warn('Failed to update pinned idea dataset with Supabase record:', err);
+                            }
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Failed to save pinned idea:', err);
+                    });
+            }
         }
 
         // Clear inline styles and trigger animation
@@ -2187,12 +2197,27 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Update pinned ideas count
      */
-    function updatePinnedCount() {
+    function refreshPinnedCount() {
         const countElement = document.querySelector('.pinned-ideas .count');
         if (!countElement) return;
 
-        const currentCount = parseInt(countElement.textContent.match(/\d+/)[0]);
-        countElement.textContent = `(${currentCount + 1})`;
+        const grid = document.querySelector('.pinned-ideas .ideas-grid');
+        const total = grid ? grid.querySelectorAll('.idea-card-collapsed').length : 0;
+        countElement.textContent = `(${total})`;
+
+        if (grid) {
+            const existingEmptyState = grid.querySelector('.empty-state');
+            if (total === 0) {
+                if (!existingEmptyState) {
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    emptyState.innerHTML = '<p>No pinned ideas yet. Start swiping!</p>';
+                    grid.appendChild(emptyState);
+                }
+            } else if (existingEmptyState) {
+                existingEmptyState.remove();
+            }
+        }
     }
 
     /**
@@ -2200,7 +2225,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function addPinnedIdea(idea) {
         const grid = document.querySelector('.ideas-grid');
-        if (!grid) return;
+        if (!grid) return null;
 
         if (!idea.id) {
             idea.id = generateIdeaId();
@@ -2210,7 +2235,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const existingPinnedCards = grid.querySelectorAll('.idea-card-collapsed');
         if (existingPinnedCards.length >= 7) {
             showAlertModal('Pin Limit Reached', 'You can only pin up to 7 ideas at a time. Please schedule or delete an idea before pinning another.');
-            return;
+            return null;
         }
 
         // Remove empty state if present
@@ -2268,6 +2293,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         grid.appendChild(collapsedCard);
+        refreshPinnedCount();
+        return collapsedCard;
     }
 
     // ============================================
@@ -3898,7 +3925,7 @@ async function savePinnedIdeaToSupabase(ideaData) {
  */
 async function saveScheduledIdeaToSupabase(ideaData, scheduledDate) {
     try {
-        const { createIdea, getCurrentUser } = await import('./supabase.js');
+        const { createIdea, updateIdea, getCurrentUser } = await import('./supabase.js');
         const user = await getCurrentUser();
         
         if (!user) {
@@ -3906,12 +3933,24 @@ async function saveScheduledIdeaToSupabase(ideaData, scheduledDate) {
             return null;
         }
         
-        const savedIdea = await createIdea(user.id, {
-            ...ideaData,
-            is_pinned: false,
-            is_scheduled: true,
-            scheduled_date: scheduledDate
-        });
+        let savedIdea;
+        if (ideaData.id) {
+            savedIdea = await updateIdea(ideaData.id, {
+                ...ideaData,
+                is_pinned: false,
+                is_scheduled: true,
+                scheduled_date: scheduledDate,
+                status: 'scheduled'
+            });
+        } else {
+            savedIdea = await createIdea(user.id, {
+                ...ideaData,
+                is_pinned: false,
+                is_scheduled: true,
+                scheduled_date: scheduledDate,
+                status: 'scheduled'
+            });
+        }
         
         // Track scheduled event
         await trackGenerationEvent('scheduled', {
@@ -3983,17 +4022,24 @@ async function loadIdeasFromSupabase() {
                     action: idea.action,
                     setup: idea.setup,
                     hook: idea.hook,
+                    story: idea.story,
                     why: idea.why,
-                    platforms: idea.platforms || []
+                    platforms: idea.platforms || [],
+                    direction: idea.direction,
+                    is_campaign: idea.is_campaign,
+                    is_pinned: idea.is_pinned,
+                    is_scheduled: idea.is_scheduled,
+                    scheduledDate: idea.scheduled_date ? idea.scheduled_date.toString() : null
                 });
             });
-            updatePinnedCount();
         } else {
             // Add empty state if no pinned ideas
             if (pinnedGrid) {
-                pinnedGrid.innerHTML = '<div class="empty-state"><p>No pinned ideas yet. Start swiping!</p></div>';
+                pinnedGrid.innerHTML = '';
             }
         }
+        
+        refreshPinnedCount();
         
         // Load scheduled ideas
         const { data: scheduledIdeas, error: scheduledError } = await supabase

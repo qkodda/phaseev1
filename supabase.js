@@ -163,15 +163,38 @@ export async function getIdeas(userId, filters = {}) {
 /**
  * Create a new idea
  */
-export async function createIdea(userId, ideaData) {
+export async function createIdea(userId, ideaData = {}) {
+  const payload = {
+    user_id: userId,
+    title: ideaData.title,
+    summary: ideaData.summary ?? null,
+    action: ideaData.action ?? null,
+    setup: ideaData.setup ?? null,
+    story: ideaData.story ?? null,
+    hook: ideaData.hook ?? null,
+    why: ideaData.why ?? null,
+    platforms: Array.isArray(ideaData.platforms) ? ideaData.platforms : null,
+    direction: ideaData.direction ?? null,
+    is_campaign: ideaData.is_campaign ?? false,
+    generation_method: ideaData.generation_method ?? ideaData.method ?? null,
+    is_pinned: ideaData.is_pinned ?? false,
+    is_scheduled: ideaData.is_scheduled ?? false,
+    scheduled_date: ideaData.scheduled_date ?? null,
+    status: ideaData.status || ((ideaData.is_scheduled ?? false) ? 'scheduled' : (ideaData.is_pinned ?? false) ? 'pinned' : 'idea'),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }
+
+  // Remove undefined keys to avoid Supabase complaints
+  Object.keys(payload).forEach((key) => {
+    if (payload[key] === undefined) {
+      delete payload[key]
+    }
+  })
+
   const { data, error } = await supabase
     .from('ideas')
-    .insert({
-      user_id: userId,
-      ...ideaData,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    })
+    .insert(payload)
     .select()
     .single()
   
