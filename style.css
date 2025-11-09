@@ -1105,6 +1105,7 @@ body {
 
 .idea-card {
     background: #ffffff;
+    border: 2px solid rgba(0, 0, 0, 0.12);
     border-radius: 16px;
     padding: 14px;
     width: 300px;
@@ -1120,7 +1121,7 @@ body {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     overflow: hidden;
     cursor: grab;
-    transition: transform 0.1s ease, opacity 0.1s ease;
+    transition: transform 0.1s ease;
     user-select: none;
     opacity: 1 !important;
 }
@@ -1170,7 +1171,7 @@ body {
 .idea-swiper .idea-card:nth-child(2) {
     z-index: 9;
     transform: scale(0.98) translateY(4px);
-    opacity: 0.9 !important;
+    opacity: 1 !important;
     pointer-events: none;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
@@ -1178,7 +1179,7 @@ body {
 .idea-swiper .idea-card:nth-child(3) {
     z-index: 8;
     transform: scale(0.96) translateY(8px);
-    opacity: 0.8 !important;
+    opacity: 1 !important;
     pointer-events: none;
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
 }
@@ -1186,7 +1187,7 @@ body {
 .idea-swiper .idea-card:nth-child(n+4) {
     z-index: 7;
     transform: scale(0.94) translateY(12px);
-    opacity: 0 !important;
+    opacity: 1 !important;
     pointer-events: none;
     box-shadow: 0 0px 4px rgba(0, 0, 0, 0.35);
 }
