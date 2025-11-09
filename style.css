@@ -1123,7 +1123,6 @@ body {
     cursor: grab;
     transition: transform 0.1s ease;
     user-select: none;
-    opacity: 1 !important;
 }
 
 .idea-card:active {
@@ -1166,6 +1165,7 @@ body {
     z-index: 10;
     opacity: 1 !important;
     transform: translateY(0);
+    pointer-events: all;
 }
 
 .idea-swiper .idea-card:nth-child(2) {
@@ -1187,9 +1187,10 @@ body {
 .idea-swiper .idea-card:nth-child(n+4) {
     z-index: 7;
     transform: scale(0.94) translateY(12px);
-    opacity: 1 !important;
+    opacity: 0 !important;
     pointer-events: none;
     box-shadow: 0 0px 4px rgba(0, 0, 0, 0.35);
+    visibility: hidden;
 }
 
 /* Idea Generator Card */
