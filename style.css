@@ -1079,7 +1079,7 @@ body {
     font-size: 11px;
     color: rgba(0, 0, 0, 0.2);
     font-weight: 400;
-    margin-top: -27px;
+    margin-top: 0;
     margin-bottom: 20px;
     letter-spacing: 0.2px;
 }
@@ -1090,10 +1090,11 @@ body {
 
 /* Idea Swiper Component */
 .idea-swiper {
-    margin-bottom: 40px;
+    margin-bottom: 5px;
     display: flex;
     justify-content: center;
     position: relative;
+    margin-top: -3px;
 }
 
 .card-stack {
@@ -1101,6 +1102,7 @@ body {
     width: 300px;
     height: 320px;
     touch-action: manipulation;
+    z-index: 10;
 }
 
 .idea-card {
@@ -1319,8 +1321,8 @@ body {
     top: 50px;
     left: 50%;
     transform: translateX(-50%);
-    pointer-events: none;
-    z-index: 0;
+    pointer-events: none !important;
+    z-index: -1;
     user-select: none;
 }
 
@@ -1630,6 +1632,8 @@ body {
     padding-top: 6px;
     margin-top: 2px;
     flex-shrink: 0;
+    position: relative;
+    z-index: 20;
 }
 
 .card-action-btn {
@@ -1644,6 +1648,8 @@ body {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    z-index: 21;
+    pointer-events: all;
 }
 
 .card-action-btn::after {
