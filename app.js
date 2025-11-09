@@ -330,8 +330,11 @@ function navigateTo(pageId) {
         targetPage.classList.add('active');
     }
     
-    // Track page view
-    trackPageView(pageId);
+    // Track page view (exclude auth pages for privacy)
+    const authPages = ['sign-in-page', 'sign-up-page'];
+    if (!authPages.includes(pageId)) {
+        trackPageView(pageId);
+    }
     
     if (pageId === 'paywall-page') {
         startTrialCountdown();
@@ -1043,74 +1046,74 @@ function removeCollapsedCard(card) {
 
 const ideaTemplates = [
     {
-        title: 'Behind the Scenes Video',
-        summary: 'Show your creative process from start to finish',
-        action: 'Film your workspace, tools, and step-by-step creation',
-        setup: 'Natural lighting, close-ups of hands working, wide shots of workspace',
-        story: 'Take viewers on a journey from blank canvas to finished piece',
-        hook: 'Ever wondered how this is made? Let me show you...',
-        why: 'Builds trust and connection by showing the real work behind the magic',
+        title: 'AI Got KO\'d - So Here\'s This',
+        summary: 'Our AI is taking a nap. Just point camera at stuff until something happens.',
+        action: 'Wave your phone around like you know what you\'re doing. You probably don\'t. That\'s fine.',
+        setup: 'Any lighting works when expectations are this low. Seriously, we\'re not picky right now.',
+        story: 'Start filming. Do some things. Stop filming. Boom - content. You\'re crushing it already.',
+        hook: 'I was gonna make something good today but... *gestures vaguely at everything*',
+        why: 'Because our AI took a sick day and this is all we got. At least you showed up.',
         platforms: ['tiktok', 'instagram', 'youtube']
     },
     {
-        title: 'Quick Tips Tutorial',
-        summary: 'Share 3 essential tips in under 60 seconds',
-        action: 'Fast-paced demonstration of each tip with text overlay',
-        setup: 'Close-up shots, quick cuts, dynamic transitions',
-        story: 'Hook viewers with a problem, deliver solutions rapidly',
-        hook: 'Stop wasting time! Here are 3 game-changers...',
-        why: 'High engagement, easy to consume, shareable content',
+        title: 'Just Film Your Coffee or Whatever',
+        summary: 'No smart ideas here. Point camera at your drink and pretend it\'s profound.',
+        action: 'Make a latte. Film it. Add a filter. Call it "aesthetic vibes" and watch the engagement roll in.',
+        setup: 'Natural light is great. Artificial light is fine. Hell, film it in the dark. Who are we to judge?',
+        story: 'Pour. Stir. Look pensively at cup. Sip. Deep sigh. That\'s the whole story.',
+        hook: 'This coffee represents my entire personality...',
+        why: 'Because the algorithm loves coffee content almost as much as it loves your existential dread.',
         platforms: ['tiktok', 'instagram']
     },
     {
-        title: 'Day in the Life',
-        summary: 'Document your typical day from morning to evening',
-        action: 'Capture authentic moments throughout your day',
-        setup: 'Natural lighting, handheld camera, vlog style',
-        story: 'Take viewers through your routine with personality',
-        hook: 'You asked what my days look like. Let\'s go!',
-        why: 'Builds relatability and humanizes your brand',
-        platforms: ['youtube', 'instagram', 'tiktok']
+        title: 'Dance Like Nobody\'s Watching (They Are)',
+        summary: 'Do a little dance. Embarrass yourself. That\'s the content now.',
+        action: 'Find a trending sound. Move your body in ways that technically qualify as "dancing." Post anyway.',
+        setup: 'Ring light optional. Dignity optional. Commitment to the bit? Mandatory.',
+        story: 'Three seconds of confidence, followed by instant regret. Perfect for TikTok.',
+        hook: 'My therapist said I should step outside my comfort zone so...',
+        why: 'Because our AI is sleeping and this is what creativity looks like without artificial intelligence.',
+        platforms: ['tiktok', 'instagram']
     },
     {
-        title: 'Before & After Transformation',
-        summary: 'Show dramatic change over time',
-        action: 'Document initial state and final result with process',
-        setup: 'Split screen, time-lapse, side-by-side comparison',
-        story: 'Build anticipation then reveal the transformation',
-        hook: 'Wait for the transformation... WOW!',
-        why: 'Highly engaging visual storytelling that stops the scroll',
-        platforms: ['tiktok', 'instagram', 'youtube']
-    },
-    {
-        title: 'Common Mistakes to Avoid',
-        summary: 'Educate viewers on what NOT to do',
-        action: 'Show wrong way vs right way with clear examples',
-        setup: 'Demonstration shots, text callouts, dramatic reactions',
-        story: 'Build from "don\'t do this" to "do this instead"',
-        hook: 'Are you making these mistakes? Here\'s what to do...',
-        why: 'Problem-solving content performs well and positions you as expert',
+        title: 'Point Camera at Face, Say Words',
+        summary: 'Revolutionary concept: Just talk to the camera about literally anything.',
+        action: 'Complain about something mildly inconvenient. Or share an opinion nobody asked for. Both work.',
+        setup: 'Find a wall. Stand in front of wall. That\'s it. You did it.',
+        story: 'Beginning, middle, end. Or just middle. Who has time for narrative structure?',
+        hook: 'Hot take incoming... *pauses for effect I don\'t have*',
+        why: 'Because sometimes the bar is in hell and we\'re all just trying to step over it.',
         platforms: ['tiktok', 'youtube', 'instagram']
     },
     {
-        title: 'Trending Audio Challenge',
-        summary: 'Participate in viral trend with your unique twist',
-        action: 'Execute trending challenge in your niche or style',
-        setup: 'Match the trend format, add personal flair',
-        story: 'Ride the trend wave while staying authentic to brand',
-        hook: 'Okay I had to try this trend...',
-        why: 'Algorithm boost from trending audio, high discoverability',
-        platforms: ['tiktok', 'instagram']
+        title: 'Film Something, Add Text, Call it Art',
+        summary: 'Take any video. Slap some text on it. Congratulations, you\'re a content creator.',
+        action: 'Record 10 seconds of anything. Add text that says something relatable. Post. Repeat.',
+        setup: 'Phone camera. Thumb. That\'s the whole production value right there.',
+        story: 'The story is that you need to post something today and this is what you got.',
+        hook: 'POV: You\'re pretending you planned this content...',
+        why: 'Because our AI is out getting cigarettes and these are the ideas we\'re left with.',
+        platforms: ['tiktok', 'instagram', 'youtube']
     },
     {
-        title: 'Q&A Session',
-        summary: 'Answer your audience\'s burning questions',
-        action: 'Select top questions and provide detailed answers',
-        setup: 'Direct to camera, question text overlay, genuine responses',
-        story: 'Create connection by addressing what viewers want to know',
-        hook: 'You asked, I\'m answering! Let\'s dive in...',
-        why: 'Increases engagement and shows you listen to your community',
+        title: 'Behind the Scenes of Not Knowing What You\'re Doing',
+        summary: 'Show your process. Your very confused, chaotic, barely-functional process.',
+        action: 'Film yourself making mistakes in real-time. It\'s called "authenticity" now.',
+        setup: 'Messy workspace = relatable content. Organized workspace = lies. Choose chaos.',
+        story: 'Start with confidence. Descend into confusion. End with "well that happened."',
+        hook: 'Watch me pretend I have my life together for 60 seconds...',
+        why: 'Because vulnerability is trending and you\'re vulnerable AF right now.',
         platforms: ['youtube', 'instagram', 'tiktok']
+    },
+    {
+        title: 'Lipsyncing - Because Real Words Are Hard',
+        summary: 'Let someone else do the talking while you just move your mouth. Iconic.',
+        action: 'Find audio of someone saying something funny. Mouth the words. Barely try. Still gets views.',
+        setup: 'Forward-facing camera. Your face. Maybe some mediocre lighting. We\'re not asking for much.',
+        story: 'There is no story. Just vibes and borrowed audio.',
+        hook: '*Points at text* "This is about to be relatable..."',
+        why: 'Because our AI model is currently "unavailable" and so is our creativity, apparently.',
+        platforms: ['tiktok', 'instagram']
     }
 ];
 
@@ -1513,7 +1516,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('❌ AI generation failed, using fallback:', error);
             stopLiveThinking();
-            showAlertModal('AI Temporarily Unavailable', 'Using backup idea templates while we reconnect to the idea engine.');
+            showAlertModal('AI Got KO\'d 🥊', 'Our AI brain took one to the chin and needs a minute. Meanwhile, enjoy these discount-bin ideas we found in the back. They\'re... something.');
             
             // Remove all placeholders
             const placeholders = cardStack.querySelectorAll('.loading-placeholder');
@@ -3752,13 +3755,17 @@ async function trackAppEvent(eventData) {
 
 /**
  * Track page view with session duration
+ * NOTE: Auth pages (sign-in, sign-up) are excluded for privacy
  */
 let pageStartTime = Date.now();
 let currentPage = 'homepage';
 
 function trackPageView(pageName) {
-    // Track previous page session duration
-    if (currentPage && pageStartTime) {
+    // Exclude authentication pages from analytics
+    const authPages = ['sign-in-page', 'sign-up-page'];
+    
+    // Track previous page session duration (if not auth page)
+    if (currentPage && pageStartTime && !authPages.includes(currentPage)) {
         const sessionDuration = Math.floor((Date.now() - pageStartTime) / 1000);
         trackAppEvent({
             event_type: 'page_view',

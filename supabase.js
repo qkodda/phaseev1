@@ -10,9 +10,20 @@
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-// Supabase credentials
-const supabaseUrl = 'https://ootaqjhxpkcflomxjmxs.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vdGFxamh4cGtjZmxvbXhqbXhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2MjM0OTgsImV4cCI6MjA3ODE5OTQ5OH0.zc-Z1yzXXNtn7KJn1NJ6Buz4bokr_hOSnPmeOSRiWws'
+// Supabase credentials from environment variables
+// For production: Set these in your deployment environment (Vercel, Netlify, etc.)
+// For local dev: Add to .env.local file
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://ootaqjhxpkcflomxjmxs.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vdGFxamh4cGtjZmxvbXhqbXhzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI2MjM0OTgsImV4cCI6MjA3ODE5OTQ5OH0.zc-Z1yzXXNtn7KJn1NJ6Buz4bokr_hOSnPmeOSRiWws'
+
+// Log configuration status on load (development only)
+if (import.meta.env.DEV) {
+  console.log('✅ Supabase configured:', {
+    url: supabaseUrl.substring(0, 30) + '...',
+    keyPresent: !!supabaseAnonKey,
+    usingEnvVars: !!import.meta.env.VITE_SUPABASE_URL
+  });
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
