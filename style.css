@@ -1634,8 +1634,6 @@ body {
     margin-top: 2px;
     flex-shrink: 0;
     position: relative;
-    z-index: 20;
-    pointer-events: none;
 }
 
 .card-action-btn {
@@ -1650,9 +1648,6 @@ body {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-    z-index: 21;
-    pointer-events: all;
-    touch-action: auto;
 }
 
 .card-action-btn::after {

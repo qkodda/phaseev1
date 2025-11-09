@@ -1882,10 +1882,20 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const cards = cardStack.querySelectorAll('.idea-card');
+        const cards = cardStack.querySelectorAll('.idea-card:not(.loading-placeholder)');
         console.log(`🎯 Initializing swipe for ${cards.length} cards`);
         
         cards.forEach((card, index) => {
+            // Skip if handlers already attached
+            if (card.dataset.swipeHandlersAttached === 'true') {
+                console.log(`⏭️ Skipping card ${index} - handlers already attached`);
+                return;
+            }
+            
+            // Mark this card as having handlers
+            card.dataset.swipeHandlersAttached = 'true';
+            console.log(`✅ Attaching handlers to card ${index}`);
+            
             let touchStartX = 0;
             let touchStartY = 0;
             let touchCurrentX = 0;
