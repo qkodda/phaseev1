@@ -711,7 +711,7 @@ function expandIdeaCard(card) {
 /**
  * Delete an idea from the expanded modal view
  */
-function deleteIdeaFromExpanded() {
+window.deleteIdeaFromExpanded = function deleteIdeaFromExpanded() {
     const expandedCard = document.getElementById('expanded-idea-card');
     if (!expandedCard || !expandedCard.dataset.originalCard) return;
 
@@ -745,7 +745,7 @@ function deleteIdeaFromExpanded() {
 /**
  * Toggle edit mode for expanded idea card
  */
-function toggleEditMode() {
+window.toggleEditMode = function toggleEditMode() {
     const expandedCard = document.getElementById('expanded-idea-card');
     const editBtn = document.getElementById('edit-btn-expanded');
     if (!expandedCard || !editBtn) return;
@@ -854,14 +854,14 @@ function toggleEditMode() {
     }
 }
 
-function togglePlatformSelection(wrapper) {
+window.togglePlatformSelection = function togglePlatformSelection(wrapper) {
     wrapper.classList.toggle('unselected');
 }
 
 /**
  * Schedule from expanded modal (pinned cards only)
  */
-function scheduleFromExpanded() {
+window.scheduleFromExpanded = function scheduleFromExpanded() {
     const expandedCard = document.getElementById('expanded-idea-card');
     if (!expandedCard) return;
 
@@ -900,7 +900,7 @@ function scheduleFromExpanded() {
 /**
  * Copy idea to clipboard from expanded modal
  */
-function copyIdeaToClipboard() {
+window.copyIdeaToClipboard = function copyIdeaToClipboard() {
     const expandedCard = document.getElementById('expanded-idea-card');
     if (!expandedCard) return;
 
