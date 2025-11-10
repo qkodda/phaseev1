@@ -4404,3 +4404,99 @@ window.saveIdeaCard = saveIdeaCard;
 window.scheduleFromExpanded = scheduleFromExpanded;
 window.checkAndEnforceSubscription = checkAndEnforceSubscription;
 
+// ============================================
+// DEBUG HELPERS
+// ============================================
+
+/**
+ * Clear all pinned ideas from Supabase
+ * Usage: Open browser console and type: clearAllPinnedIdeas()
+ */
+window.clearAllPinnedIdeas = async function() {
+    try {
+        const user = getUser();
+        if (!user) {
+            console.error('No user logged in');
+            return;
+        }
+        
+        const { supabase } = await import('./supabase.js');
+        
+        // Update all pinned ideas to unpinned
+        const { data, error } = await supabase
+            .from('ideas')
+            .update({ is_pinned: false })
+            .eq('user_id', user.id)
+            .eq('is_pinned', true);
+        
+        if (error) {
+            console.error('Error clearing pinned ideas:', error);
+        } else {
+            console.log('✅ All pinned ideas cleared!');
+            
+            // Clear the UI
+            const pinnedGrid = document.querySelector('.pinned-ideas .ideas-grid');
+            if (pinnedGrid) {
+                pinnedGrid.innerHTML = '';
+            }
+            
+            // Refresh count
+            if (typeof window.refreshPinnedCount === 'function') {
+                window.refreshPinnedCount();
+            }
+            
+            console.log('🔄 Reload the page to see changes');
+        }
+    } catch (err) {
+        console.error('Failed to clear pinned ideas:', err);
+    }
+}
+
+/**
+ * Delete all ideas from Supabase (use with caution!)
+ * Usage: Open browser console and type: deleteAllMyIdeas()
+ */
+window.deleteAllMyIdeas = async function() {
+    const confirmed = confirm('⚠️ WARNING: This will delete ALL your ideas permanently. Are you sure?');
+    if (!confirmed) {
+        console.log('Cancelled');
+        return;
+    }
+    
+    try {
+        const user = getUser();
+        if (!user) {
+            console.error('No user logged in');
+            return;
+        }
+        
+        const { supabase } = await import('./supabase.js');
+        
+        const { data, error } = await supabase
+            .from('ideas')
+            .delete()
+            .eq('user_id', user.id);
+        
+        if (error) {
+            console.error('Error deleting ideas:', error);
+        } else {
+            console.log('✅ All ideas deleted!');
+            
+            // Clear the UI
+            const pinnedGrid = document.querySelector('.pinned-ideas .ideas-grid');
+            if (pinnedGrid) {
+                pinnedGrid.innerHTML = '';
+            }
+            
+            const scheduleList = document.querySelector('.schedule-list');
+            if (scheduleList) {
+                scheduleList.innerHTML = '';
+            }
+            
+            console.log('🔄 Reload the page to see changes');
+        }
+    } catch (err) {
+        console.error('Failed to delete ideas:', err);
+    }
+}
+
