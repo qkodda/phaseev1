@@ -138,6 +138,126 @@ export async function updateProfile(userId, profileData) {
 // ============================================
 
 /**
+ * Normalise idea payload before sending to Supabase
+ */
+function normalizeIdeaPayload(rawIdea = {}, { includeStatusFallback = true } = {}) {
+  const normalizeString = (value) => {
+    if (value === undefined || value === null) return null;
+    if (typeof value !== 'string') return value;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  };
+
+  const normalizeBoolean = (value, fallback = false) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+      const lowered = value.toLowerCase();
+      if (lowered === 'true') return true;
+      if (lowered === 'false') return false;
+    }
+    if (typeof value === 'number') {
+      return value !== 0;
+    }
+    return fallback;
+  };
+
+  const normalizePlatforms = (platforms) => {
+    if (!platforms) return null;
+    if (Array.isArray(platforms)) {
+      const cleaned = platforms
+        .map((p) => (typeof p === 'string' ? p.trim() : ''))
+        .filter(Boolean);
+      return cleaned.length > 0 ? cleaned : null;
+    }
+    if (typeof platforms === 'string') {
+      const cleaned = platforms
+        .split(',')
+        .map((p) => p.trim())
+        .filter(Boolean);
+      return cleaned.length > 0 ? cleaned : null;
+    }
+    return null;
+  };
+
+  const normalizeDate = (value) => {
+    if (!value) return null;
+    if (value instanceof Date && !Number.isNaN(value.valueOf())) {
+      return value.toISOString().slice(0, 10);
+    }
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (!trimmed) return null;
+      // Already YYYY-MM-DD
+      if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+        return trimmed;
+      }
+      const parsed = new Date(trimmed);
+      if (!Number.isNaN(parsed.valueOf())) {
+        return parsed.toISOString().slice(0, 10);
+      }
+    }
+    return null;
+  };
+
+  const isPinned =
+    rawIdea.is_pinned ??
+    rawIdea.isPinned ??
+    normalizeBoolean(rawIdea.status === 'pinned');
+  const isScheduled =
+    rawIdea.is_scheduled ??
+    rawIdea.isScheduled ??
+    normalizeBoolean(rawIdea.status === 'scheduled');
+
+  const scheduledDate =
+    rawIdea.scheduled_date ?? rawIdea.scheduledDate ?? null;
+
+  const normalized = {
+    title: normalizeString(rawIdea.title),
+    summary: normalizeString(rawIdea.summary),
+    action: normalizeString(rawIdea.action),
+    setup: normalizeString(rawIdea.setup),
+    story: normalizeString(rawIdea.story),
+    hook: normalizeString(rawIdea.hook),
+    why: normalizeString(rawIdea.why),
+    platforms: normalizePlatforms(
+      rawIdea.platforms ?? rawIdea.platform_list ?? rawIdea.platform
+    ),
+    direction: normalizeString(rawIdea.direction),
+    is_campaign: normalizeBoolean(
+      rawIdea.is_campaign ?? rawIdea.isCampaign,
+      false
+    ),
+    generation_method:
+      normalizeString(
+        rawIdea.generation_method ??
+          rawIdea.generationMethod ??
+          rawIdea.method
+      ) ?? null,
+    is_pinned: normalizeBoolean(isPinned, false),
+    is_scheduled: normalizeBoolean(isScheduled, false),
+    scheduled_date: normalizeDate(scheduledDate),
+    status:
+      normalizeString(rawIdea.status) ??
+      (includeStatusFallback
+        ? normalizeBoolean(isScheduled, false)
+          ? 'scheduled'
+          : normalizeBoolean(isPinned, false)
+          ? 'pinned'
+          : 'idea'
+        : null)
+  };
+
+  // Remove undefined values while keeping null (explicit clears)
+  Object.keys(normalized).forEach((key) => {
+    if (normalized[key] === undefined) {
+      delete normalized[key];
+    }
+  });
+
+  return normalized;
+}
+
+/**
  * Get all ideas for a user
  */
 export async function getIdeas(userId, filters = {}) {
@@ -166,31 +286,10 @@ export async function getIdeas(userId, filters = {}) {
 export async function createIdea(userId, ideaData = {}) {
   const payload = {
     user_id: userId,
-    title: ideaData.title,
-    summary: ideaData.summary ?? null,
-    action: ideaData.action ?? null,
-    setup: ideaData.setup ?? null,
-    story: ideaData.story ?? null,
-    hook: ideaData.hook ?? null,
-    why: ideaData.why ?? null,
-    platforms: Array.isArray(ideaData.platforms) ? ideaData.platforms : null,
-    direction: ideaData.direction ?? null,
-    is_campaign: ideaData.is_campaign ?? false,
-    generation_method: ideaData.generation_method ?? ideaData.method ?? null,
-    is_pinned: ideaData.is_pinned ?? false,
-    is_scheduled: ideaData.is_scheduled ?? false,
-    scheduled_date: ideaData.scheduled_date ?? null,
-    status: ideaData.status || ((ideaData.is_scheduled ?? false) ? 'scheduled' : (ideaData.is_pinned ?? false) ? 'pinned' : 'idea'),
+    ...normalizeIdeaPayload(ideaData),
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   }
-
-  // Remove undefined keys to avoid Supabase complaints
-  Object.keys(payload).forEach((key) => {
-    if (payload[key] === undefined) {
-      delete payload[key]
-    }
-  })
 
   const { data, error } = await supabase
     .from('ideas')
@@ -205,13 +304,15 @@ export async function createIdea(userId, ideaData = {}) {
 /**
  * Update an idea
  */
-export async function updateIdea(ideaId, ideaData) {
+export async function updateIdea(ideaId, ideaData = {}) {
+  const payload = {
+    ...normalizeIdeaPayload(ideaData),
+    updated_at: new Date().toISOString()
+  }
+
   const { data, error } = await supabase
     .from('ideas')
-    .update({
-      ...ideaData,
-      updated_at: new Date().toISOString()
-    })
+    .update(payload)
     .eq('id', ideaId)
     .select()
     .single()

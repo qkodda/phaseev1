@@ -1406,12 +1406,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset cards remaining
         cardsRemaining = 7;
         ideasStack = [];
+        ideasRemaining = 7;
+        lastRefreshTime = new Date();
+        generatorCard.classList.remove('visible');
 
         // Show loading placeholders (7 cards with "Building New Ideas" animation)
         for (let i = 0; i < 7; i++) {
             const placeholder = createLoadingPlaceholder(i + 1);
             cardStack.insertBefore(placeholder, generatorCard);
         }
+        updateSwiperInfo();
+        updateIdeaGeneratorVisibility();
 
         // Show loading state
         console.log('🤖 Generating AI-powered ideas (progressive loading)...', {
@@ -1457,84 +1462,68 @@ document.addEventListener('DOMContentLoaded', () => {
                 userProfile.preferredPlatforms = preferredPlatforms;
             }
             
-            // INCREMENTAL LOADING: 3 → 2 → 2 for seamless experience
+            // INCREMENTAL LOADING: 3 → 2 → 2 with all ideas pre-generated
             
             // Start live thinking animation with personalized steps
             startLiveThinking(userProfile);
-            
-            // BATCH 1: Generate first 3 ideas
-            console.log('⚡ BATCH 1: Generating first 3 ideas...');
-            const firstBatch = await generateContentIdeas(userProfile, customDirection, isCampaign, preferredPlatforms, 3);
-            
-            console.log('✅ First batch ready:', firstBatch.length, 'ideas');
-            firstBatch.forEach((idea, idx) => {
-                console.log(`  ${idx + 1}. "${idea.title}"`);
-            });
-            
-            // Replace first 3 placeholders with real cards
-            let placeholders = cardStack.querySelectorAll('.loading-placeholder');
-            for (let i = 0; i < Math.min(3, firstBatch.length); i++) {
-                const ideaInstance = cloneIdeaTemplate(firstBatch[i]);
-                const card = createIdeaCard(ideaInstance);
-                if (placeholders[i]) {
-                    cardStack.replaceChild(card, placeholders[i]);
-                }
-                ideasStack.push(ideaInstance);
+
+            console.log('⚡ Generating full idea set (7 ideas)...');
+            const allIdeasRaw = await generateContentIdeas(userProfile, customDirection, isCampaign, preferredPlatforms, 7);
+            const allIdeas = Array.isArray(allIdeasRaw) ? allIdeasRaw.slice(0, 7) : [];
+
+            if (allIdeas.length === 0) {
+                throw new Error('No ideas returned from AI service');
             }
-            
-            // Initialize swipe handlers for first batch
-            initSwipeHandlers();
-            
-            // Update counter to show "7 Ideas" immediately (even though 4 are still loading)
-            ideasRemaining = 7;
-            lastRefreshTime = new Date();
-            updateSwiperInfo();
-            
-            // BATCH 2 & 3: Start generating remaining ideas immediately (in parallel)
-            console.log('⚡ BATCH 2 & 3: Generating remaining 4 ideas...');
-            const [secondBatch, thirdBatch] = await Promise.all([
-                generateContentIdeas(userProfile, customDirection, isCampaign, preferredPlatforms, 2),
-                generateContentIdeas(userProfile, customDirection, isCampaign, preferredPlatforms, 2)
-            ]);
-            
-            console.log('✅ Second batch ready:', secondBatch.length, 'ideas');
-            secondBatch.forEach((idea, idx) => {
-                console.log(`  ${idx + 4}. "${idea.title}"`);
-            });
-            
-            // Replace next 2 placeholders
-            placeholders = cardStack.querySelectorAll('.loading-placeholder');
-            for (let i = 0; i < Math.min(2, secondBatch.length); i++) {
-                const ideaInstance = cloneIdeaTemplate(secondBatch[i]);
-                const card = createIdeaCard(ideaInstance);
-                if (placeholders[i]) {
-                    cardStack.replaceChild(card, placeholders[i]);
+
+            const batches = [
+                { ideas: allIdeas.slice(0, 3), delay: 0 },
+                { ideas: allIdeas.slice(3, 5), delay: 150 },
+                { ideas: allIdeas.slice(5, 7), delay: 300 }
+            ];
+
+            const placeholderRefs = Array.from(cardStack.querySelectorAll('.loading-placeholder'));
+
+            const revealBatch = async (batch, startIndex) => {
+                const { ideas: batchIdeas, delay } = batch;
+                if (!batchIdeas.length) return;
+
+                if (delay > 0) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
                 }
-                ideasStack.push(ideaInstance);
-            }
-            
-            // Re-initialize swipe handlers
-            initSwipeHandlers();
-            
-            console.log('✅ Third batch ready:', thirdBatch.length, 'ideas');
-            thirdBatch.forEach((idea, idx) => {
-                console.log(`  ${idx + 6}. "${idea.title}"`);
-            });
-            
-            // Replace final 2 placeholders
-            placeholders = cardStack.querySelectorAll('.loading-placeholder');
-            for (let i = 0; i < Math.min(2, thirdBatch.length); i++) {
-                const ideaInstance = cloneIdeaTemplate(thirdBatch[i]);
-                const card = createIdeaCard(ideaInstance);
-                if (placeholders[i]) {
-                    cardStack.replaceChild(card, placeholders[i]);
+
+                batchIdeas.forEach((idea, idx) => {
+                    const ideaInstance = cloneIdeaTemplate(idea);
+                    const card = createIdeaCard(ideaInstance);
+                    const placeholder = placeholderRefs[startIndex + idx];
+                    if (placeholder && placeholder.parentNode) {
+                        placeholder.parentNode.replaceChild(card, placeholder);
+                    } else {
+                        cardStack.insertBefore(card, generatorCard);
+                    }
+                    ideasStack.push(ideaInstance);
+                });
+
+                initSwipeHandlers();
+                updateIdeaGeneratorVisibility();
+            };
+
+            let processed = 0;
+            for (const batch of batches) {
+                await revealBatch(batch, processed);
+                processed += batch.ideas.length;
+                if (processed >= 3) {
+                    ideasRemaining = 7;
+                    updateSwiperInfo();
                 }
-                ideasStack.push(ideaInstance);
             }
-            
-            // Final swipe handler initialization
-            initSwipeHandlers();
-            
+
+            // Remove any remaining placeholders (in case fewer than 7 ideas were generated)
+            placeholderRefs.slice(processed).forEach(placeholder => {
+                if (placeholder && placeholder.parentNode) {
+                    placeholder.parentNode.removeChild(placeholder);
+                }
+            });
+
             // Stop live thinking animation
             stopLiveThinking();
             
@@ -1589,12 +1578,8 @@ document.addEventListener('DOMContentLoaded', () => {
         placeholder.innerHTML = `
             <div class="card-content loading-content">
                 <div class="loading-animation">
-                    <div class="loading-icon">
-                        <svg viewBox="0 0 100 100" width="80" height="80">
-                            <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
-                            <circle cx="50" cy="50" r="45" fill="none" stroke="white" stroke-width="2" stroke-dasharray="283" stroke-dashoffset="75" class="loading-circle"/>
-                            <text x="50" y="58" text-anchor="middle" fill="white" font-size="24" font-weight="bold">✨</text>
-                        </svg>
+                    <div class="logo-loader" aria-hidden="true">
+                        <img src="PHasse-Logo.png" alt="" class="logo-fill-animated">
                     </div>
                     <h3 class="loading-title">Phasee is building!</h3>
                     <div class="ai-thinking-window">
@@ -2146,9 +2131,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Count actual remaining cards (excluding generator and loading placeholders)
         const cardStack = document.getElementById('card-stack');
+        const placeholderCount = cardStack ? cardStack.querySelectorAll('.loading-placeholder').length : 0;
         const actualCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.loading-placeholder)').length : 0;
         
-        console.log('🔄 Updating generator visibility. Remaining cards:', actualCards);
+        console.log('🔄 Updating generator visibility. Remaining cards:', actualCards, 'Placeholders:', placeholderCount);
+
+        if (placeholderCount > 0) {
+            generatorCard.classList.remove('visible');
+            return;
+        }
 
         if (actualCards === 0) {
             generatorCard.classList.add('visible');
@@ -2509,6 +2500,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const shareFinalBtn = document.getElementById('share-final-btn');
     const shareIdeasList = document.getElementById('share-ideas-list');
 
+    if (typeof window !== 'undefined') {
+        window.refreshPinnedCount = refreshPinnedCount;
+        window.addPinnedIdea = addPinnedIdea;
+        window.createScheduledCard = createScheduledCard;
+    }
+
     initNotificationSettings();
 });
 
@@ -2750,6 +2747,10 @@ function generateCalendarPicker() {
     }
 
     calendarPickerEl.appendChild(datesContainer);
+}
+
+if (typeof window !== 'undefined') {
+    window.generateScheduleCalendar = generateScheduleCalendar;
 }
 
 function navigatePickerMonth(direction) {
@@ -4004,6 +4005,23 @@ async function loadIdeasFromSupabase() {
             return;
         }
         
+        const addPinnedIdeaFn =
+            (typeof window !== 'undefined' && typeof window.addPinnedIdea === 'function')
+                ? window.addPinnedIdea
+                : (typeof addPinnedIdea === 'function' ? addPinnedIdea : null);
+        const refreshPinnedCountFn =
+            (typeof window !== 'undefined' && typeof window.refreshPinnedCount === 'function')
+                ? window.refreshPinnedCount
+                : (typeof refreshPinnedCount === 'function' ? refreshPinnedCount : null);
+        const createScheduledCardFn =
+            (typeof window !== 'undefined' && typeof window.createScheduledCard === 'function')
+                ? window.createScheduledCard
+                : (typeof createScheduledCard === 'function' ? createScheduledCard : null);
+        const generateScheduleCalendarFn =
+            (typeof window !== 'undefined' && typeof window.generateScheduleCalendar === 'function')
+                ? window.generateScheduleCalendar
+                : (typeof generateScheduleCalendar === 'function' ? generateScheduleCalendar : null);
+
         // Clear existing pinned ideas to prevent duplicates
         const pinnedGrid = document.querySelector('.pinned-ideas .ideas-grid');
         if (pinnedGrid) {
@@ -4031,24 +4049,28 @@ async function loadIdeasFromSupabase() {
             console.error('❌ Error loading pinned ideas:', pinnedError);
         } else if (pinnedIdeas && pinnedIdeas.length > 0) {
             console.log('✅ Loaded', pinnedIdeas.length, 'pinned ideas');
-            pinnedIdeas.forEach(idea => {
-                addPinnedIdea({
-                    id: idea.id,
-                    title: idea.title,
-                    summary: idea.summary,
-                    action: idea.action,
-                    setup: idea.setup,
-                    hook: idea.hook,
-                    story: idea.story,
-                    why: idea.why,
-                    platforms: idea.platforms || [],
-                    direction: idea.direction,
-                    is_campaign: idea.is_campaign,
-                    is_pinned: idea.is_pinned,
-                    is_scheduled: idea.is_scheduled,
-                    scheduledDate: idea.scheduled_date ? idea.scheduled_date.toString() : null
+            if (!addPinnedIdeaFn) {
+                console.warn('⚠️ addPinnedIdea helper not available; skipping pinned idea render.');
+            } else {
+                pinnedIdeas.forEach(idea => {
+                    addPinnedIdeaFn({
+                        id: idea.id,
+                        title: idea.title,
+                        summary: idea.summary,
+                        action: idea.action,
+                        setup: idea.setup,
+                        hook: idea.hook,
+                        story: idea.story,
+                        why: idea.why,
+                        platforms: idea.platforms || [],
+                        direction: idea.direction,
+                        is_campaign: idea.is_campaign,
+                        is_pinned: idea.is_pinned,
+                        is_scheduled: idea.is_scheduled,
+                        scheduledDate: idea.scheduled_date ? idea.scheduled_date.toString() : null
+                    });
                 });
-            });
+            }
         } else {
             // Add empty state if no pinned ideas
             if (pinnedGrid) {
@@ -4056,7 +4078,7 @@ async function loadIdeasFromSupabase() {
             }
         }
         
-        refreshPinnedCount();
+        refreshPinnedCountFn?.();
         
         // Load scheduled ideas
         const { data: scheduledIdeas, error: scheduledError } = await supabase
@@ -4072,30 +4094,36 @@ async function loadIdeasFromSupabase() {
             console.log('✅ Loaded', scheduledIdeas.length, 'scheduled ideas');
             
             if (scheduleList) {
-                scheduledIdeas.forEach(idea => {
-                    const selectedDate = new Date(idea.scheduled_date);
-                    const month = selectedDate.toLocaleDateString('en-US', { month: 'short' });
-                    const day = selectedDate.getDate();
-                    
-                    const scheduledCard = createScheduledCard({
-                        id: idea.id,
-                        title: idea.title,
-                        summary: idea.summary,
-                        action: idea.action,
-                        setup: idea.setup,
-                        hook: idea.hook,
-                        why: idea.why,
-                        platforms: idea.platforms || [],
-                        scheduledDate: idea.scheduled_date,
-                        scheduledMonth: month,
-                        scheduledDay: day
+                if (!createScheduledCardFn) {
+                    console.warn('⚠️ createScheduledCard helper not available; skipping scheduled idea render.');
+                } else {
+                    scheduledIdeas.forEach(idea => {
+                        const selectedDate = new Date(idea.scheduled_date);
+                        const month = selectedDate.toLocaleDateString('en-US', { month: 'short' });
+                        const day = selectedDate.getDate();
+                        
+                        const scheduledCard = createScheduledCardFn({
+                            id: idea.id,
+                            title: idea.title,
+                            summary: idea.summary,
+                            action: idea.action,
+                            setup: idea.setup,
+                            hook: idea.hook,
+                            why: idea.why,
+                            platforms: idea.platforms || [],
+                            scheduledDate: idea.scheduled_date,
+                            scheduledMonth: month,
+                            scheduledDay: day
+                        });
+                        
+                        if (scheduledCard) {
+                            scheduleList.appendChild(scheduledCard);
+                        }
                     });
-                    
-                    scheduleList.appendChild(scheduledCard);
-                });
+                }
             }
             
-            generateScheduleCalendar();
+            generateScheduleCalendarFn?.();
         } else {
             // Add empty state if no scheduled ideas
             if (scheduleList) {
