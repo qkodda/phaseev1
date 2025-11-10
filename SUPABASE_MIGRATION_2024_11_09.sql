@@ -1,34 +1,37 @@
 -- ============================================
--- SUPABASE MIGRATION - 2024-11-09
--- Align existing projects with latest schema changes
--- Run this in your Supabase SQL editor if your project
--- was created before November 9, 2024.
+-- PHASEE SCHEMA MIGRATION - November 9, 2024
+-- Adds missing fields to ideas table
 -- ============================================
 
-ALTER TABLE ideas ADD COLUMN IF NOT EXISTS action TEXT;
-ALTER TABLE ideas ADD COLUMN IF NOT EXISTS setup TEXT;
-ALTER TABLE ideas ADD COLUMN IF NOT EXISTS story TEXT;
-ALTER TABLE ideas ADD COLUMN IF NOT EXISTS hook TEXT;
-ALTER TABLE ideas ADD COLUMN IF NOT EXISTS generation_method TEXT;
-ALTER TABLE ideas ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN DEFAULT FALSE;
-ALTER TABLE ideas ADD COLUMN IF NOT EXISTS is_scheduled BOOLEAN DEFAULT FALSE;
-ALTER TABLE ideas ADD COLUMN IF NOT EXISTS scheduled_date DATE;
-ALTER TABLE ideas ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'idea';
+-- Add missing content fields
+ALTER TABLE ideas 
+ADD COLUMN IF NOT EXISTS action TEXT,
+ADD COLUMN IF NOT EXISTS setup TEXT,
+ADD COLUMN IF NOT EXISTS story TEXT,
+ADD COLUMN IF NOT EXISTS hook TEXT,
+ADD COLUMN IF NOT EXISTS generation_method TEXT;
 
--- Backfill status column based on pin/schedule flags
-UPDATE ideas
-SET status = CASE
-    WHEN COALESCE(is_scheduled, FALSE) THEN 'scheduled'
-    WHEN COALESCE(is_pinned, FALSE) THEN 'pinned'
-    ELSE COALESCE(status, 'idea')
-END;
+-- Add state management fields
+ALTER TABLE ideas 
+ADD COLUMN IF NOT EXISTS is_pinned BOOLEAN DEFAULT FALSE,
+ADD COLUMN IF NOT EXISTS is_scheduled BOOLEAN DEFAULT FALSE;
 
--- Ensure helpful indexes exist
-CREATE INDEX IF NOT EXISTS idx_ideas_is_pinned ON ideas(is_pinned);
-CREATE INDEX IF NOT EXISTS idx_ideas_is_scheduled ON ideas(is_scheduled);
-CREATE INDEX IF NOT EXISTS idx_ideas_scheduled_date ON ideas(scheduled_date);
+-- Update existing records to set default status
+UPDATE ideas 
+SET status = 'active'
+WHERE status IS NULL;
 
--- Touch updated_at so triggers continue to work
-UPDATE ideas SET updated_at = NOW() WHERE updated_at IS NOT NULL;
+-- Create performance indexes
+CREATE INDEX IF NOT EXISTS idx_ideas_is_pinned ON ideas(is_pinned) WHERE is_pinned = true;
+CREATE INDEX IF NOT EXISTS idx_ideas_is_scheduled ON ideas(is_scheduled) WHERE is_scheduled = true;
+CREATE INDEX IF NOT EXISTS idx_ideas_scheduled_date_sorted ON ideas(scheduled_date) WHERE is_scheduled = true;
 
-SELECT '✅ Migration complete - ideas table updated' AS status;
+-- Verify schema
+SELECT 
+    column_name, 
+    data_type, 
+    is_nullable,
+    column_default
+FROM information_schema.columns
+WHERE table_name = 'ideas'
+ORDER BY ordinal_position;
