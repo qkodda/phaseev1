@@ -1022,12 +1022,25 @@ function deleteIdea(button) {
     );
 }
 
-function removeCollapsedCard(card) {
+async function removeCollapsedCard(card) {
     if (!card) return;
 
     const ideaData = JSON.parse(card.dataset.idea || '{}');
     const isPinned = card.closest('.pinned-ideas');
     const scheduleList = document.querySelector('.schedule-list');
+
+    // 🔴 CRITICAL FIX: Delete from database if it has an ID
+    if (ideaData.id) {
+        try {
+            console.log('🗑️ Deleting idea from database:', ideaData.id);
+            const { deleteIdea } = await import('./supabase.js');
+            await deleteIdea(ideaData.id);
+            console.log('✅ Idea deleted from database');
+        } catch (err) {
+            console.error('❌ Failed to delete idea from database:', err);
+            // Continue with UI removal even if DB delete fails
+        }
+    }
 
     card.remove();
 
@@ -4511,18 +4524,71 @@ window.deleteAllMyIdeas = async function() {
             // Clear the UI
             const pinnedGrid = document.querySelector('.pinned-ideas .ideas-grid');
             if (pinnedGrid) {
-                pinnedGrid.innerHTML = '';
+                pinnedGrid.innerHTML = '<div class="empty-state"><p>No pinned ideas yet. Start swiping!</p></div>';
             }
             
             const scheduleList = document.querySelector('.schedule-list');
             if (scheduleList) {
-                scheduleList.innerHTML = '';
+                scheduleList.innerHTML = '<div class="empty-state"><p>No scheduled content. Pin ideas and schedule them here!</p></div>';
             }
             
-            console.log('🔄 Reload the page to see changes');
+            // Update counts
+            const pinnedCount = document.querySelector('.pinned-ideas .count');
+            if (pinnedCount) {
+                pinnedCount.textContent = '(0)';
+            }
+            
+            console.log('🔄 Page will reload in 2 seconds...');
+            setTimeout(() => location.reload(), 2000);
         }
     } catch (err) {
         console.error('Failed to delete ideas:', err);
+    }
+}
+
+/**
+ * EMERGENCY: Delete ONLY pinned ideas from database
+ * Usage: deleteAllPinnedFromDB()
+ */
+window.deleteAllPinnedFromDB = async function() {
+    try {
+        const user = getUser();
+        if (!user) {
+            console.error('No user logged in');
+            return;
+        }
+        
+        const { supabase } = await import('./supabase.js');
+        
+        console.log('🔍 Finding all pinned ideas...');
+        const { data: pinnedIdeas, error: fetchError } = await supabase
+            .from('ideas')
+            .select('id, title')
+            .eq('user_id', user.id)
+            .eq('is_pinned', true);
+        
+        if (fetchError) {
+            console.error('Error fetching pinned ideas:', fetchError);
+            return;
+        }
+        
+        console.log(`Found ${pinnedIdeas.length} pinned ideas:`, pinnedIdeas);
+        
+        const { error: deleteError } = await supabase
+            .from('ideas')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('is_pinned', true);
+        
+        if (deleteError) {
+            console.error('Error deleting pinned ideas:', deleteError);
+        } else {
+            console.log(`✅ Deleted ${pinnedIdeas.length} pinned ideas from database!`);
+            console.log('🔄 Reloading page...');
+            setTimeout(() => location.reload(), 1000);
+        }
+    } catch (err) {
+        console.error('Failed to delete pinned ideas:', err);
     }
 }
 
