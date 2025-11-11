@@ -1365,36 +1365,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * Update generator button/loading state
+     * REMOVED - Generator UI removed, function kept for compatibility
      */
     function setGeneratorLoadingState(state, options = {}) {
-        const buildBtn = document.querySelector('.build-idea-btn');
-        const randomBtn = document.querySelector('.random-btn');
-        const generatorCard = document.getElementById('idea-generator-card');
-        const showLoading = options.showLoading !== false;
-
-        if (!buildBtn) return;
-
-        switch (state) {
-            case 'building':
-                if (!showLoading) return;
-                buildBtn.textContent = 'Building!';
-                buildBtn.disabled = true;
-                buildBtn.classList.add('loading');
-                if (randomBtn) randomBtn.disabled = true;
-                generatorCard?.classList.add('loading');
-                break;
-            case 'incoming':
-                if (!showLoading) return;
-                buildBtn.textContent = 'Ideas incoming!';
-                break;
-            default:
-                buildBtn.textContent = 'Build Idea!';
-                buildBtn.disabled = false;
-                buildBtn.classList.remove('loading');
-                if (randomBtn) randomBtn.disabled = false;
-                generatorCard?.classList.remove('loading');
-                break;
-        }
+        // Generator UI removed - will rebuild in future
+        return;
     }
 
     /**
@@ -1441,9 +1416,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const cardStack = document.getElementById('card-stack');
-        const generatorCard = document.getElementById('idea-generator-card');
-        if (!cardStack || !generatorCard) {
-            console.warn('⚠️ Idea stack or generator card not found.');
+        if (!cardStack) {
+            console.warn('⚠️ Card stack not found.');
             cleanup();
             return;
         }
@@ -1457,11 +1431,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ideasStack = [];
         ideasRemaining = 7;
         lastRefreshTime = new Date();
-        generatorCard.classList.remove('visible');
 
         // Show single loading placeholder
         const placeholder = createLoadingPlaceholder(1);
-        cardStack.insertBefore(placeholder, generatorCard);
+        cardStack.appendChild(placeholder);
         updateSwiperInfo();
         updateIdeaGeneratorVisibility();
 
@@ -2180,28 +2153,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * Show/hide idea generator card based on remaining cards
      */
     function updateIdeaGeneratorVisibility() {
-        const generatorCard = document.getElementById('idea-generator-card');
-        if (!generatorCard) return;
-
-        // Count actual remaining cards (excluding generator and loading placeholders)
-        const cardStack = document.getElementById('card-stack');
-        const placeholderCount = cardStack ? cardStack.querySelectorAll('.loading-placeholder').length : 0;
-        const actualCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.loading-placeholder)').length : 0;
-        
-        console.log('🔄 Updating generator visibility. Remaining cards:', actualCards, 'Placeholders:', placeholderCount);
-
-        if (placeholderCount > 0) {
-            generatorCard.classList.remove('visible');
-            return;
-        }
-
-        if (actualCards === 0) {
-            generatorCard.classList.add('visible');
-            console.log('✅ Generator card now visible');
-        } else {
-            generatorCard.classList.remove('visible');
-            console.log('❌ Generator card hidden');
-        }
+        // Generator card removed - function kept for compatibility
+        // Will rebuild in future
+        return;
     }
 
     // ============================================
