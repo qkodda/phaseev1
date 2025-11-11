@@ -3473,7 +3473,7 @@ select.custom-dropdown {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 12px auto;
+    margin: 0 auto 16px auto;
 }
 
 .logo-fill-animated {
@@ -3481,24 +3481,17 @@ select.custom-dropdown {
     height: 100%;
     object-fit: contain;
     filter: brightness(0) invert(1);
-    /* Creates a smooth fill effect from left to right */
-    -webkit-mask-image: linear-gradient(to right, black 0%, black 0%, transparent 0%, transparent 100%);
-    mask-image: linear-gradient(to right, black 0%, black 0%, transparent 0%, transparent 100%);
-    animation: fillLogo 2s ease-in-out infinite;
+    animation: pulseLogo 1.5s ease-in-out infinite;
 }
 
-@keyframes fillLogo {
-    0% {
-        -webkit-mask-image: linear-gradient(to right, black 0%, black 0%, transparent 0%, transparent 100%);
-        mask-image: linear-gradient(to right, black 0%, black 0%, transparent 0%, transparent 100%);
+@keyframes pulseLogo {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(0.95);
     }
     50% {
-        -webkit-mask-image: linear-gradient(to right, black 0%, black 100%, transparent 100%, transparent 100%);
-        mask-image: linear-gradient(to right, black 0%, black 100%, transparent 100%, transparent 100%);
-    }
-    100% {
-        -webkit-mask-image: linear-gradient(to right, black 0%, black 0%, transparent 0%, transparent 100%);
-        mask-image: linear-gradient(to right, black 0%, black 0%, transparent 0%, transparent 100%);
+        opacity: 1;
+        transform: scale(1);
     }
 }
 
