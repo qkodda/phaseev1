@@ -284,20 +284,40 @@ export async function getIdeas(userId, filters = {}) {
  * Create a new idea
  */
 export async function createIdea(userId, ideaData = {}) {
+  const normalized = normalizeIdeaPayload(ideaData);
+  
+  console.log('🔧 Normalized payload:', {
+    user_id: userId,
+    title: normalized.title,
+    is_pinned: normalized.is_pinned,
+    is_scheduled: normalized.is_scheduled,
+    platforms: normalized.platforms,
+    has_action: !!normalized.action,
+    has_setup: !!normalized.setup,
+    has_story: !!normalized.story,
+    has_hook: !!normalized.hook
+  });
+  
   const payload = {
     user_id: userId,
-    ...normalizeIdeaPayload(ideaData),
+    ...normalized,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   }
 
+  console.log('📤 Sending to Supabase...');
   const { data, error } = await supabase
     .from('ideas')
     .insert(payload)
     .select()
     .single()
   
-  if (error) throw error
+  if (error) {
+    console.error('❌ Supabase insert error:', error);
+    throw error;
+  }
+  
+  console.log('✅ Supabase insert successful:', data?.id);
   return data
 }
 

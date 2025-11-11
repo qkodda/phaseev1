@@ -2067,9 +2067,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const pinnedCard = addPinnedIdea(ideaData);
             
             if (pinnedCard) {
+                console.log('💾 Saving pinned idea to Supabase:', {
+                    title: ideaData.title,
+                    is_pinned: true,
+                    platforms: ideaData.platforms
+                });
+                
                 savePinnedIdeaToSupabase(ideaData)
                     .then(savedIdea => {
                         if (savedIdea) {
+                            console.log('✅ Successfully saved pinned idea:', savedIdea.id);
                             try {
                                 pinnedCard.dataset.idea = JSON.stringify({
                                     ...savedIdea,
@@ -2079,10 +2086,22 @@ document.addEventListener('DOMContentLoaded', () => {
                             } catch (err) {
                                 console.warn('Failed to update pinned idea dataset with Supabase record:', err);
                             }
+                        } else {
+                            console.error('❌ Save returned null - removing from UI');
+                            if (pinnedCard && pinnedCard.parentNode) {
+                                pinnedCard.remove();
+                                refreshPinnedCount();
+                            }
+                            showAlertModal('Save Failed', 'Could not save pinned idea. Please check your connection and try again.');
                         }
                     })
                     .catch(err => {
-                        console.error('Failed to save pinned idea:', err);
+                        console.error('❌ Failed to save pinned idea:', err);
+                        if (pinnedCard && pinnedCard.parentNode) {
+                            pinnedCard.remove();
+                            refreshPinnedCount();
+                        }
+                        showAlertModal('Save Failed', 'Could not save pinned idea. Please check your connection and try again.');
                     });
             }
         }
@@ -3902,19 +3921,40 @@ const LocalStorage = {
  */
 async function savePinnedIdeaToSupabase(ideaData) {
     try {
+        console.log('📡 Importing Supabase functions...');
         const { createIdea, getCurrentUser } = await import('./supabase.js');
         const user = await getCurrentUser();
         
         if (!user) {
-            console.warn('User not logged in, idea saved locally only');
+            console.warn('⚠️ User not logged in, idea saved locally only');
             return null;
         }
+        
+        console.log('👤 User authenticated:', user.id);
+        console.log('📝 Idea data being saved:', {
+            title: ideaData.title,
+            summary: ideaData.summary?.substring(0, 50) + '...',
+            platforms: ideaData.platforms,
+            is_pinned: true,
+            is_scheduled: false,
+            action: ideaData.action ? 'present' : 'missing',
+            setup: ideaData.setup ? 'present' : 'missing',
+            story: ideaData.story ? 'present' : 'missing',
+            hook: ideaData.hook ? 'present' : 'missing'
+        });
         
         const savedIdea = await createIdea(user.id, {
             ...ideaData,
             is_pinned: true,
             is_scheduled: false
         });
+        
+        if (!savedIdea) {
+            console.error('❌ createIdea returned null/undefined');
+            return null;
+        }
+        
+        console.log('✅ Idea saved to Supabase with ID:', savedIdea.id);
         
         // Track pinned event
         await trackGenerationEvent('pinned', {
