@@ -3408,7 +3408,7 @@ select.custom-dropdown {
    LOADING PLACEHOLDER CARDS
    ============================================ */
 .loading-placeholder {
-    background: linear-gradient(135deg, #ff4d4d 0%, #ff1a1a 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     pointer-events: none;
     animation: pulseGlow 2s ease-in-out infinite;
 }
