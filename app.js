@@ -4470,9 +4470,9 @@ window.savePinnedIdeaToSupabase = savePinnedIdeaToSupabase;
 window.saveScheduledIdeaToSupabase = saveScheduledIdeaToSupabase;
 window.scheduleIdea = scheduleIdea;
 window.expandIdeaCard = expandIdeaCard;
-window.closeExpandedCard = closeExpandedCard;
-window.editIdeaCard = editIdeaCard;
-window.saveIdeaCard = saveIdeaCard;
+// window.closeExpandedCard = closeExpandedCard; // TODO: Function not defined
+// window.editIdeaCard = editIdeaCard; // TODO: Function not defined  
+// window.saveIdeaCard = saveIdeaCard; // TODO: Function not defined
 window.scheduleFromExpanded = scheduleFromExpanded;
 window.checkAndEnforceSubscription = checkAndEnforceSubscription;
 
