@@ -489,7 +489,7 @@ body {
     margin: 0 auto 12px;
     display: block;
     position: relative;
-    filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.4));
+    filter: brightness(0) saturate(100%) invert(46%) sepia(96%) saturate(2527%) hue-rotate(201deg) brightness(102%) contrast(93%) drop-shadow(0 2px 8px rgba(59, 130, 246, 0.4));
     animation: logoColorShift 6s ease-in-out infinite;
 }
 

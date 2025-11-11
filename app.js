@@ -2041,11 +2041,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (direction === 'right') {
             // Check limit before pinning
-            const grid = document.querySelector('.ideas-grid');
+            const grid = document.querySelector('.pinned-ideas .ideas-grid');
             const existingPinnedCards = grid ? grid.querySelectorAll('.idea-card-collapsed') : [];
+            
+            console.log('🔍 Pin limit check: Current pinned count =', existingPinnedCards.length);
             
             if (existingPinnedCards.length >= 7) {
                 // Show alert and return card to center
+                console.warn('⚠️ Pin limit reached! Cannot pin more ideas.');
                 showAlertModal('Pin Limit Reached', 'You can only pin up to 7 ideas at a time. Please schedule or delete an idea before pinning another.');
                 card.style.transition = 'transform 0.3s ease';
                 card.style.transform = '';
