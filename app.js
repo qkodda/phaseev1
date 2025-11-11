@@ -4439,12 +4439,18 @@ function removeSubscriptionPaywall() {
     const expiredCard = document.getElementById('subscription-expired-card');
     const pinnedSection = document.querySelector('.pinned-ideas');
     const scheduleSection = document.querySelector('.schedule-component');
+    const ideaCards = document.querySelectorAll('.idea-card:not(.subscription-expired-card)');
     
     // Hide expired card
     if (expiredCard) {
         expiredCard.classList.remove('visible');
         expiredCard.style.display = 'none';
     }
+    
+    // Show all idea cards again
+    ideaCards.forEach(card => {
+        card.style.display = '';  // Remove inline display:none
+    });
     
     // Show pinned and scheduled sections
     if (pinnedSection) pinnedSection.style.display = 'block';
