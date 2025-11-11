@@ -942,6 +942,7 @@ body {
     object-fit: contain;
     transition: opacity 0.2s;
     position: relative;
+    filter: brightness(0) saturate(100%) invert(46%) sepia(96%) saturate(2527%) hue-rotate(201deg) brightness(102%) contrast(93%);
 }
 
 .logo-btn {
@@ -3421,18 +3422,7 @@ select.custom-dropdown {
     text-align: center;
     padding: 30px 20px;
     position: relative;
-}
-
-.loading-animation {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    max-width: 320px;
-    margin: 10px auto 0 auto;
-    position: relative;
+    gap: 12px;
 }
 
 .loading-sparkle {

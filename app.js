@@ -1576,23 +1576,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const placeholder = document.createElement('div');
         placeholder.className = 'idea-card loading-placeholder';
         placeholder.innerHTML = `
-            <div class="card-content loading-content">
-                <div class="loading-animation">
-                    <div class="logo-loader" aria-hidden="true">
-                        <img src="PHasse-Logo.png" alt="" class="logo-fill-animated">
-                    </div>
-                    <h3 class="loading-title">Phasee is building!</h3>
-                    <div class="ai-thinking-window">
-                        <div class="thinking-line">▸ Loading brand profile...</div>
-                        <div class="thinking-line">▸ Analyzing target audience...</div>
-                        <div class="thinking-line">▸ Scanning platform trends...</div>
-                        <div class="thinking-line">▸ Generating unique concepts...</div>
-                    </div>
-                    <div class="loading-dots">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
+            <div class="loading-content">
+                <div class="logo-loader" aria-hidden="true">
+                    <img src="PHasse-Logo.png" alt="" class="logo-fill-animated">
+                </div>
+                <h3 class="loading-title">Phasee is building!</h3>
+                <div class="ai-thinking-window">
+                    <div class="thinking-line">▸ Loading brand profile...</div>
+                    <div class="thinking-line">▸ Analyzing target audience...</div>
+                    <div class="thinking-line">▸ Scanning platform trends...</div>
+                    <div class="thinking-line">▸ Generating unique concepts...</div>
                 </div>
             </div>
         `;
