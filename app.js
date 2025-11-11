@@ -1410,11 +1410,9 @@ document.addEventListener('DOMContentLoaded', () => {
         lastRefreshTime = new Date();
         generatorCard.classList.remove('visible');
 
-        // Show loading placeholders (7 cards with "Building New Ideas" animation)
-        for (let i = 0; i < 7; i++) {
-            const placeholder = createLoadingPlaceholder(i + 1);
-            cardStack.insertBefore(placeholder, generatorCard);
-        }
+        // Show single loading placeholder
+        const placeholder = createLoadingPlaceholder(1);
+        cardStack.insertBefore(placeholder, generatorCard);
         updateSwiperInfo();
         updateIdeaGeneratorVisibility();
 
@@ -1481,9 +1479,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 { ideas: allIdeas.slice(5, 7), delay: 300 }
             ];
 
-            const placeholderRefs = Array.from(cardStack.querySelectorAll('.loading-placeholder'));
+            // Remove the single loading placeholder
+            const placeholder = cardStack.querySelector('.loading-placeholder');
+            if (placeholder) {
+                placeholder.remove();
+            }
 
-            const revealBatch = async (batch, startIndex) => {
+            const revealBatch = async (batch) => {
                 const { ideas: batchIdeas, delay } = batch;
                 if (!batchIdeas.length) return;
 
@@ -1491,15 +1493,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     await new Promise(resolve => setTimeout(resolve, delay));
                 }
 
-                batchIdeas.forEach((idea, idx) => {
+                batchIdeas.forEach((idea) => {
                     const ideaInstance = cloneIdeaTemplate(idea);
                     const card = createIdeaCard(ideaInstance);
-                    const placeholder = placeholderRefs[startIndex + idx];
-                    if (placeholder && placeholder.parentNode) {
-                        placeholder.parentNode.replaceChild(card, placeholder);
-                    } else {
-                        cardStack.insertBefore(card, generatorCard);
-                    }
+                    cardStack.insertBefore(card, generatorCard);
                     ideasStack.push(ideaInstance);
                 });
 
@@ -1509,20 +1506,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let processed = 0;
             for (const batch of batches) {
-                await revealBatch(batch, processed);
+                await revealBatch(batch);
                 processed += batch.ideas.length;
                 if (processed >= 3) {
                     ideasRemaining = 7;
                     updateSwiperInfo();
                 }
             }
-
-            // Remove any remaining placeholders (in case fewer than 7 ideas were generated)
-            placeholderRefs.slice(processed).forEach(placeholder => {
-                if (placeholder && placeholder.parentNode) {
-                    placeholder.parentNode.removeChild(placeholder);
-                }
-            });
 
             // Stop live thinking animation
             stopLiveThinking();
