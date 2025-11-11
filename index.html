@@ -335,21 +335,40 @@
 
         <!-- HOMEPAGE -->
         <div id="homepage" class="page">
-            <!-- Header Component -->
-            <header class="app-header" id="app-header">
-                <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
-                    <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
-                </button>
-                <button class="profile-pill-btn" onclick="navigateTo('profile-page')" aria-label="Profile">
-                    <svg viewBox="0 0 24 24" width="20" height="20">
-                        <path fill="white" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                    </svg>
-                </button>
+            <!-- New Hero Header Component -->
+            <header class="app-header hero-header" id="app-header">
+                <div class="header-top-row">
+                    <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
+                        <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
+                    </button>
+                    <button class="profile-icon-btn" onclick="navigateTo('profile-page')" aria-label="Profile">
+                        <svg viewBox="0 0 24 24" width="22" height="22">
+                            <path fill="white" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <h2 class="header-greeting" id="header-greeting">Welcome back, <span id="header-user-name">John</span></h2>
+                
+                <div class="header-input-container">
+                    <input 
+                        type="text" 
+                        class="header-idea-input" 
+                        id="header-idea-input" 
+                        placeholder="What's your idea?"
+                        maxlength="100"
+                    >
+                    <button class="header-generate-btn" id="header-generate-btn" aria-label="Generate Ideas">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#3182ce" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
+                        </svg>
+                    </button>
+                </div>
             </header>
 
-            <div class="homepage-content">
-                <!-- Hero Section -->
-                <section class="hero-section" id="hero-section">
+            <div class="homepage-content" id="homepage-content">
+                <!-- Hero Section - Hidden, greeting now in header -->
+                <section class="hero-section" id="hero-section" style="display: none;">
                     <h2 class="hero-title">Welcome back, <span id="user-name">John</span></h2>
                     <p class="hero-subtitle">Let's Build Some Content!</p>
                 </section>
@@ -366,75 +385,6 @@
                                 <button class="expired-subscribe-btn" onclick="navigateTo('paywall-page')">
                                     View Subscription Plans
                                 </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Idea Generator Card (shown when all cards are swiped) -->
-                        <div class="idea-generator-card" id="idea-generator-card">
-                            <h3 class="generator-title">✨ Ready for More?</h3>
-                            
-                            <!-- Direction Input -->
-                            <div class="generator-section">
-                                <label class="generator-label">What's the direction?</label>
-                                <input type="text" class="generator-input" id="idea-direction-input" placeholder="e.g., Morning routine, product review...">
-                            </div>
-
-                            <!-- Campaign Toggle -->
-                            <div class="generator-section">
-                                <label class="generator-label">Make it a Campaign?</label>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="campaign-toggle">
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-
-                            <!-- Platform Selector -->
-                            <div class="generator-section">
-                                <label class="generator-label">Platforms</label>
-                                <div class="platform-selector-inline">
-                                    <button class="platform-icon-btn" data-platform="tiktok" aria-label="TikTok">
-                                        <img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok">
-                                    </button>
-                                    <button class="platform-icon-btn" data-platform="instagram" aria-label="Instagram">
-                                        <img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram">
-                                    </button>
-                                    <button class="platform-icon-btn" data-platform="youtube" aria-label="YouTube">
-                                        <img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube">
-                                    </button>
-                                    <button class="platform-icon-btn" data-platform="twitter" aria-label="Twitter">
-                                        <img src="https://cdn.simpleicons.org/x/000000" alt="Twitter">
-                                    </button>
-                                    <button class="platform-icon-btn" data-platform="facebook" aria-label="Facebook">
-                                        <img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook">
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Action Buttons -->
-                            <div class="generator-actions">
-                                <button class="random-btn" onclick="generateRandomIdeas()" aria-label="Generate Random Ideas">
-                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                                        <g transform="translate(-1, 0)">
-                                            <!-- First Die -->
-                                            <rect x="2" y="3" width="9" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
-                                            <circle cx="4.5" cy="5.5" r="0.8"/>
-                                            <circle cx="6.5" cy="7.5" r="0.8"/>
-                                            <circle cx="8.5" cy="9.5" r="0.8"/>
-                                            <circle cx="4.5" cy="9.5" r="0.8"/>
-                                            <circle cx="8.5" cy="5.5" r="0.8"/>
-                                        </g>
-                                        <g transform="translate(2, 2)">
-                                            <!-- Second Die -->
-                                            <rect x="12" y="10" width="9" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
-                                            <circle cx="14.5" cy="12.5" r="0.8"/>
-                                            <circle cx="18.5" cy="12.5" r="0.8"/>
-                                            <circle cx="16.5" cy="14.5" r="0.8"/>
-                                            <circle cx="14.5" cy="16.5" r="0.8"/>
-                                            <circle cx="18.5" cy="16.5" r="0.8"/>
-                                        </g>
-                                    </svg>
-                                </button>
-                                <button class="build-idea-btn" onclick="buildCustomIdeas()">Build Idea!</button>
                             </div>
                         </div>
                         <!-- Idea cards will be dynamically inserted here -->

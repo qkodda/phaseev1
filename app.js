@@ -262,6 +262,33 @@ function generatePersonalizedSubtitle(profile) {
     return templates[Math.floor(Math.random() * templates.length)];
 }
 
+// Dynamic greeting phrases - casual and intimate
+const greetingPhrases = [
+    { text: "Hey there", time: "any" },
+    { text: "Good morning", time: "morning" },
+    { text: "Hey", time: "afternoon" },
+    { text: "Good evening", time: "evening" },
+    { text: "What's up", time: "any" },
+    { text: "How's it going", time: "any" },
+    { text: "Welcome back", time: "any" },
+    { text: "Hey, how are you", time: "any" },
+    { text: "Nice to see you", time: "any" },
+    { text: "Back again", time: "any" }
+];
+
+function getRandomGreeting() {
+    const hour = new Date().getHours();
+    let timeOfDay = "any";
+    
+    if (hour >= 5 && hour < 12) timeOfDay = "morning";
+    else if (hour >= 12 && hour < 17) timeOfDay = "afternoon";
+    else if (hour >= 17 && hour < 22) timeOfDay = "evening";
+    
+    // Filter greetings by time or any
+    const suitable = greetingPhrases.filter(g => g.time === timeOfDay || g.time === "any");
+    return suitable[Math.floor(Math.random() * suitable.length)].text;
+}
+
 async function personalizeHeroSection() {
     const user = getUser();
     if (!user) return;
@@ -270,20 +297,29 @@ async function personalizeHeroSection() {
         const profile = await getUserProfile(user.id);
         if (!profile) return;
         
-        // Update user name
+        const brandName = profile.brand_name || user.user_metadata?.full_name || 'there';
+        
+        // Update OLD hero section (hidden but keep for compatibility)
         const userNameEl = document.getElementById('user-name');
-        if (userNameEl && profile.brand_name) {
-            userNameEl.textContent = profile.brand_name;
+        if (userNameEl) {
+            userNameEl.textContent = brandName;
         }
         
-        // Generate AI-powered unique subtitle
         const subtitleEl = document.querySelector('.hero-subtitle');
         if (subtitleEl) {
             const subtitle = generatePersonalizedSubtitle(profile);
             subtitleEl.textContent = subtitle;
         }
         
-        console.log('✅ Hero section personalized for:', profile.brand_name);
+        // Update NEW header greeting
+        const headerGreeting = document.getElementById('header-greeting');
+        const headerUserName = document.getElementById('header-user-name');
+        if (headerGreeting && headerUserName) {
+            const greeting = getRandomGreeting();
+            headerGreeting.innerHTML = `${greeting}, <span id="header-user-name">${brandName}</span>`;
+        }
+        
+        console.log('✅ Hero section personalized for:', brandName);
         
     } catch (error) {
         console.error('Error personalizing hero:', error);
@@ -4034,13 +4070,22 @@ async function saveScheduledIdeaToSupabase(ideaData, scheduledDate) {
 /**
  * Load pinned and scheduled ideas from Supabase on app start
  */
+let isLoadingIdeas = false;
 async function loadIdeasFromSupabase() {
     try {
+        // Prevent concurrent loads
+        if (isLoadingIdeas) {
+            console.log('⚠️ Already loading ideas, skipping...');
+            return;
+        }
+        isLoadingIdeas = true;
+        
         console.log('📥 Loading ideas from Supabase...');
         const user = getUser();
         
         if (!user) {
             console.log('⚠️ No user found, skipping idea load');
+            isLoadingIdeas = false;
             return;
         }
         
@@ -4172,6 +4217,9 @@ async function loadIdeasFromSupabase() {
         
     } catch (error) {
         console.error('❌ Error loading ideas from Supabase:', error);
+    } finally {
+        // Reset loading flag
+        isLoadingIdeas = false;
     }
 }
 
@@ -4283,9 +4331,7 @@ async function initializeApp() {
         }
         
         navigateTo('homepage');
-        
-        // Load saved ideas from Supabase
-        await loadIdeasFromSupabase();
+        // Note: loadIdeasFromSupabase() is called by navigateTo('homepage'), no need to call it again here
         
     } catch (error) {
         console.error('Error initializing app:', error);
@@ -4309,6 +4355,40 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
     console.log('✅ Platform icon buttons initialized:', platformIconBtns.length);
+    
+    // Initialize header generate button
+    const headerGenerateBtn = document.getElementById('header-generate-btn');
+    const headerIdeaInput = document.getElementById('header-idea-input');
+    
+    if (headerGenerateBtn && headerIdeaInput) {
+        // Click handler
+        headerGenerateBtn.addEventListener('click', () => {
+            const direction = headerIdeaInput.value.trim();
+            if (direction) {
+                console.log('🚀 Generating ideas from header input:', direction);
+                generateNewIdeas({ 
+                    customDirection: direction, 
+                    showLoading: true 
+                });
+                // Clear input after generation starts
+                headerIdeaInput.value = '';
+            } else {
+                // No input, generate random ideas
+                console.log('🎲 Generating random ideas from header');
+                generateNewIdeas({ showLoading: true });
+            }
+        });
+        
+        // Enter key handler
+        headerIdeaInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                headerGenerateBtn.click();
+            }
+        });
+        
+        console.log('✅ Header generate button initialized');
+    }
     
     // Listen for auth state changes
     onAuthStateChange((event, session) => {
@@ -4424,8 +4504,7 @@ function removeSubscriptionPaywall() {
 window.navigateTo = navigateTo;
 window.completeOnboarding = completeOnboarding;
 window.startFreeTrial = startFreeTrial;
-window.generateRandomIdeas = generateRandomIdeas;
-window.buildCustomIdeas = buildCustomIdeas;
+// generateRandomIdeas and buildCustomIdeas already assigned to window where defined
 window.saveProfileChanges = saveProfileChanges;
 window.handleChangePassword = handleChangePassword;
 window.handleDeleteAccount = handleDeleteAccount;

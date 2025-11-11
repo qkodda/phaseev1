@@ -1,6 +1,56 @@
 /* ============================================
-   GLOBAL STYLES
+   GLOBAL STYLES & BRAND GRADIENT
    ============================================ */
+:root {
+    --gradient-tiffany: linear-gradient(135deg, #4fd1c5 0%, #3182ce 100%);
+    --gradient-tiffany-hover: linear-gradient(135deg, #5ee1d5 0%, #4192de 100%);
+    --color-tiffany-light: #4fd1c5;
+    --color-tiffany-dark: #3182ce;
+}
+
+/* Gradient Shine Animation */
+@keyframes gradientShine {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+.gradient-shine {
+    background: var(--gradient-tiffany);
+    background-size: 200% 200%;
+    animation: gradientShine 3s ease infinite;
+}
+
+/* Shimmer effect overlay for gradient elements */
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+.gradient-shimmer::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    animation: shimmer 3s infinite;
+    pointer-events: none;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -173,15 +223,15 @@ body {
 .btn-primary {
     width: 100%;
     padding: 16px;
-    background: rgba(255, 255, 255, 0.95);
-    color: #3b82f6;
+    background: var(--gradient-tiffany);
+    color: white;
     border: none;
     border-radius: 12px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(79, 209, 197, 0.4);
     position: relative;
     overflow: hidden;
 }
@@ -193,8 +243,14 @@ body {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: linear-gradient(to right, transparent 0%, rgba(59, 130, 246, 0.3) 50%, transparent 100%);
-    transform: translateX(-100%);
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    animation: shimmer 3s infinite;
+    pointer-events: none;
 }
 
 .btn-primary:hover::after {
@@ -377,7 +433,7 @@ body {
 }
 
 .pill-btn {
-    background: rgba(59, 130, 246, 0.12);
+    background: rgba(79, 209, 197, 0.1);
     border: 2px solid transparent;
     border-radius: 20px;
     padding: 8px 16px;
@@ -391,12 +447,12 @@ body {
 }
 
 .pill-btn:hover {
-    background: rgba(59, 130, 246, 0.2);
+    background: rgba(79, 209, 197, 0.2);
     transform: translateY(-1px);
 }
 
 .pill-btn.selected {
-    background: #3b82f6;
+    background: var(--gradient-tiffany);
     border-color: #2563eb;
     color: #ffffff;
 }
@@ -453,9 +509,9 @@ body {
 }
 
 .platform-select-btn.selected {
-    background: #3b82f6;
-    border-color: #2563eb;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    background: var(--gradient-tiffany);
+    border-color: var(--color-tiffany-dark);
+    box-shadow: 0 4px 12px rgba(79, 209, 197, 0.4);
 }
 
 .platform-select-btn.selected img {
@@ -489,17 +545,9 @@ body {
     margin: 0 auto 12px;
     display: block;
     position: relative;
+    /* Solid theme blue color #3b82f6 */
     filter: brightness(0) saturate(100%) invert(46%) sepia(96%) saturate(2527%) hue-rotate(201deg) brightness(102%) contrast(93%) drop-shadow(0 2px 8px rgba(59, 130, 246, 0.4));
-    animation: logoColorShift 6s ease-in-out infinite;
-}
-
-@keyframes logoColorShift {
-    0%, 100% {
-        filter: drop-shadow(0 2px 8px rgba(59, 130, 246, 0.4)) brightness(1) hue-rotate(0deg);
-    }
-    50% {
-        filter: drop-shadow(0 2px 12px rgba(147, 51, 234, 0.6)) brightness(1.2) hue-rotate(20deg);
-    }
+    /* Removed animation for consistent theme blue color */
 }
 
 .auth-logo::after {
@@ -947,10 +995,11 @@ body {
 
 .logo-btn {
     position: relative;
-    overflow: hidden;
+    overflow: visible; /* Changed from hidden to prevent shine overflow */
 }
 
-.logo-btn::after {
+/* Only apply shine to logo in non-hero headers */
+.app-header:not(.hero-header) .logo-btn::after {
     content: '';
     position: absolute;
     top: -50%;
@@ -963,6 +1012,12 @@ body {
     pointer-events: none;
 }
 
+/* Hero header logo - no shine on container, just on logo itself */
+.hero-header .logo-btn {
+    overflow: visible;
+    position: relative;
+}
+
 .logo-btn:hover .header-logo {
     opacity: 0.8;
 }
@@ -971,8 +1026,151 @@ body {
     opacity: 0.6;
 }
 
+/* ============================================
+   HERO HEADER (NEW HOMEPAGE HEADER)
+   ============================================ */
+.hero-header {
+    height: auto !important;
+    min-height: 140px;
+    background: var(--gradient-tiffany) !important;
+    padding: 16px 20px 17px 20px !important;
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    box-shadow: 0 4px 12px rgba(79, 209, 197, 0.3) !important;
+    border-radius: 0 0 20px 20px !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-header::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    animation: shimmer 4s infinite;
+    pointer-events: none;
+}
+
+.header-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.hero-header .header-logo {
+    filter: brightness(0) invert(1) !important;
+    height: 32px;
+}
+
+.profile-icon-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+.profile-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.profile-icon-btn:active {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(0.95);
+}
+
+.header-greeting {
+    text-align: center;
+    color: white;
+    font-size: 15px; /* Smaller, more intimate */
+    font-weight: 500; /* Lighter weight */
+    margin: 0;
+    padding: 0;
+    letter-spacing: 0.2px;
+}
+
+.header-greeting #header-user-name {
+    font-weight: 600; /* Slightly bold for name */
+}
+
+.header-input-container {
+    position: relative;
+    width: 100%;
+}
+
+.header-idea-input {
+    width: 100%;
+    padding: 14px 50px 14px 16px;
+    border: none;
+    border-radius: 25px; /* More rounded, pill-like */
+    font-size: 15px;
+    color: #1a1a1a;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.header-idea-input::placeholder {
+    color: rgba(26, 26, 26, 0.4);
+}
+
+.header-idea-input:focus {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.header-generate-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent; /* No bubble background */
+    border: none;
+    border-radius: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.header-generate-btn:hover {
+    transform: translateY(-50%) scale(1.1);
+}
+
+.header-generate-btn:active {
+    transform: translateY(-50%) scale(0.9);
+}
+
+.header-generate-btn svg {
+    filter: none;
+}
+
+/* ============================================
+   END HERO HEADER
+   ============================================ */
+
 .profile-pill-btn {
-    background: #3b82f6;
+    background: var(--gradient-tiffany);
     border: none;
     border-radius: 8px;
     width: 40px;
@@ -982,7 +1180,7 @@ body {
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    box-shadow: 0 2px 4px rgba(79, 209, 197, 0.3);
     position: relative;
     overflow: hidden;
 }
@@ -1023,7 +1221,8 @@ body {
 }
 
 .homepage-content {
-    padding: 65px 20px 40px;
+    padding: 15px 20px 40px;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Hero Section */
@@ -1088,6 +1287,23 @@ body {
     justify-content: center;
     position: relative;
     margin-top: -3px;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hide swiper initially on first load */
+.idea-swiper.initial-hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+
+/* Show swiper with animation */
+.idea-swiper.revealed {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 .card-stack {
@@ -1100,7 +1316,7 @@ body {
 
 .idea-card {
     background: #ffffff;
-    border: 3px solid #3b82f6;
+    border: 3px solid transparent;
     border-radius: 16px;
     padding: 14px;
     width: 300px;
@@ -1113,12 +1329,15 @@ body {
     position: absolute;
     top: 25px;
     left: 0;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    box-shadow: 0 4px 12px rgba(79, 209, 197, 0.3);
     overflow: hidden;
     cursor: grab;
     transition: transform 0.1s ease;
     user-select: none;
     touch-action: none;
+    background-image: linear-gradient(white, white), var(--gradient-tiffany);
+    background-origin: padding-box, border-box;
+    background-clip: padding-box, border-box;
 }
 
 .idea-card:active {
@@ -1188,16 +1407,16 @@ body {
     visibility: hidden;
 }
 
-/* Idea Generator Card */
-.idea-generator-card {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+/* Idea Generator Card - REMOVED (will rebuild in future) */
+/* .idea-generator-card {
+    background: var(--gradient-tiffany);
     border-radius: 16px;
     padding: 16px;
     width: 300px;
     height: 270px;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 8px 24px rgba(79, 209, 197, 0.4);
     position: absolute;
     top: 25px;
     left: 0;
@@ -1205,12 +1424,31 @@ body {
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.idea-generator-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    animation: shimmer 3s infinite;
+    pointer-events: none;
 }
 
 .idea-generator-card.visible {
     opacity: 1;
     pointer-events: all;
-}
+} */
 
 /* ============================================
    SUBSCRIPTION EXPIRED CARD (UNMOVABLE)
@@ -1315,6 +1553,7 @@ body {
 
 /* ============================================ */
 
+/* GENERATOR STYLES - COMMENTED OUT (will rebuild in future)
 .generator-title {
     color: white;
     font-size: 18px;
@@ -1360,57 +1599,10 @@ body {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
 }
 
-/* Toggle Switch */
-.toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 24px;
-}
-
-.toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(255, 255, 255, 0.3);
-    transition: 0.3s;
-    border-radius: 24px;
-}
-
-.toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: 0.3s;
-    border-radius: 50%;
-}
-
-.toggle-switch input:checked + .toggle-slider {
-    background-color: #22c55e;
-}
-
-.toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(20px);
-}
-
-/* Platform Selector Inline */
 .platform-selector-inline {
     display: flex;
     gap: 6px;
-    justify-content: flex-start;
+    justify-start: flex-start;
     flex-wrap: wrap;
 }
 
@@ -1451,7 +1643,6 @@ body {
     filter: none;
 }
 
-/* Generator Actions */
 .generator-actions {
     display: flex;
     gap: 8px;
@@ -1520,6 +1711,53 @@ body {
 .idea-generator-card.loading {
     opacity: 0.9;
     transition: opacity 0.3s ease;
+}
+END GENERATOR STYLES */
+
+/* Toggle Switch - KEPT (used elsewhere) */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.3);
+    transition: 0.3s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: var(--gradient-tiffany);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(20px);
 }
 
 @keyframes cardShake {
@@ -1659,8 +1897,27 @@ body {
 }
 
 .card-action-btn.pin-btn {
-    background: rgba(59, 130, 246, 0.9);
+    background: var(--gradient-tiffany);
     color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-action-btn.pin-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    animation: shimmer 2.5s infinite;
+    pointer-events: none;
 }
 
 .card-action-btn:hover {
@@ -1742,17 +1999,17 @@ body {
 }
 
 .schedule-calendar-container.expanded {
-    max-height: 325px;
+    max-height: 300px; /* Increased slightly to show full calendar */
     margin-bottom: 16px;
 }
 
 .schedule-calendar {
     background: white;
     border-radius: 12px;
-    padding: 12px;
+    padding: 11px 11px 6px 11px; /* Reduced bottom padding to minimize space below dates */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid #e0e0e0;
-    width: 320px;
+    width: 288px; /* Reduced by 10% from 320px */
     margin: 0 auto;
 }
 
@@ -1760,11 +2017,11 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 4px; /* Reduced to eliminate excess spacing */
 }
 
 .calendar-month-title {
-    font-size: 14px;
+    font-size: 13px; /* Reduced by 10% from 14px */
     font-weight: 700;
     color: rgba(40, 40, 40, 0.9);
     text-align: center;
@@ -1800,7 +2057,7 @@ body {
 .calendar-dates-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 6px;
+    gap: 3px; /* Further reduced to show more calendar content */
 }
 
 .calendar-date {
@@ -1810,8 +2067,8 @@ body {
     align-items: center;
     justify-content: center;
     gap: 2px;
-    border-radius: 8px;
-    font-size: 12px;
+    border-radius: 7px; /* Reduced by 10% from 8px */
+    font-size: 11px; /* Reduced by 10% from 12px */
     font-weight: 600;
     color: rgba(40, 40, 40, 0.8);
     cursor: pointer;
@@ -1821,12 +2078,12 @@ body {
 }
 
 .calendar-date .date-number {
-    font-size: 12px;
+    font-size: 11px; /* Reduced by 10% from 12px */
     font-weight: 600;
 }
 
 .calendar-date .date-ordinal {
-    font-size: 7px;
+    font-size: 6px; /* Reduced by 10% from 7px */
     font-weight: 400;
     margin-top: -4px;
 }
@@ -2070,12 +2327,12 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
     overflow: hidden;
 }
 
 .idea-card-collapsed .collapsed-title {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
     color: #1a1a1a;
     white-space: nowrap;
@@ -2207,7 +2464,7 @@ body {
 }
 
 .action-pill-btn {
-    background: #3b82f6;
+    background: var(--gradient-tiffany);
     border: none;
     border-radius: 8px;
     padding: 10px 16px;
@@ -2217,7 +2474,7 @@ body {
     gap: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 2px 8px rgba(79, 209, 197, 0.4);
     color: white;
     font-size: 14px;
     font-weight: 600;
@@ -2230,7 +2487,7 @@ body {
 }
 
 .action-icon-btn {
-    background: #3b82f6;
+    background: var(--gradient-tiffany);
     border: none;
     border-radius: 8px;
     width: 48px;
@@ -2240,7 +2497,7 @@ body {
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 2px 8px rgba(79, 209, 197, 0.4);
     color: white;
     position: relative;
     overflow: hidden;
@@ -2479,7 +2736,7 @@ body {
 }
 
 .toggle-switch input:checked + .toggle-slider {
-    background-color: #3b82f6;
+    background: var(--gradient-tiffany);
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
@@ -2810,7 +3067,8 @@ body {
 /* Expanded Idea Card Modal */
 .expanded-idea-content {
     width: 320px;
-    height: 350px;
+    height: auto;
+    max-height: 90vh;
     padding: 0;
     background: transparent;
     box-shadow: none !important;
@@ -2820,8 +3078,8 @@ body {
 
 .expanded-idea-card {
     width: 320px;
-    min-height: 570px;
-    max-height: 750px;
+    min-height: 630px;
+    max-height: 85vh;
     height: auto;
     margin: 0 auto;
     position: relative;
@@ -2840,7 +3098,7 @@ body {
 }
 
 .expanded-idea-card .card-content {
-    padding: 100px 16px 110px 16px;
+    padding: 70px 16px 80px 16px;
     justify-content: flex-start;
     align-items: flex-start;
     text-align: left;
@@ -2866,7 +3124,7 @@ body {
 
 .expanded-idea-card .card-actions-bottom {
     position: absolute;
-    bottom: 12px;
+    bottom: 16px;
     left: 0;
     right: 0;
     display: flex;
@@ -2971,7 +3229,7 @@ body {
     color: white;
     font-weight: 700;
     padding: 8px 12px;
-    background: #3b82f6;
+    background: var(--gradient-tiffany);
     border-radius: 8px;
     white-space: nowrap;
     min-width: 50px;
@@ -3246,17 +3504,17 @@ select.custom-dropdown {
 .calendar-weekdays {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 6px;
-    margin-bottom: 6px;
+    gap: 3px; /* Matched to dates grid for consistency */
+    margin-bottom: 3px; /* Further reduced to minimize spacing */
     text-transform: uppercase;
-    font-size: 10px;
+    font-size: 9px; /* Reduced by 10% from 10px */
     letter-spacing: 0.5px;
     color: rgba(55, 65, 81, 0.75);
     text-align: center;
 }
 
 .calendar-weekday {
-    padding: 4px 0;
+    padding: 2px 0;
 }
 
 .calendar-date.placeholder {
@@ -3408,7 +3666,7 @@ select.custom-dropdown {
    LOADING PLACEHOLDER CARDS
    ============================================ */
 .loading-placeholder {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: var(--gradient-tiffany);
     pointer-events: none;
     animation: pulseGlow 2s ease-in-out infinite;
 }
