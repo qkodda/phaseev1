@@ -1542,23 +1542,48 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('❌ AI generation failed, using fallback:', error);
             stopLiveThinking();
-            showAlertModal('AI Got KO\'d 🥊', 'Our AI brain took one to the chin and needs a minute. Meanwhile, enjoy these discount-bin ideas we found in the back. They\'re... something.');
             
-            // Remove all placeholders
+            // Update placeholder to show AI failed
             const placeholders = cardStack.querySelectorAll('.loading-placeholder');
-            placeholders.forEach(p => p.remove());
+            placeholders.forEach(placeholder => {
+                const title = placeholder.querySelector('.loading-title');
+                if (title) {
+                    title.textContent = 'ai...broke..';
+                    title.style.color = 'rgba(255, 255, 255, 0.7)';
+                }
+            });
             
-            // Fallback to template ideas - create 7 different random ideas
-            ideasStack = [];
-            for (let i = 0; i < 7; i++) {
-                const randomIdea = ideaTemplates[Math.floor(Math.random() * ideaTemplates.length)];
-                const ideaInstance = cloneIdeaTemplate(randomIdea);
-                ideasStack.push(ideaInstance);
-                const card = createIdeaCard(ideaInstance);
-                cardStack.insertBefore(card, generatorCard);
-            }
+            // Wait 5 seconds, then show fallback cards
+            setTimeout(() => {
+                // Remove all placeholders
+                const placeholders = cardStack.querySelectorAll('.loading-placeholder');
+                placeholders.forEach(p => p.remove());
+                
+                // Fallback to template ideas - create 7 different random ideas
+                ideasStack = [];
+                for (let i = 0; i < 7; i++) {
+                    const randomIdea = ideaTemplates[Math.floor(Math.random() * ideaTemplates.length)];
+                    const ideaInstance = cloneIdeaTemplate(randomIdea);
+                    ideasStack.push(ideaInstance);
+                    const card = createIdeaCard(ideaInstance);
+                    cardStack.appendChild(card);
+                }
+                
+                initSwipeHandlers();
+                
+                // Update swiper info after fallback cards loaded
+                lastRefreshTime = new Date();
+                ideasRemaining = 7;
+                updateSwiperInfo();
+                updateIdeaGeneratorVisibility();
+                
+                console.log('✅ Created 7 fallback idea cards');
+                
+                // Reset generating flag
+                cleanup();
+            }, 5000);
             
-            initSwipeHandlers();
+            return; // Exit early, don't continue execution
         }
 
         // Ensure we have exactly 7 ideas
