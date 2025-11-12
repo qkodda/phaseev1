@@ -1615,7 +1615,7 @@ document.addEventListener('DOMContentLoaded', () => {
         placeholder.innerHTML = `
             <div class="loading-content">
                 <div class="logo-loader" aria-hidden="true">
-                    <img src="PHasse-Logo.png" alt="" class="logo-fill-animated">
+                    <img src="/PHasse-Logo.png" alt="" class="logo-fill-animated">
                 </div>
                 <h3 class="loading-title">Phasee is building!</h3>
                 <div class="ai-thinking-window">
