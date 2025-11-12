@@ -1117,7 +1117,7 @@ body {
     width: 100%;
     padding: 14px 50px 14px 16px;
     border: none;
-    border-radius: 25px; /* More rounded, pill-like */
+    border-radius: 20px;
     font-size: 15px;
     color: #1a1a1a;
     background: white;
