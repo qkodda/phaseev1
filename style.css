@@ -1039,7 +1039,7 @@ body {
     align-items: stretch;
     gap: 4px;
     box-shadow: 0 4px 12px rgba(79, 209, 197, 0.3) !important;
-    border-radius: 0 0 28px 28px !important;
+    border-radius: 0 0 20px 20px !important;
     position: relative;
     overflow: hidden;
 }
