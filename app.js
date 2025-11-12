@@ -1501,13 +1501,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 { ideas: allIdeas.slice(5, 7), delay: 300 }
             ];
 
-            // Remove the single loading placeholder
-            const placeholder = cardStack.querySelector('.loading-placeholder');
-            if (placeholder) {
-                placeholder.remove();
-            }
-
-            const revealBatch = async (batch) => {
+            const revealBatch = async (batch, isFirst = false) => {
                 const { ideas: batchIdeas, delay } = batch;
                 if (!batchIdeas.length) return;
 
@@ -1518,17 +1512,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 batchIdeas.forEach((idea) => {
                     const ideaInstance = cloneIdeaTemplate(idea);
                     const card = createIdeaCard(ideaInstance);
-                    cardStack.insertBefore(card, generatorCard);
+                    cardStack.appendChild(card);
                     ideasStack.push(ideaInstance);
                 });
+
+                // Remove placeholder AFTER first batch is rendered
+                if (isFirst) {
+                    // Wait a tiny moment for cards to render
+                    requestAnimationFrame(() => {
+                        const placeholder = cardStack.querySelector('.loading-placeholder');
+                        if (placeholder) {
+                            placeholder.remove();
+                        }
+                    });
+                }
 
                 initSwipeHandlers();
                 updateIdeaGeneratorVisibility();
             };
 
             let processed = 0;
+            let isFirstBatch = true;
             for (const batch of batches) {
-                await revealBatch(batch);
+                await revealBatch(batch, isFirstBatch);
+                isFirstBatch = false;
                 processed += batch.ideas.length;
                 if (processed >= 3) {
                     ideasRemaining = 7;
@@ -1612,20 +1619,33 @@ document.addEventListener('DOMContentLoaded', () => {
     function createLoadingPlaceholder(number) {
         const placeholder = document.createElement('div');
         placeholder.className = 'idea-card loading-placeholder';
-        placeholder.innerHTML = `
-            <div class="loading-content">
-                <div class="logo-loader" aria-hidden="true">
-                    <img src="/PHasse-Logo.png" alt="" class="logo-fill-animated">
-                </div>
-                <h3 class="loading-title">Phasee is building!</h3>
-                <div class="ai-thinking-window">
-                    <div class="thinking-line">▸ Loading brand profile...</div>
-                    <div class="thinking-line">▸ Analyzing target audience...</div>
-                    <div class="thinking-line">▸ Scanning platform trends...</div>
-                    <div class="thinking-line">▸ Generating unique concepts...</div>
-                </div>
+        const logoImg = document.createElement('img');
+        logoImg.src = 'PHasse-Logo.png';
+        logoImg.alt = '';
+        logoImg.className = 'logo-fill-animated';
+        logoImg.onerror = function() {
+            // Fallback if logo doesn't load
+            this.style.display = 'none';
+        };
+        
+        const logoLoader = document.createElement('div');
+        logoLoader.className = 'logo-loader';
+        logoLoader.setAttribute('aria-hidden', 'true');
+        logoLoader.appendChild(logoImg);
+        
+        const loadingContent = document.createElement('div');
+        loadingContent.className = 'loading-content';
+        loadingContent.innerHTML = `
+            <h3 class="loading-title">Phasee is building!</h3>
+            <div class="ai-thinking-window">
+                <div class="thinking-line">▸ Loading brand profile...</div>
+                <div class="thinking-line">▸ Analyzing target audience...</div>
+                <div class="thinking-line">▸ Scanning platform trends...</div>
+                <div class="thinking-line">▸ Generating unique concepts...</div>
             </div>
         `;
+        loadingContent.insertBefore(logoLoader, loadingContent.firstChild);
+        placeholder.appendChild(loadingContent);
         return placeholder;
     }
 
