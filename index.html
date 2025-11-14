@@ -31,13 +31,13 @@
             <div class="page-content">
                 <div class="auth-header">
                     <img src="PHasse-Logo.png" alt="Phasee Logo" class="auth-logo">
-                    <p class="app-tagline">Experiential storytelling with Phasee!</p>
+                    <p class="app-tagline">Automate your content ideas!</p>
                 </div>
 
                 <div class="auth-container">
                     <!-- Sign In Form -->
                     <form id="sign-in-form" class="auth-form active">
-                        <h2 class="form-title">Welcome Back</h2>
+                        <h2 class="form-title">Sign In</h2>
                         
                         <div class="input-group">
                             <label for="signin-email">Email</label>
@@ -129,8 +129,8 @@
                     </div>
 
                     <div class="input-group">
-                        <label for="onb-industry">Industry</label>
-                        <select id="onb-industry" class="custom-dropdown">
+                        <label for="onb-industry">Industry <span class="required-asterisk">*</span></label>
+                        <select id="onb-industry" class="custom-dropdown" required>
                             <option value="">Select industry</option>
                             <option value="fashion">Fashion &amp; Beauty</option>
                             <option value="tech">Technology</option>
@@ -150,7 +150,7 @@
                     </div>
                 </div>
 
-                <button class="btn-primary" onclick="navigateTo('onboarding-2-page')">Continue</button>
+                <button class="btn-primary" onclick="navigateTo('onboarding-2-page')" style="margin-bottom: 80px;">Continue</button>
             </div>
         </div>
 
@@ -174,7 +174,7 @@
                     <h2 class="onboarding-title">Customize Your Content</h2>
                     
                     <div class="input-group">
-                        <label>Culture Values</label>
+                        <label>Culture Values <span class="required-asterisk">*</span></label>
                         <div class="pill-selection" id="onb-culture-values">
                             <div class="pill-row" data-speed="28">
                                 <button type="button" class="pill-btn" data-value="innovation">Innovation</button>
@@ -254,8 +254,8 @@
                     </div>
 
                     <div class="input-group">
-                        <label for="onb-production-level">Production Level</label>
-                        <select id="onb-production-level" class="custom-dropdown">
+                        <label for="onb-production-level">Production Level <span class="required-asterisk">*</span></label>
+                        <select id="onb-production-level" class="custom-dropdown" required>
                             <option value="">Select level</option>
                             <option value="basic">Basic (Phone camera, natural lighting)</option>
                             <option value="intermediate">Intermediate (DSLR, basic editing)</option>
@@ -264,7 +264,7 @@
                     </div>
                 </div>
 
-                <button class="btn-primary" onclick="completeOnboarding()">Complete Setup</button>
+                <button class="btn-primary" onclick="completeOnboarding()" style="margin-bottom: 120px;">Complete</button>
             </div>
         </div>
 
@@ -278,7 +278,7 @@
 
                 <div class="paywall-card">
                     <div class="paywall-price">
-                        <span class="price-amount">$6.99</span>
+                        <span class="price-amount">$4.99</span>
                         <span class="price-period">/month</span>
                     </div>
                     <p class="trial-text">3-Day Free Trial</p>
@@ -291,7 +291,7 @@
                         <li>✓ Unlimited Generation</li>
                     </ul>
 
-                    <button class="btn-primary paywall-trial-btn" id="start-trial-btn" onclick="startFreeTrial()">Start Free Trial</button>
+                    <button class="btn-primary paywall-trial-btn" id="start-trial-btn" onclick="startFreeTrial()">Start Building Ideas!</button>
                     <p class="trial-countdown" id="trial-countdown"></p>
                     <p class="terms-text">No commitment required.</p>
                 </div>
@@ -969,7 +969,7 @@
                         </button>
                     </div>
 
-                    <button class="btn-danger" style="margin-top: 24px;" onclick="handleUserSignOut()">Sign Out</button>
+                    <button class="btn-danger" style="margin-top: 24px; margin-bottom: 12px;" onclick="handleUserSignOut()">Sign Out</button>
                     
                     <div class="settings-footer">
                         <p class="copyright-text">© 2025 Phasee. All rights reserved.</p>

@@ -34,13 +34,29 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 /**
  * Sign up a new user
  */
-export async function signUp(email, password, options = {}) {
+export async function signUp(email, password, userMetadata = {}) {
   try {
+    // Use production URL if set in environment, otherwise use current origin
+    // This ensures verification emails always point to production, even when testing locally
+    const siteUrl = import.meta.env.VITE_SITE_URL
+    const redirectTo = siteUrl ? `${siteUrl.replace(/\/$/, '')}/` : `${window.location.origin}/`
+    
+    console.log('🔗 Sign up redirect URL:', redirectTo)
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options
+      options: {
+        data: userMetadata.data || userMetadata,
+        emailRedirectTo: redirectTo
+      }
     })
+    
+    if (error) {
+      console.error('❌ Sign up error:', error)
+    } else {
+      console.log('✅ Sign up successful, redirect URL set to:', redirectTo)
+    }
     
     return { data, error }
   } catch (error) {
@@ -92,7 +108,13 @@ export async function getCurrentUser() {
  * Reset password
  */
 export async function resetPassword(email) {
-  const { data, error } = await supabase.auth.resetPasswordForEmail(email)
+  // Use production URL if set in environment, otherwise use current origin
+  const siteUrl = import.meta.env.VITE_SITE_URL
+  const redirectTo = siteUrl ? `${siteUrl.replace(/\/$/, '')}/` : `${window.location.origin}/`
+  
+  const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo
+  })
   if (error) throw error
   return data
 }
@@ -539,9 +561,16 @@ export async function deleteAccount() {
  * Request email confirmation resend
  */
 export async function resendEmailConfirmation(email) {
+  // Use production URL if set in environment, otherwise use current origin
+  const siteUrl = import.meta.env.VITE_SITE_URL
+  const redirectTo = siteUrl ? `${siteUrl.replace(/\/$/, '')}/` : `${window.location.origin}/`
+  
   const { data, error } = await supabase.auth.resend({
     type: 'signup',
-    email: email
+    email: email,
+    options: {
+      emailRedirectTo: redirectTo
+    }
   })
   
   if (error) throw error

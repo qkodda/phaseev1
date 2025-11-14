@@ -273,8 +273,48 @@ const greetingPhrases = [
     { text: "Welcome back", time: "any" },
     { text: "Hey, how are you", time: "any" },
     { text: "Nice to see you", time: "any" },
-    { text: "Back again", time: "any" }
+    { text: "Back again", time: "any" },
+    { text: "Rise and shine", time: "morning" },
+    { text: "Good afternoon", time: "afternoon" },
+    { text: "Evening", time: "evening" },
+    { text: "Let's create", time: "any" },
+    { text: "Ready to roll", time: "any" },
+    { text: "Time to shine", time: "any" },
+    { text: "Here we go", time: "any" },
+    { text: "Let's get it", time: "any" },
+    { text: "You're back", time: "any" },
+    { text: "What's cooking", time: "any" }
 ];
+
+// Dynamic textbox placeholders
+const textboxPlaceholders = [
+    "What's your idea?",
+    "What's on your mind?",
+    "Got something brewing?",
+    "What are you thinking?",
+    "Let's create something...",
+    "What should we build?",
+    "Spark of genius?",
+    "What's the vibe?",
+    "Ready to brainstorm?",
+    "What's inspiring you?",
+    "Tell me your vision...",
+    "What are we making?",
+    "Creative thought?",
+    "What's next?",
+    "Share your spark...",
+    "What's the move?",
+    "Dream it, type it...",
+    "Your next big idea?",
+    "What's the plan?",
+    "Let's make magic..."
+];
+
+let currentGreetingIndex = 0;
+let currentPlaceholderIndex = 0;
+let rotatingTextInterval = null;
+let currentProfile = null;
+let currentBrandName = 'there';
 
 function getRandomGreeting() {
     const hour = new Date().getHours();
@@ -289,6 +329,55 @@ function getRandomGreeting() {
     return suitable[Math.floor(Math.random() * suitable.length)].text;
 }
 
+function rotateGreeting() {
+    const headerGreeting = document.getElementById('header-greeting');
+    if (!headerGreeting) return;
+    
+    const hour = new Date().getHours();
+    let timeOfDay = "any";
+    
+    if (hour >= 5 && hour < 12) timeOfDay = "morning";
+    else if (hour >= 12 && hour < 17) timeOfDay = "afternoon";
+    else if (hour >= 17 && hour < 22) timeOfDay = "evening";
+    
+    const suitable = greetingPhrases.filter(g => g.time === timeOfDay || g.time === "any");
+    currentGreetingIndex = (currentGreetingIndex + 1) % suitable.length;
+    const greeting = suitable[currentGreetingIndex].text;
+    
+    headerGreeting.style.opacity = '0';
+    setTimeout(() => {
+        headerGreeting.innerHTML = `${greeting}, <span id="header-user-name">${currentBrandName}</span>`;
+        headerGreeting.style.opacity = '1';
+    }, 300);
+}
+
+function rotatePlaceholder() {
+    const headerInput = document.getElementById('header-idea-input');
+    if (!headerInput) return;
+    
+    currentPlaceholderIndex = (currentPlaceholderIndex + 1) % textboxPlaceholders.length;
+    const newPlaceholder = textboxPlaceholders[currentPlaceholderIndex];
+    
+    headerInput.style.opacity = '0.6';
+    setTimeout(() => {
+        headerInput.placeholder = newPlaceholder;
+        headerInput.style.opacity = '1';
+    }, 200);
+}
+
+function startRotatingText() {
+    // Stop any existing interval
+    if (rotatingTextInterval) {
+        clearInterval(rotatingTextInterval);
+    }
+    
+    // Rotate greeting every 4 seconds
+    setInterval(rotateGreeting, 4000);
+    
+    // Rotate placeholder every 3 seconds
+    setInterval(rotatePlaceholder, 3000);
+}
+
 async function personalizeHeroSection() {
     const user = getUser();
     if (!user) return;
@@ -297,12 +386,13 @@ async function personalizeHeroSection() {
         const profile = await getUserProfile(user.id);
         if (!profile) return;
         
-        const brandName = profile.brand_name || user.user_metadata?.full_name || 'there';
+        currentProfile = profile;
+        currentBrandName = profile.brand_name || user.user_metadata?.full_name || 'there';
         
         // Update OLD hero section (hidden but keep for compatibility)
         const userNameEl = document.getElementById('user-name');
         if (userNameEl) {
-            userNameEl.textContent = brandName;
+            userNameEl.textContent = currentBrandName;
         }
         
         const subtitleEl = document.querySelector('.hero-subtitle');
@@ -316,10 +406,22 @@ async function personalizeHeroSection() {
         const headerUserName = document.getElementById('header-user-name');
         if (headerGreeting && headerUserName) {
             const greeting = getRandomGreeting();
-            headerGreeting.innerHTML = `${greeting}, <span id="header-user-name">${brandName}</span>`;
+            headerGreeting.innerHTML = `${greeting}, <span id="header-user-name">${currentBrandName}</span>`;
+            headerGreeting.style.transition = 'opacity 0.3s ease';
         }
         
-        console.log('✅ Hero section personalized for:', brandName);
+        // Set random initial placeholder
+        const headerInput = document.getElementById('header-idea-input');
+        if (headerInput) {
+            currentPlaceholderIndex = Math.floor(Math.random() * textboxPlaceholders.length);
+            headerInput.placeholder = textboxPlaceholders[currentPlaceholderIndex];
+            headerInput.style.transition = 'opacity 0.2s ease';
+        }
+        
+        // Start rotating text
+        startRotatingText();
+        
+        console.log('✅ Hero section personalized for:', currentBrandName);
         
     } catch (error) {
         console.error('Error personalizing hero:', error);
@@ -1845,7 +1947,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-actions-bottom">
                 <button class="card-action-btn skip-btn" onclick="skipCard(this)" aria-label="Skip">
                     <svg viewBox="0 0 24 24" width="18" height="18">
-                        <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        <path fill="currentColor" d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
                     </svg>
                 </button>
 
