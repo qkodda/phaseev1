@@ -344,11 +344,13 @@ function rotateGreeting() {
     currentGreetingIndex = (currentGreetingIndex + 1) % suitable.length;
     const greeting = suitable[currentGreetingIndex].text;
     
+    // Smooth fade transition - 1 second total
+    headerGreeting.style.transition = 'opacity 1s ease';
     headerGreeting.style.opacity = '0';
     setTimeout(() => {
         headerGreeting.innerHTML = `${greeting}, <span id="header-user-name">${currentBrandName}</span>`;
         headerGreeting.style.opacity = '1';
-    }, 300);
+    }, 1000); // Slower fade
 }
 
 function rotatePlaceholder() {
@@ -358,11 +360,14 @@ function rotatePlaceholder() {
     currentPlaceholderIndex = (currentPlaceholderIndex + 1) % textboxPlaceholders.length;
     const newPlaceholder = textboxPlaceholders[currentPlaceholderIndex];
     
-    headerInput.style.opacity = '0.6';
+    // Create a smooth fade for placeholder text via opacity
+    headerInput.style.transition = 'opacity 0.8s ease';
+    headerInput.style.opacity = '0.5';
+    
     setTimeout(() => {
         headerInput.placeholder = newPlaceholder;
         headerInput.style.opacity = '1';
-    }, 200);
+    }, 800); // Smooth fade timing
 }
 
 function startRotatingText() {
@@ -371,11 +376,13 @@ function startRotatingText() {
         clearInterval(rotatingTextInterval);
     }
     
-    // Rotate greeting every 4 seconds
-    setInterval(rotateGreeting, 4000);
+    // Rotate greeting every 10 seconds (slower as requested)
+    setInterval(rotateGreeting, 10000);
     
-    // Rotate placeholder every 3 seconds
-    setInterval(rotatePlaceholder, 3000);
+    // Rotate placeholder every 10 seconds, but offset by 5 seconds so they don't change at the same time
+    setTimeout(() => {
+        setInterval(rotatePlaceholder, 10000);
+    }, 5000);
 }
 
 async function personalizeHeroSection() {
@@ -1586,11 +1593,17 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // INCREMENTAL LOADING: 3 → 2 → 2 with all ideas pre-generated
             
+            // Get vibe context from selected chips
+            const vibeContext = buildVibeContext();
+            if (vibeContext) {
+                console.log('🎨 Including vibe context:', vibeContext);
+            }
+            
             // Start live thinking animation with personalized steps
             startLiveThinking(userProfile);
 
             console.log('⚡ Generating full idea set (7 ideas)...');
-            const allIdeasRaw = await generateContentIdeas(userProfile, customDirection, isCampaign, preferredPlatforms, 7);
+            const allIdeasRaw = await generateContentIdeas(userProfile, customDirection + vibeContext, isCampaign, preferredPlatforms, 7);
             const allIdeas = Array.isArray(allIdeasRaw) ? allIdeasRaw.slice(0, 7) : [];
 
             if (allIdeas.length === 0) {
@@ -1650,7 +1663,7 @@ document.addEventListener('DOMContentLoaded', () => {
             placeholders.forEach(placeholder => {
                 const title = placeholder.querySelector('.loading-title');
                 if (title) {
-                    title.textContent = 'ai...broke..';
+                    title.textContent = 'Service Unavailable';
                     title.style.color = 'rgba(255, 255, 255, 0.7)';
                 }
             });
@@ -1719,7 +1732,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="logo-loader" aria-hidden="true">
                     <img src="/PHasse-Logo.png" alt="" class="logo-fill-animated">
                 </div>
-                <h3 class="loading-title">Phasee is building!</h3>
+                <h3 class="loading-title">Service Unavailable</h3>
                 <div class="ai-thinking-window">
                     <div class="thinking-line">▸ Loading brand profile...</div>
                     <div class="thinking-line">▸ Analyzing target audience...</div>
@@ -1937,6 +1950,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="section-label">Summary:</span>
                     <p class="section-text">${idea.summary}</p>
                 </div>
+                
+                <div class="card-section">
+                    <span class="section-label">Hook:</span>
+                    <p class="section-text">${idea.hook || 'Grab attention with the first 3 seconds!'}</p>
+                </div>
 
                 <div class="card-section">
                     <span class="section-label">Why It Works:</span>
@@ -2102,10 +2120,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     swipeCard(card, direction);
                 } else {
                     console.log('↩️ Returning to center');
-                    card.style.transition = 'transform 0.3s ease';
+                    card.style.transition = 'transform 0.3s ease-out'; /* Smooth return, no bounce */
                     card.style.transform = '';
                     setTimeout(() => {
-                        card.style.transition = '';
+                        card.style.transition = 'none';
                     }, 300);
                 }
             });
@@ -2117,10 +2135,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 isTouching = false;
                 card.classList.remove('swiping');
-                card.style.transition = 'transform 0.3s ease';
+                card.style.transition = 'transform 0.3s ease-out'; /* Smooth return, no bounce */
                 card.style.transform = '';
                 setTimeout(() => {
-                    card.style.transition = '';
+                    card.style.transition = 'none';
                 }, 300);
             });
 
@@ -2162,10 +2180,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     const direction = deltaX > 0 ? 'right' : 'left';
                     swipeCard(card, direction);
                 } else {
-                    card.style.transition = 'transform 0.3s ease';
+                    card.style.transition = 'transform 0.3s ease-out'; /* Smooth return, no bounce */
                     card.style.transform = '';
                     setTimeout(() => {
-                        card.style.transition = '';
+                        card.style.transition = 'none';
                     }, 300);
                 }
             });
@@ -2189,11 +2207,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Show alert and return card to center
                 console.warn('⚠️ Pin limit reached! Cannot pin more ideas.');
                 showAlertModal('Pin Limit Reached', 'You can only pin up to 7 ideas at a time. Please schedule or delete an idea before pinning another.');
-                card.style.transition = 'transform 0.3s ease';
+                card.style.transition = 'transform 0.3s ease-out'; /* Smooth return, no bounce */
                 card.style.transform = '';
                 card.classList.remove('swiping');
                 setTimeout(() => {
-                    card.style.transition = '';
+                    card.style.transition = 'none';
                 }, 300);
                 return; // Don't swipe the card away
             }
@@ -2241,19 +2259,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Clear inline styles and trigger animation
+        // Clear inline styles and trigger clean animation
         card.style.transform = '';
         card.style.transition = '';
-        card.classList.add(`swipe-${direction}`);
+        card.classList.remove('swiping'); // Ensure swiping class is removed
+        card.classList.add(`swipe-${direction}`); // Add swipe animation class
 
-        // Remove card after animation
+        // Remove card after animation completes (300ms animation + small buffer)
         setTimeout(() => {
             card.remove();
             cardsRemaining--;
             ideasRemaining--;
             updateSwiperInfo();
             updateIdeaGeneratorVisibility();
-        }, 500);
+        }, 350); // Reduced from 500ms to match faster animation
     }
 
     /**
@@ -4756,5 +4775,320 @@ window.deleteAllPinnedFromDB = async function() {
     } catch (err) {
         console.error('Failed to delete pinned ideas:', err);
     }
+}
+
+// ============================================
+// VIBE SELECTION & EXPANDABLE TEXTBOX
+// ============================================
+
+// Global state for selected vibes
+let selectedVibes = [];
+
+/**
+ * Initialize vibe selector and expandable textbox
+ */
+function initVibeSelector() {
+    const inputContainer = document.getElementById('header-input-container');
+    const input = document.getElementById('header-idea-input');
+    const vibePanel = document.getElementById('vibe-panel');
+    const vibeChips = document.querySelectorAll('.vibe-chip');
+    const selectedVibesDisplay = document.getElementById('selected-vibes-display');
+    const heroHeader = document.getElementById('app-header');
+    const homepageContent = document.getElementById('homepage-content');
+    const trendStrip = document.getElementById('trend-strip-container');
+    
+    if (!inputContainer || !input || !vibePanel) return;
+    
+    // Expand panel on input focus/click - STAYS OPEN for multiple selections
+    input.addEventListener('focus', () => {
+        inputContainer.classList.add('expanded');
+        
+        // Move content down when expanded
+        if (homepageContent) {
+            homepageContent.style.paddingTop = '280px'; // Adjusted for 145px panel expansion
+        }
+        // Trend strip is now part of homepage-content, so it moves automatically
+        
+        updateSelectedVibesDisplay();
+    });
+    
+    // Panel STAYS OPEN - only close when clicking outside or pressing generate
+    // Removed blur handler to allow multiple selections
+    
+    // Handle chip selection
+    vibeChips.forEach(chip => {
+        chip.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const vibe = chip.dataset.vibe;
+            const category = chip.dataset.category;
+            
+            // Toggle selection
+            if (chip.classList.contains('selected')) {
+                // Deselect
+                chip.classList.remove('selected');
+                selectedVibes = selectedVibes.filter(v => v.vibe !== vibe);
+                
+                // Visual spark feedback (removal)
+                createSparkFeedback(chip, 'remove');
+            } else {
+                // Select
+                chip.classList.add('selected');
+                // Remove "+" prefix when storing the label
+                const cleanLabel = chip.textContent.replace(/^\+\s*/, '');
+                selectedVibes.push({ vibe, category, label: cleanLabel });
+                
+                // Visual spark feedback (add)
+                createSparkFeedback(chip, 'add');
+            }
+            
+            updateSelectedVibesDisplay();
+            
+            console.log('Selected vibes:', selectedVibes);
+        });
+    });
+    
+    // Close panel when clicking outside (but not on vibe chips)
+    document.addEventListener('click', (e) => {
+        if (!inputContainer.contains(e.target) && !e.target.closest('.vibe-chip')) {
+            inputContainer.classList.remove('expanded');
+            
+            // Restore original positions
+            if (homepageContent) {
+                homepageContent.style.paddingTop = '155px';
+            }
+            // Trend strip is now part of homepage-content, so it moves automatically
+        }
+    });
+    
+    // Close panel and trigger generation when lightning bolt is clicked
+    const generateBtn = document.getElementById('header-generate-btn');
+    if (generateBtn) {
+        generateBtn.addEventListener('click', () => {
+            inputContainer.classList.remove('expanded');
+            
+            // Restore original positions
+            if (homepageContent) {
+                homepageContent.style.paddingTop = '155px';
+            }
+            // Trend strip is now part of homepage-content, so it moves automatically
+        });
+    }
+    
+    console.log('✅ Vibe selector initialized');
+}
+
+/**
+ * Create visual spark feedback when selecting/deselecting chips
+ */
+function createSparkFeedback(element, type) {
+    const spark = document.createElement('div');
+    spark.style.cssText = `
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        border-radius: inherit;
+        pointer-events: none;
+        z-index: 10;
+        background: ${type === 'add' ? 'rgba(79, 209, 197, 0.4)' : 'rgba(0, 0, 0, 0.1)'};
+        animation: sparkPulse 0.6s ease;
+    `;
+    
+    element.style.position = 'relative';
+    element.appendChild(spark);
+    
+    setTimeout(() => spark.remove(), 600);
+}
+
+/**
+ * Update the selected vibes display in collapsed state
+ */
+function updateSelectedVibesDisplay() {
+    const display = document.getElementById('selected-vibes-display');
+    if (!display) return;
+    
+    display.innerHTML = '';
+    
+    if (selectedVibes.length === 0) return;
+    
+    // Show first 2-3 chips, then "+X" for the rest
+    const maxVisible = 2;
+    const visibleVibes = selectedVibes.slice(0, maxVisible);
+    const remainingCount = selectedVibes.length - maxVisible;
+    
+    visibleVibes.forEach(vibe => {
+        const miniChip = document.createElement('div');
+        miniChip.className = 'selected-vibe-mini';
+        miniChip.textContent = vibe.label;
+        display.appendChild(miniChip);
+    });
+    
+    if (remainingCount > 0) {
+        const countBadge = document.createElement('div');
+        countBadge.className = 'selected-vibe-count';
+        countBadge.textContent = `+${remainingCount}`;
+        display.appendChild(countBadge);
+    }
+}
+
+/**
+ * Get selected vibes for AI prompt
+ */
+window.getSelectedVibes = function() {
+    return selectedVibes;
+}
+
+/**
+ * Clear all selected vibes
+ */
+window.clearSelectedVibes = function() {
+    selectedVibes = [];
+    document.querySelectorAll('.vibe-chip.selected').forEach(chip => {
+        chip.classList.remove('selected');
+    });
+    updateSelectedVibesDisplay();
+}
+
+// ============================================
+// TREND FACTS STRIP
+// ============================================
+
+// Trend facts data (placeholder - can be replaced with AI/API data)
+const trendFacts = [
+    { icon: "↑", text: "Voiceover Reels ↑ 18% this week" },
+    { icon: "🔥", text: "POV hooks trending ↑ 24%" },
+    { icon: "⚡", text: "Under 30 sec videos boost engagement" },
+    { icon: "📈", text: "3x weekly posts = 2x growth" },
+    { icon: "🎯", text: "Jump cuts increase retention 32%" },
+    { icon: "✨", text: "Behind-the-scenes content ↑ 41%" },
+    { icon: "💡", text: "Story-driven hooks perform best" },
+    { icon: "🚀", text: "Tutorial formats ↑ 28% engagement" },
+    { icon: "⭐", text: "User-generated content 3x shares" },
+    { icon: "📱", text: "Vertical video dominates 2025" },
+    { icon: "🎬", text: "Day-in-the-life format ↑ 35%" },
+    { icon: "💬", text: "Q&A content drives comments" },
+    { icon: "🔊", text: "Trending audio boosts reach 45%" },
+    { icon: "🎨", text: "Bold text overlays ↑ 22% views" },
+    { icon: "⏱️", text: "0-3 sec hooks = 3x retention" },
+    { icon: "🌟", text: "Carousel posts get 1.4x more reach" },
+    { icon: "📊", text: "Data storytelling ↑ 38% saves" },
+    { icon: "🎭", text: "Relatable humor = highest shares" }
+];
+
+/**
+ * Initialize trend facts strip
+ */
+function initTrendStrip() {
+    const stripContainer = document.getElementById('trend-strip');
+    if (!stripContainer) return;
+    
+    // Ensure at least 12 facts, duplicate for seamless infinite loop
+    const allFacts = [...trendFacts, ...trendFacts, ...trendFacts]; // Triple for smooth loop
+    
+    // Create chips
+    allFacts.forEach(fact => {
+        const chip = document.createElement('div');
+        chip.className = 'trend-fact-chip';
+        chip.innerHTML = `
+            <span class="trend-fact-icon">${fact.icon}</span>
+            <span class="trend-fact-text">${fact.text}</span>
+        `;
+        stripContainer.appendChild(chip);
+    });
+    
+    // Pause on hover (handled by CSS)
+    let pauseTimeout;
+    stripContainer.addEventListener('mouseenter', () => {
+        clearTimeout(pauseTimeout);
+    });
+    
+    stripContainer.addEventListener('mouseleave', () => {
+        pauseTimeout = setTimeout(() => {
+            // Resume scrolling
+        }, 2000);
+    });
+    
+    // Manual swipe support for mobile
+    let startX = 0;
+    let scrollLeft = 0;
+    let isDragging = false;
+    
+    stripContainer.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        startX = e.touches[0].pageX;
+        stripContainer.style.animationPlayState = 'paused';
+    });
+    
+    stripContainer.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const x = e.touches[0].pageX;
+        const walk = (x - startX) * 2;
+        stripContainer.scrollLeft = scrollLeft - walk;
+    });
+    
+    stripContainer.addEventListener('touchend', () => {
+        isDragging = false;
+        setTimeout(() => {
+            stripContainer.style.animationPlayState = 'running';
+        }, 2000);
+    });
+    
+    console.log('✅ Trend strip initialized with', trendFacts.length, 'unique facts (tripled for seamless loop)');
+}
+
+// ============================================
+// WIRE VIBES INTO IDEA GENERATION
+// ============================================
+
+/**
+ * Build AI prompt context from selected vibes
+ */
+function buildVibeContext() {
+    if (selectedVibes.length === 0) return '';
+    
+    const toneVibes = selectedVibes.filter(v => v.category === 'tone').map(v => v.label);
+    const contextVibes = selectedVibes.filter(v => v.category === 'context').map(v => v.label);
+    const intentVibes = selectedVibes.filter(v => v.category === 'intent').map(v => v.label);
+    
+    let context = '\n\n**Content Style & Vibe:**\n';
+    
+    if (toneVibes.length > 0) {
+        context += `- Tone/Emotion: ${toneVibes.join(', ')}\n`;
+    }
+    
+    if (contextVibes.length > 0) {
+        context += `- Context/Setting: ${contextVibes.join(', ')}\n`;
+    }
+    
+    if (intentVibes.length > 0) {
+        context += `- Intent/Format: ${intentVibes.join(', ')}\n`;
+    }
+    
+    context += '\nGenerate ideas that specifically incorporate these vibes and styles.';
+    
+    return context;
+}
+
+// Expose for use in generation functions
+window.buildVibeContext = buildVibeContext;
+
+// ============================================
+// INITIALIZE ON PAGE LOAD
+// ============================================
+
+// Add to existing DOMContentLoaded listener or create new one
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        initVibeSelector();
+        initTrendStrip();
+    });
+} else {
+    // DOM already loaded
+    initVibeSelector();
+    initTrendStrip();
 }
 
