@@ -1133,26 +1133,28 @@ body {
 /* ============================================
    HERO HEADER (NEW HOMEPAGE HEADER)
    ============================================ */
+/* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 .hero-header {
-    height: 140px !important; /* Lock height */
-    min-height: 140px;
-    max-height: 140px !important; /* Lock maximum height */
-    background: var(--gradient-tiffany) !important; /* Restored gradient */
+    height: 140px !important; /* LOCKED */
+    min-height: 140px !important;
+    max-height: 140px !important;
+    background: var(--gradient-tiffany) !important;
     padding: 16px 20px 20px 20px !important;
     display: flex !important;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 4px;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 4px !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
     border-radius: 0 0 20px 20px !important;
-    position: fixed; /* Fixed to move as a unit */
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 390px;
-    z-index: 1000;
-    overflow: visible; /* Allow expansion to show */
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: fixed !important;
+    top: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 390px !important; /* LOCKED */
+    max-width: 390px !important;
+    z-index: 1000 !important; /* LOCKED */
+    overflow: visible !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .hero-header.expanded {
@@ -1292,22 +1294,23 @@ body {
     color: var(--color-tiffany-dark);
 }
 
+/* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 /* Vibe Panel (expanded state) */
 .vibe-panel {
-    position: absolute;
-    top: calc(100% + 4px); /* Closer to textbox */
-    left: 0;
-    right: 0;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    padding: 0;
-    max-height: 0;
-    overflow: hidden;
-    width: 100%; /* Lock width */
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1001;
+    position: absolute !important;
+    top: calc(100% + 4px) !important; /* LOCKED - Closer to textbox */
+    left: 0 !important;
+    right: 0 !important;
+    background: white !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+    padding: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    width: 100% !important; /* LOCKED width */
+    opacity: 0 !important;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    z-index: 1001 !important; /* LOCKED */
 }
 
 .header-input-container.expanded .vibe-panel {
@@ -1317,10 +1320,11 @@ body {
     padding: 10px 12px;
 }
 
+/* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 .vibe-section {
-    margin-bottom: 7px; /* Reduced by 3% (from 10px to 9.7px, rounded to 7px for tighter spacing) */
-    width: 100%; /* Lock width */
-    min-height: 30px; /* Lock minimum height */
+    margin-bottom: 7px !important; /* LOCKED - Reduced by 3% (from 10px to 9.7px, rounded to 7px for tighter spacing) */
+    width: 100% !important; /* LOCKED width */
+    min-height: 30px !important; /* LOCKED minimum height */
 }
 
 .vibe-section:last-child {
@@ -1337,42 +1341,44 @@ body {
     line-height: 1;
 }
 
+/* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 .vibe-chips-row {
-    display: flex;
-    flex-wrap: nowrap; /* Single horizontal line - carousel */
-    gap: 0; /* No gap on container - gap handled in chips-inner */
-    align-items: center;
-    overflow-x: hidden; /* Hide overflow for auto-scroll effect */
-    overflow-y: hidden;
-    scroll-behavior: smooth;
-    padding-bottom: 0; /* Remove padding */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    position: relative;
-    width: 100%; /* Lock width */
-    height: 28px; /* Lock height */
+    display: flex !important;
+    flex-wrap: nowrap !important; /* Single horizontal line - carousel */
+    gap: 0 !important; /* No gap on container - gap handled in chips-inner */
+    align-items: center !important;
+    overflow-x: hidden !important; /* LOCKED - Hide overflow for auto-scroll effect */
+    overflow-y: hidden !important;
+    scroll-behavior: smooth !important;
+    padding-bottom: 0 !important; /* Remove padding */
+    -webkit-overflow-scrolling: touch !important; /* Smooth scrolling on iOS */
+    position: relative !important;
+    width: 100% !important; /* LOCKED width */
+    height: 28px !important; /* LOCKED height */
 }
 
+/* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 .vibe-chips-row .chips-inner {
-    display: flex;
-    gap: 6px;
-    animation: vibeScroll 25s linear infinite; /* Auto-scroll animation */
-    will-change: transform;
-    min-width: max-content; /* Ensure chips extend beyond container */
-    position: absolute; /* Absolute positioning for locked scroll */
-    left: 0;
-    top: 0;
+    display: flex !important;
+    gap: 6px !important;
+    animation: vibeScroll 25s linear infinite !important; /* LOCKED - Auto-scroll animation */
+    will-change: transform !important;
+    min-width: max-content !important; /* Ensure chips extend beyond container */
+    position: absolute !important; /* LOCKED - Absolute positioning for locked scroll */
+    left: 0 !important;
+    top: 0 !important;
 }
 
 .vibe-section:nth-child(1) .chips-inner {
-    animation-duration: 25s; /* Tone row */
+    animation-duration: 25s !important; /* LOCKED - Tone row */
 }
 
 .vibe-section:nth-child(2) .chips-inner {
-    animation-duration: 28s; /* Setting row - different speed */
+    animation-duration: 28s !important; /* LOCKED - Setting row - different speed */
 }
 
 .vibe-section:nth-child(3) .chips-inner {
-    animation-duration: 23s; /* Intent row - different speed */
+    animation-duration: 23s !important; /* LOCKED - Intent row - different speed */
 }
 
 .vibe-chip {
@@ -1474,32 +1480,34 @@ body {
 /* ============================================
    TREND FACTS STRIP
    ============================================ */
+/* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 .trend-strip-container {
-    width: 100%;
-    max-width: 100vw; /* Full screen width - extends to edges */
-    overflow-x: auto; /* Enable horizontal manual scrolling */
-    overflow-y: hidden;
-    position: relative; /* Changed from fixed - now scrolls with page */
-    margin: 2px auto 2px auto; /* Minimal spacing - 2px top and bottom for tight layout */
-    background: transparent;
-    padding: 0;
-    pointer-events: auto; /* Enable manual interaction */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    scrollbar-width: none; /* Hide scrollbar Firefox */
-    -ms-overflow-style: none; /* Hide scrollbar IE/Edge */
+    width: 100% !important; /* LOCKED */
+    max-width: 100vw !important; /* LOCKED - Full screen width - extends to edges */
+    overflow-x: auto !important; /* LOCKED - Enable horizontal manual scrolling */
+    overflow-y: hidden !important;
+    position: relative !important; /* LOCKED - Changed from fixed - now scrolls with page */
+    margin: 2px auto 2px auto !important; /* LOCKED - Minimal spacing - 2px top and bottom for tight layout */
+    background: transparent !important;
+    padding: 0 !important;
+    pointer-events: auto !important; /* LOCKED - Enable manual interaction */
+    -webkit-overflow-scrolling: touch !important; /* Smooth scrolling on iOS */
+    scrollbar-width: none !important; /* Hide scrollbar Firefox */
+    -ms-overflow-style: none !important; /* Hide scrollbar IE/Edge */
 }
 
 .trend-strip-container::-webkit-scrollbar {
     display: none; /* Hide scrollbar Chrome/Safari */
 }
 
+/* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 .trend-strip {
-    display: flex;
-    gap: 10px;
-    min-width: 300vw; /* Extends far beyond viewport - off-screen to off-screen */
-    animation: trendScroll 30s linear infinite; /* Much faster - 30s for dramatic speed */
-    will-change: transform;
-    pointer-events: auto; /* Re-enable for chips */
+    display: flex !important;
+    gap: 10px !important;
+    min-width: 300vw !important; /* LOCKED - Extends far beyond viewport - off-screen to off-screen */
+    animation: trendScroll 30s linear infinite !important; /* LOCKED - Much faster - 30s for dramatic speed */
+    will-change: transform !important;
+    pointer-events: auto !important; /* LOCKED - Re-enable for chips */
 }
 
 .trend-strip:hover {
@@ -1622,16 +1630,17 @@ body {
     transform: scale(0.95);
 }
 
+/* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 .homepage-content {
-    padding-top: 155px; /* Space for fixed hero header (140px) + gap (15px) */
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-bottom: 40px;
-    transition: padding-top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding-top: 155px !important; /* LOCKED - Space for fixed hero header (140px) + gap (15px) */
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    padding-bottom: 40px !important;
+    transition: padding-top 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .homepage-content.expanded {
-    padding-top: 280px; /* Adjusted for 145px panel expansion (140px hero + 140px panel) */
+    padding-top: 280px !important; /* LOCKED - Adjusted for 145px panel expansion (140px hero + 140px panel) */
 }
 
 /* Hero Section */
@@ -1690,15 +1699,16 @@ body {
 }
 
 /* Idea Swiper Component */
+/* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 .idea-swiper {
-    margin-bottom: 0;
-    display: flex;
-    justify-content: center;
-    position: relative;
-    margin-top: -8px; /* Move up 8px closer to trend scroller */
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    position: relative !important;
+    margin-top: -8px !important; /* LOCKED - Move up 8px closer to trend scroller */
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 /* Hide swiper initially on first load */
@@ -1723,27 +1733,28 @@ body {
     z-index: 10;
 }
 
+/* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 .idea-card {
-    background: #FFFFFF; /* Solid white background - no transparency */
-    border: none; /* Removed stroke from swiper idea cards */
-    border-radius: 16px;
-    padding: 14px;
-    width: 300px;
-    height: 270px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: stretch;
-    text-align: left;
-    position: absolute;
-    top: 25px;
-    left: 0;
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.25); /* Darker shadow (0.25), less coverage (50px) */
-    overflow: hidden;
-    cursor: grab;
-    transition: none; /* No transition by default - controlled via JS */
-    user-select: none;
-    touch-action: none;
+    background: #FFFFFF !important; /* LOCKED - Solid white background - no transparency */
+    border: none !important; /* LOCKED - Removed stroke from swiper idea cards */
+    border-radius: 16px !important;
+    padding: 14px !important;
+    width: 300px !important; /* LOCKED */
+    height: 270px !important; /* LOCKED */
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: stretch !important;
+    text-align: left !important;
+    position: absolute !important;
+    top: 25px !important; /* LOCKED */
+    left: 0 !important;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.25) !important; /* LOCKED - Darker shadow (0.25), less coverage (50px) */
+    overflow: hidden !important;
+    cursor: grab !important;
+    transition: none !important; /* No transition by default - controlled via JS */
+    user-select: none !important;
+    touch-action: none !important;
     will-change: transform; /* Optimize for smooth transforms */
     opacity: 1 !important; /* Force solid appearance */
 }
@@ -1960,15 +1971,16 @@ body {
 /* ============================================ */
 
 /* Shadow Container (under cards, uninteractive) - Split design */
+/* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 .card-shadow-container {
-    width: 350px;
-    height: 220px;
-    position: absolute;
-    top: 50px;
-    left: 50%;
-    transform: translateX(-50%);
+    width: 350px !important; /* LOCKED */
+    height: 220px !important; /* LOCKED */
+    position: absolute !important;
+    top: 50px !important; /* LOCKED */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
     pointer-events: none !important;
-    z-index: -1;
+    z-index: -1 !important; /* LOCKED */
     user-select: none;
     display: flex;
     gap: 8px;
@@ -1976,15 +1988,16 @@ body {
     align-items: center;
 }
 
+/* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 .card-shadow-container::before,
 .card-shadow-container::after {
-    content: '';
-    width: calc(50% - 4px);
-    height: 100%;
-    background: #FCFCFC; /* Subtle off-white - just enough to show depth without looking grey */
-    border: none; /* Removed stroke from background containers */
-    border-radius: 16px;
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.2); /* Darker shadow (0.2), less coverage (50px) */
+    content: '' !important;
+    width: calc(50% - 4px) !important; /* LOCKED */
+    height: 100% !important;
+    background: #FCFCFC !important; /* LOCKED - Subtle off-white - just enough to show depth without looking grey */
+    border: none !important; /* LOCKED - Removed stroke from background containers */
+    border-radius: 16px !important;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.2) !important; /* LOCKED - Darker shadow (0.2), less coverage (50px) */
 }
 
 .card-shadow-container::before {
