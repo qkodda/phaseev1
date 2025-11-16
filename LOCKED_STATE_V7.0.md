@@ -1,8 +1,8 @@
-# 🔒 LOCKED STATE - VERSION 7.0 - DO NOT MODIFY
+# 🔒 LOCKED STATE - VERSION 7.1 - DO NOT MODIFY
 
 **Date:** Current Session  
 **Status:** ✅ WORKING - LOCKED  
-**Version:** 7.0
+**Version:** 7.1
 
 ---
 
@@ -35,14 +35,15 @@ z-index: 1000 !important;
 
 ### **TREND SCROLLER CONTAINER** (`.trend-strip-container`)
 ```css
-width: 390px !important;
-max-width: 390px !important;
+width: 100vw !important; /* CRITICAL - FULL WIDTH edge-to-edge */
+max-width: 100vw !important; /* CRITICAL - No width restriction */
 height: 36px !important; /* CRITICAL - Without this, container collapses */
 min-height: 36px !important; /* CRITICAL - Prevents collapse */
 overflow-x: auto !important;
 overflow-y: hidden !important;
 position: relative !important;
-margin: 2px auto 2px auto !important;
+left: -20px !important; /* CRITICAL - Offset parent padding to reach screen edges */
+margin: 8px 0 8px 0 !important; /* CRITICAL - Balanced vertical spacing */
 z-index: 150 !important;
 ```
 
@@ -58,7 +59,7 @@ animation: trendScroll 30s linear infinite !important;
 
 ### **HOMEPAGE CONTENT** (`.homepage-content`)
 ```css
-padding-top: 355px !important; /* CRITICAL - Creates space for header + trend scroller + buffer */
+padding-top: 155px !important; /* CRITICAL - Minimal space for header (140px) + 15px buffer */
 padding-left: 20px !important;
 padding-right: 20px !important;
 padding-bottom: 40px !important;

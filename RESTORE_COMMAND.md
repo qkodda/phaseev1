@@ -7,8 +7,11 @@ If anything breaks, use these exact values to restore the working state.
 ### Trend Scroller Container
 ```css
 .trend-strip-container {
+    width: 100vw !important;
+    left: -20px !important;
     height: 36px !important;
     min-height: 36px !important;
+    margin: 8px 0 8px 0 !important;
     z-index: 150 !important;
 }
 ```
@@ -24,7 +27,7 @@ If anything breaks, use these exact values to restore the working state.
 ### Homepage Content
 ```css
 .homepage-content {
-    padding-top: 355px !important;
+    padding-top: 155px !important;
 }
 ```
 
@@ -42,7 +45,7 @@ if (pageId === 'homepage') {
 
 ## Version Numbers
 ```html
-<link rel="stylesheet" href="style.css?v=7.0">
+<link rel="stylesheet" href="style.css?v=7.1">
 <script type="module" src="app.js?v=7.0">
 ```
 
