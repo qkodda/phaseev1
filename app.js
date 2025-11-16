@@ -815,16 +815,6 @@ function expandIdeaCard(card) {
             </div>
 
             <div class="card-section">
-                <span class="section-label">Action/Story:</span>
-                <p class="section-text" contenteditable="false">${ideaData.action}</p>
-            </div>
-
-            <div class="card-section">
-                <span class="section-label">Shot/Setup:</span>
-                <p class="section-text" contenteditable="false">${ideaData.setup}</p>
-            </div>
-
-            <div class="card-section">
                 <span class="section-label">Hook:</span>
                 <p class="section-text" contenteditable="false">${ideaData.hook}</p>
             </div>
@@ -1822,16 +1812,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-section">
                 <span class="section-label">Summary:</span>
                 <p class="section-text">${ideaData.summary}</p>
-            </div>
-
-            <div class="card-section">
-                <span class="section-label">Action/Story:</span>
-                <p class="section-text">${ideaData.action}</p>
-            </div>
-
-            <div class="card-section">
-                <span class="section-label">Shot/Setup:</span>
-                <p class="section-text">${ideaData.setup}</p>
             </div>
 
             <div class="card-section">
@@ -4805,7 +4785,7 @@ function initVibeSelector() {
         
         // Move content down when expanded
         if (homepageContent) {
-            homepageContent.style.paddingTop = '280px'; // Adjusted for 145px panel expansion
+            homepageContent.classList.add('expanded'); // Use CSS class instead of inline style
         }
         // Trend strip is now part of homepage-content, so it moves automatically
         
@@ -4856,7 +4836,7 @@ function initVibeSelector() {
             
             // Restore original positions
             if (homepageContent) {
-                homepageContent.style.paddingTop = '155px';
+                homepageContent.classList.remove('expanded'); // Remove expanded class to restore padding
             }
             // Trend strip is now part of homepage-content, so it moves automatically
         }
@@ -4870,7 +4850,7 @@ function initVibeSelector() {
             
             // Restore original positions
             if (homepageContent) {
-                homepageContent.style.paddingTop = '155px';
+                homepageContent.classList.remove('expanded'); // Remove expanded class to restore padding
             }
             // Trend strip is now part of homepage-content, so it moves automatically
         });
