@@ -490,20 +490,9 @@ function navigateTo(pageId) {
         trackPageView(pageId);
     }
     
-    // Check subscription status when navigating to homepage
+    // Check subscription status and personalize when navigating to homepage
     if (pageId === 'homepage') {
         setTimeout(() => checkAndEnforceSubscription(), 100);
-    }
-    
-    if (pageId === 'paywall-page') {
-        startTrialCountdown();
-        updateTrialCountdownDisplay();
-    } else {
-        stopTrialCountdown();
-    }
-    
-    // Generate cards and personalize when navigating to homepage
-    if (pageId === 'homepage') {
         // Personalize hero section
         personalizeHeroSection();
         
@@ -519,12 +508,9 @@ function navigateTo(pageId) {
         if (existingCards.length === 0) {
             generateNewIdeas({ showLoading: false });
         }
-    }
-    
-    // Update header button based on page
-    const homeProfileBtn = document.querySelector('#homepage .profile-pill-btn');
-    
-    if (pageId === 'homepage') {
+        
+        // Update header button based on page
+        const homeProfileBtn = document.querySelector('#homepage .profile-pill-btn');
         // Show profile icon on homepage
         if (homeProfileBtn) {
             homeProfileBtn.innerHTML = `
@@ -678,17 +664,8 @@ function createScheduledCard(idea) {
         <div class="collapsed-content">
             <div class="collapsed-title">
                 <span class="title-text">"${idea.title}"</span>
-                <div class="collapsed-platforms">
-                    ${platformIconsHTML}
-                </div>
             </div>
             <div class="collapsed-summary">${idea.summary}</div>
-        </div>
-        <div class="collapsed-actions">
-            <div class="collapsed-scheduled-date">
-                <div class="date-month">${idea.scheduledMonth}</div>
-                <div class="date-day">${idea.scheduledDay}</div>
-            </div>
         </div>
     `;
 
@@ -2400,21 +2377,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="collapsed-content">
                 <div class="collapsed-title">
                     <span class="title-text">"${idea.title}"</span>
-                    <div class="collapsed-platforms">
-                        ${platformIconsHTML}
-                    </div>
                 </div>
                 <div class="collapsed-summary">${idea.summary}</div>
-            </div>
-            <div class="collapsed-actions">
-                <button class="collapsed-action-btn" onclick="scheduleIdea(this)" aria-label="Schedule">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
-                </button>
             </div>
         `;
 
@@ -2423,12 +2387,8 @@ document.addEventListener('DOMContentLoaded', () => {
         collapsedCard.dataset.idea = JSON.stringify(ideaWithSinglePlatform);
         collapsedCard.dataset.platforms = platformsArray[0];
 
-        // Add click handler for expansion (entire card, except buttons)
+        // Add click handler for expansion
         collapsedCard.addEventListener('click', (e) => {
-            // Don't expand if clicking on action buttons
-            if (e.target.closest('.collapsed-action-btn')) {
-                return;
-            }
             expandIdeaCard(collapsedCard);
         });
 
@@ -3944,15 +3904,15 @@ function updateFeedbackCharCount() {
  */
 async function trackGenerationEvent(eventType, context = {}) {
     try {
-        const { trackGenerationEvent: trackToSupabase, getCurrentUser } = await import('./supabase.js');
-        const user = await getCurrentUser();
+        // NOTE: Analytics tracking not yet implemented in supabase.js
+        // This function is a placeholder for future analytics integration
+        const { getCurrentUser } = await import('./supabase.js');
+        const { user, error } = await getCurrentUser();
         
-        if (!user) return; // Don't track if not logged in
+        if (error || !user) return; // Don't track if not logged in
         
-        await trackToSupabase(user.id, {
-            event_type: eventType,
-            ...context
-        });
+        // TODO: Implement analytics tracking in supabase.js when ready
+        // await trackToSupabase(user.id, { event_type: eventType, ...context });
     } catch (error) {
         console.error('Error tracking generation event:', error);
     }
@@ -3963,8 +3923,11 @@ async function trackGenerationEvent(eventType, context = {}) {
  */
 async function trackAppEvent(eventData) {
     try {
-        const { trackAppEvent: trackToSupabase } = await import('./supabase.js');
-        await trackToSupabase(eventData);
+        // NOTE: Analytics tracking not yet implemented in supabase.js
+        // This function is a placeholder for future analytics integration
+        // TODO: Implement analytics tracking in supabase.js when ready
+        // const { trackAppEvent: trackToSupabase } = await import('./supabase.js');
+        // await trackToSupabase(eventData);
     } catch (error) {
         console.error('Error tracking app event:', error);
     }
@@ -4042,10 +4005,10 @@ const LocalStorage = {
 async function savePinnedIdeaToSupabase(ideaData) {
     try {
         console.log('📡 Importing Supabase functions...');
-        const { createIdea, getCurrentUser } = await import('./supabase.js');
-        const user = await getCurrentUser();
+        const { saveIdea, getCurrentUser } = await import('./supabase.js');
+        const { user, error: userError } = await getCurrentUser();
         
-        if (!user) {
+        if (userError || !user) {
             console.warn('⚠️ User not logged in, idea saved locally only');
             return null;
         }
@@ -4063,14 +4026,16 @@ async function savePinnedIdeaToSupabase(ideaData) {
             hook: ideaData.hook ? 'present' : 'missing'
         });
         
-        const savedIdea = await createIdea(user.id, {
+        const { data: savedIdea, error: saveError } = await saveIdea({
             ...ideaData,
+            user_id: user.id,
+            type: 'pinned',
             is_pinned: true,
             is_scheduled: false
         });
         
-        if (!savedIdea) {
-            console.error('❌ createIdea returned null/undefined');
+        if (saveError || !savedIdea) {
+            console.error('❌ saveIdea failed:', saveError);
             return null;
         }
         
@@ -4103,31 +4068,43 @@ async function savePinnedIdeaToSupabase(ideaData) {
  */
 async function saveScheduledIdeaToSupabase(ideaData, scheduledDate) {
     try {
-        const { createIdea, updateIdea, getCurrentUser } = await import('./supabase.js');
-        const user = await getCurrentUser();
+        const { saveIdea, updateIdea, getCurrentUser } = await import('./supabase.js');
+        const { user, error: userError } = await getCurrentUser();
         
-        if (!user) {
+        if (userError || !user) {
             console.warn('User not logged in, idea saved locally only');
             return null;
         }
         
         let savedIdea;
         if (ideaData.id) {
-            savedIdea = await updateIdea(ideaData.id, {
+            const { data, error } = await updateIdea(ideaData.id, {
                 ...ideaData,
                 is_pinned: false,
                 is_scheduled: true,
                 scheduled_date: scheduledDate,
                 status: 'scheduled'
             });
+            if (error) {
+                console.error('Error updating idea:', error);
+                return null;
+            }
+            savedIdea = data;
         } else {
-            savedIdea = await createIdea(user.id, {
+            const { data, error } = await saveIdea({
                 ...ideaData,
+                user_id: user.id,
+                type: 'scheduled',
                 is_pinned: false,
                 is_scheduled: true,
                 scheduled_date: scheduledDate,
                 status: 'scheduled'
             });
+            if (error) {
+                console.error('Error saving idea:', error);
+                return null;
+            }
+            savedIdea = data;
         }
         
         // Track scheduled event
@@ -4947,26 +4924,36 @@ window.clearSelectedVibes = function() {
 // TREND FACTS STRIP
 // ============================================
 
-// Trend facts data (placeholder - can be replaced with AI/API data)
+// Trend facts data - Platform-based (TikTok and YouTube) with balanced mix
 const trendFacts = [
-    { icon: "↑", text: "Voiceover Reels ↑ 18% this week" },
-    { icon: "🔥", text: "POV hooks trending ↑ 24%" },
-    { icon: "⚡", text: "Under 30 sec videos boost engagement" },
-    { icon: "📈", text: "3x weekly posts = 2x growth" },
-    { icon: "🎯", text: "Jump cuts increase retention 32%" },
-    { icon: "✨", text: "Behind-the-scenes content ↑ 41%" },
-    { icon: "💡", text: "Story-driven hooks perform best" },
-    { icon: "🚀", text: "Tutorial formats ↑ 28% engagement" },
-    { icon: "⭐", text: "User-generated content 3x shares" },
-    { icon: "📱", text: "Vertical video dominates 2025" },
-    { icon: "🎬", text: "Day-in-the-life format ↑ 35%" },
-    { icon: "💬", text: "Q&A content drives comments" },
-    { icon: "🔊", text: "Trending audio boosts reach 45%" },
-    { icon: "🎨", text: "Bold text overlays ↑ 22% views" },
-    { icon: "⏱️", text: "0-3 sec hooks = 3x retention" },
-    { icon: "🌟", text: "Carousel posts get 1.4x more reach" },
-    { icon: "📊", text: "Data storytelling ↑ 38% saves" },
-    { icon: "🎭", text: "Relatable humor = highest shares" }
+    // TikTok trends
+    { platform: "tiktok", icon: "↑", text: "Voiceover Reels ↑ 18% this week" },
+    { platform: "tiktok", icon: "🔥", text: "POV hooks trending ↑ 24%" },
+    { platform: "tiktok", icon: "⚡", text: "Under 30 sec videos boost engagement" },
+    { platform: "tiktok", icon: "🎯", text: "Jump cuts increase retention 32%" },
+    { platform: "tiktok", icon: "✨", text: "Behind-the-scenes content ↑ 41%" },
+    { platform: "tiktok", icon: "💡", text: "Story-driven hooks perform best" },
+    { platform: "tiktok", icon: "🚀", text: "Tutorial formats ↑ 28% engagement" },
+    { platform: "tiktok", icon: "⭐", text: "User-generated content 3x shares" },
+    { platform: "tiktok", icon: "📱", text: "Vertical video dominates 2025" },
+    { platform: "tiktok", icon: "🎬", text: "Day-in-the-life format ↑ 35%" },
+    { platform: "tiktok", icon: "🔊", text: "Trending audio boosts reach 45%" },
+    { platform: "tiktok", icon: "⏱️", text: "0-3 sec hooks = 3x retention" },
+    { platform: "tiktok", icon: "🎭", text: "Relatable humor = highest shares" },
+    // YouTube trends
+    { platform: "youtube", icon: "📈", text: "3x weekly posts = 2x growth" },
+    { platform: "youtube", icon: "🎨", text: "Bold text overlays ↑ 22% views" },
+    { platform: "youtube", icon: "🌟", text: "Carousel posts get 1.4x more reach" },
+    { platform: "youtube", icon: "📊", text: "Data storytelling ↑ 38% saves" },
+    { platform: "youtube", icon: "💬", text: "Q&A content drives comments" },
+    { platform: "youtube", icon: "🎥", text: "Long-form content ↑ 42% watch time" },
+    { platform: "youtube", icon: "📊", text: "Thumbnail A/B testing ↑ 31% CTR" },
+    { platform: "youtube", icon: "📺", text: "Series content builds 2.3x subscribers" },
+    { platform: "youtube", icon: "🎯", text: "First 15 seconds critical for retention" },
+    { platform: "youtube", icon: "💡", text: "Educational content ↑ 58% engagement" },
+    { platform: "youtube", icon: "🔥", text: "Community posts boost visibility" },
+    { platform: "youtube", icon: "⚡", text: "Shorts drive 3x channel growth" },
+    { platform: "youtube", icon: "📱", text: "Mobile-first editing ↑ 27% views" }
 ];
 
 /**
@@ -4976,15 +4963,27 @@ function initTrendStrip() {
     const stripContainer = document.getElementById('trend-strip');
     if (!stripContainer) return;
     
+    // Create balanced mix of TikTok and YouTube trends (constant balance, not affected by platform switching)
+    const tiktokFacts = trendFacts.filter(f => f.platform === 'tiktok');
+    const youtubeFacts = trendFacts.filter(f => f.platform === 'youtube');
+    
+    // Interleave TikTok and YouTube trends for balanced mix
+    const balancedFacts = [];
+    const maxLength = Math.max(tiktokFacts.length, youtubeFacts.length);
+    for (let i = 0; i < maxLength; i++) {
+        if (i < tiktokFacts.length) balancedFacts.push(tiktokFacts[i]);
+        if (i < youtubeFacts.length) balancedFacts.push(youtubeFacts[i]);
+    }
+    
     // Ensure at least 12 facts, duplicate for seamless infinite loop
-    const allFacts = [...trendFacts, ...trendFacts, ...trendFacts]; // Triple for smooth loop
+    const allFacts = [...balancedFacts, ...balancedFacts, ...balancedFacts]; // Triple for smooth loop
     
     // Create chips
     allFacts.forEach(fact => {
         const chip = document.createElement('div');
         chip.className = 'trend-fact-chip';
         chip.innerHTML = `
-            <span class="trend-fact-icon">${fact.icon}</span>
+            <span class="trend-fact-icon">${fact.icon || ''}</span>
             <span class="trend-fact-text">${fact.text}</span>
         `;
         stripContainer.appendChild(chip);
