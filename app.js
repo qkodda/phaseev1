@@ -666,11 +666,14 @@ function createScheduledCard(idea) {
         'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
         'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">'
     };
-    const scheduledPlatforms = Array.isArray(idea.platforms) ? idea.platforms : [];
-    const platformIconsHTML = scheduledPlatforms.map(p => iconMap[p] || '').join('');
+    // Enforce single platform per idea
+    const scheduledPlatforms = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? [idea.platforms[0]] : ['tiktok'];
+    const platformIconsHTML = scheduledPlatforms.map(p => iconMap[p] || '').filter(html => html).join('');
+    const singlePlatform = scheduledPlatforms[0];
 
     const scheduledCard = document.createElement('div');
     scheduledCard.className = 'idea-card-collapsed';
+    scheduledCard.dataset.platform = singlePlatform;
     scheduledCard.innerHTML = `
         <div class="collapsed-content">
             <div class="collapsed-title">
@@ -689,9 +692,10 @@ function createScheduledCard(idea) {
         </div>
     `;
 
-    // Store full idea data
-    scheduledCard.dataset.idea = JSON.stringify(idea);
-    scheduledCard.dataset.platforms = scheduledPlatforms.join(', ');
+    // Store full idea data with single platform enforced
+    const ideaWithSinglePlatform = { ...idea, platforms: scheduledPlatforms };
+    scheduledCard.dataset.idea = JSON.stringify(ideaWithSinglePlatform);
+    scheduledCard.dataset.platforms = scheduledPlatforms[0];
 
     // Add click handler for expansion (entire card, except date badge)
     scheduledCard.addEventListener('click', (e) => {
@@ -2381,17 +2385,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create platform icons HTML
         const iconMap = {
             'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
-            'instagram': '<img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="platform-icon">',
-            'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">',
-            'twitter': '<img src="https://cdn.simpleicons.org/x/000000" alt="Twitter" class="platform-icon">',
-            'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
+            'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">'
         };
-        const platformsArray = Array.isArray(idea.platforms) ? idea.platforms : [];
-        const platformIconsHTML = platformsArray.map(p => iconMap[p] || '').join('');
+        // Enforce single platform per idea
+        const platformsArray = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? [idea.platforms[0]] : ['tiktok'];
+        const platformIconsHTML = platformsArray.map(p => iconMap[p] || '').filter(html => html).join('');
+        const singlePlatform = platformsArray[0];
 
         // Create collapsed card
         const collapsedCard = document.createElement('div');
         collapsedCard.className = 'idea-card-collapsed';
+        collapsedCard.dataset.platform = singlePlatform;
         collapsedCard.innerHTML = `
             <div class="collapsed-content">
                 <div class="collapsed-title">
@@ -2414,9 +2418,10 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        // Store full idea data
-        collapsedCard.dataset.idea = JSON.stringify(idea);
-        collapsedCard.dataset.platforms = platformsArray.join(', ');
+        // Store full idea data with single platform enforced
+        const ideaWithSinglePlatform = { ...idea, platforms: platformsArray };
+        collapsedCard.dataset.idea = JSON.stringify(ideaWithSinglePlatform);
+        collapsedCard.dataset.platforms = platformsArray[0];
 
         // Add click handler for expansion (entire card, except buttons)
         collapsedCard.addEventListener('click', (e) => {
@@ -4217,6 +4222,8 @@ async function loadIdeasFromSupabase() {
                 console.warn('⚠️ addPinnedIdea helper not available; skipping pinned idea render.');
             } else {
                 pinnedIdeas.forEach(idea => {
+                    // Enforce single platform
+                    const platforms = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? [idea.platforms[0]] : ['tiktok'];
                     addPinnedIdeaFn({
                         id: idea.id,
                         title: idea.title,
@@ -4226,7 +4233,7 @@ async function loadIdeasFromSupabase() {
                         hook: idea.hook,
                         story: idea.story,
                         why: idea.why,
-                        platforms: idea.platforms || [],
+                        platforms: platforms,
                         direction: idea.direction,
                         is_campaign: idea.is_campaign,
                         is_pinned: idea.is_pinned,
@@ -4266,6 +4273,9 @@ async function loadIdeasFromSupabase() {
                         const month = selectedDate.toLocaleDateString('en-US', { month: 'short' });
                         const day = selectedDate.getDate();
                         
+                        // Enforce single platform
+                        const platforms = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? [idea.platforms[0]] : ['tiktok'];
+                        
                         const scheduledCard = createScheduledCardFn({
                             id: idea.id,
                             title: idea.title,
@@ -4274,7 +4284,7 @@ async function loadIdeasFromSupabase() {
                             setup: idea.setup,
                             hook: idea.hook,
                             why: idea.why,
-                            platforms: idea.platforms || [],
+                            platforms: platforms,
                             scheduledDate: idea.scheduled_date,
                             scheduledMonth: month,
                             scheduledDay: day
