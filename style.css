@@ -1759,7 +1759,7 @@ body {
 
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 .homepage-content {
-    padding-top: 155px !important;
+    padding-top: 530px !important;
     padding-left: 20px !important;
     padding-right: 20px !important;
     padding-bottom: 40px !important;
@@ -1767,7 +1767,7 @@ body {
 }
 
 .homepage-content.expanded {
-    padding-top: 280px !important;
+    padding-top: 655px !important;
 }
 
 .hero-title {
@@ -2559,7 +2559,7 @@ END GENERATOR STYLES */
 
 /* Pinned Ideas Component */
 .pinned-ideas {
-    margin-top: 390px;
+    margin-top: 20px;
     margin-bottom: 40px;
     border: none;
     border-radius: 16px;
