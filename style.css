@@ -2559,7 +2559,7 @@ END GENERATOR STYLES */
 
 /* Pinned Ideas Component */
 .pinned-ideas {
-    margin-top: 375px;
+    margin-top: 390px;
     margin-bottom: 40px;
     border: none;
     border-radius: 16px;
@@ -2569,6 +2569,8 @@ END GENERATOR STYLES */
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    z-index: 1;
 }
 
 /* Schedule Header with Icons */
@@ -2900,7 +2902,7 @@ END GENERATOR STYLES */
     border-radius: 12px;
     padding: 12px 36px;
     border: none;
-    width: 360px;
+    width: 320px;
     max-width: 100%;
     height: 70px;
     display: flex;
@@ -2909,7 +2911,7 @@ END GENERATOR STYLES */
     gap: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 0 6px 360deg rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
     margin: 0 auto;
     justify-self: center;
 }
@@ -3039,6 +3041,8 @@ END GENERATOR STYLES */
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    z-index: 1;
 }
 
 .schedule-list {
@@ -3075,6 +3079,8 @@ END GENERATOR STYLES */
     align-items: center;
     margin: 32px 0 40px;
     gap: 12px;
+    position: relative;
+    z-index: 1;
 }
 
 .action-pill-btn {
