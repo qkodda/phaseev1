@@ -35,3 +35,10 @@ npm-debug.log*
 # Temporary files
 *.tmp
 .cache/
+
+# SECURITY: Sensitive configuration files
+supabase.js
+
+# Documentation - Keep private
+*.md
+!README.md

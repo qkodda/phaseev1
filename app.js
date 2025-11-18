@@ -902,13 +902,10 @@ window.toggleEditMode = function toggleEditMode() {
             const ideaData = JSON.parse(expandedCard.dataset.originalCard);
             const currentPlatforms = ideaData.platforms || [];
             
-            const allPlatforms = ['tiktok', 'instagram', 'youtube', 'twitter', 'facebook'];
+            const allPlatforms = ['tiktok', 'youtube'];
             const iconMap = {
                 'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
-                'instagram': '<img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="platform-icon">',
-                'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">',
-                'twitter': '<img src="https://cdn.simpleicons.org/x/000000" alt="Twitter" class="platform-icon">',
-                'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
+                'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">'
             };
             
             platformIconsContainer.innerHTML = '';
@@ -961,10 +958,7 @@ window.toggleEditMode = function toggleEditMode() {
             // Show only selected platforms
             const iconMap = {
                 'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
-                'instagram': '<img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="platform-icon">',
-                'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">',
-                'twitter': '<img src="https://cdn.simpleicons.org/x/000000" alt="Twitter" class="platform-icon">',
-                'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
+                'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">'
             };
             
             platformIconsContainer.innerHTML = selectedPlatforms.map(p => iconMap[p] || '').join('');
@@ -990,7 +984,19 @@ window.toggleEditMode = function toggleEditMode() {
 }
 
 window.togglePlatformSelection = function togglePlatformSelection(wrapper) {
-    wrapper.classList.toggle('unselected');
+    // Single selection only
+    const container = wrapper.closest('#expanded-platform-icons');
+    if (!container) return;
+    
+    // Deselect all others
+    container.querySelectorAll('.platform-icon-wrapper').forEach(w => {
+        if (w !== wrapper) {
+            w.classList.add('unselected');
+        }
+    });
+    
+    // Select this one
+    wrapper.classList.remove('unselected');
 }
 
 /**
@@ -1974,23 +1980,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return '';
         }
 
-        const iconMap = {
-            tiktok: 'https://cdn.simpleicons.org/tiktok/000000',
-            instagram: 'https://cdn.simpleicons.org/instagram/E4405F',
-            youtube: 'https://cdn.simpleicons.org/youtube/FF0000',
-            twitter: 'https://cdn.simpleicons.org/x/000000',
-            facebook: 'https://cdn.simpleicons.org/facebook/1877F2'
-        };
-
         console.log('🎨 Generating platform icons for:', platforms);
 
         return platforms.map(platform => {
-            const iconUrl = iconMap[platform.toLowerCase()];
-            if (!iconUrl) {
-                console.warn('⚠️ Unknown platform:', platform);
+            const platformLower = platform.toLowerCase();
+            if (platformLower === 'tiktok') {
+                return `<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">`;
+            } else if (platformLower === 'youtube') {
+                return `
+                    <div class="platform-icon-group-collapsed">
+                        <img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon-img">
+                        <div class="platform-icon-indicator"></div>
+                    </div>
+                `;
+            } else {
+                console.warn(`⚠️ Unknown platform: ${platform}`);
                 return '';
             }
-            return `<img src="${iconUrl}" alt="${platform}" class="platform-icon" onerror="console.error('Failed to load icon:', this.src)">`;
         }).join('');
     }
 

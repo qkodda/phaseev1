@@ -23,9 +23,15 @@
         }
     </style>
     
-        <link rel="stylesheet" href="style.css?v=7.1"></head>
+        <link rel="stylesheet" href="style.css?v=7.7"></head>
 <body>
     <div class="app-container">
+        <!-- Coordinate Grid (Developer Tool) -->
+        <div class="coordinate-grid">
+            <div class="y-axis"></div>
+            <div class="x-axis"></div>
+        </div>
+        
         <!-- SIGN IN PAGE -->
         <div id="sign-in-page" class="page active">
             <div class="page-content">
@@ -226,17 +232,8 @@
                             <button type="button" class="platform-select-btn" data-platform="tiktok">
                                 <img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok">
                             </button>
-                            <button type="button" class="platform-select-btn" data-platform="instagram">
-                                <img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram">
-                            </button>
                             <button type="button" class="platform-select-btn" data-platform="youtube">
                                 <img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube">
-                            </button>
-                            <button type="button" class="platform-select-btn" data-platform="twitter">
-                                <img src="https://cdn.simpleicons.org/x/000000" alt="Twitter">
-                            </button>
-                            <button type="button" class="platform-select-btn" data-platform="facebook">
-                                <img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook">
                             </button>
                         </div>
                     </div>
@@ -335,21 +332,29 @@
 
         <!-- HOMEPAGE -->
         <div id="homepage" class="page">
-            <!-- New Hero Header Component -->
+            <!-- Header Component -->
             <header class="app-header hero-header" id="app-header">
                 <div class="header-top-row">
                     <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
                         <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
                     </button>
+                    <h2 class="header-greeting" id="header-greeting">Welcome back, <span id="header-user-name">John</span></h2>
                     <button class="profile-icon-btn" onclick="navigateTo('profile-page')" aria-label="Profile">
                         <svg viewBox="0 0 24 24" width="22" height="22">
                             <path fill="white" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                         </svg>
                     </button>
                 </div>
-                
-                <h2 class="header-greeting" id="header-greeting">Welcome back, <span id="header-user-name">John</span></h2>
-                
+            </header>
+            
+            <!-- Hero Section (Textbox) -->
+            <div class="hero-section">
+                <div class="platform-selector-group">
+                    <button class="platform-selector-btn youtube-btn" data-platform="youtube">
+                        <img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube">
+                    </button>
+                    <div class="platform-indicator"></div>
+                </div>
                 <div class="header-input-container" id="header-input-container">
                     <input 
                         type="text" 
@@ -445,7 +450,7 @@
                         </div>
                     </div>
                 </div>
-            </header>
+            </div>
 
             <div class="homepage-content" id="homepage-content">
                 <!-- Trend Facts Strip - Now inside homepage content to scroll with page -->
@@ -489,7 +494,7 @@
 
                 <!-- Pinned Ideas Component -->
                 <section class="pinned-ideas" id="pinned-ideas">
-                    <h3 class="component-title">Pinned Ideas <span class="count">(0)</span></h3>
+                    <h3 class="component-title">Drawing Board <span class="count">(0)</span></h3>
                     <div class="ideas-grid">
                         <div class="empty-state">
                             <p>No pinned ideas yet. Start swiping!</p>
@@ -777,17 +782,8 @@
                             <button class="platform-select-btn" data-platform="tiktok">
                                 <img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok">
                             </button>
-                            <button class="platform-select-btn" data-platform="instagram">
-                                <img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram">
-                            </button>
                             <button class="platform-select-btn" data-platform="youtube">
                                 <img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube">
-                            </button>
-                            <button class="platform-select-btn" data-platform="twitter">
-                                <img src="https://cdn.simpleicons.org/x/000000" alt="Twitter">
-                            </button>
-                            <button class="platform-select-btn" data-platform="facebook">
-                                <img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook">
                             </button>
                         </div>
                     </div>
@@ -1245,6 +1241,6 @@
         </div>
     </div>
 
-    <script type="module" src="app.js?v=7.0"></script>
+    <script type="module" src="app.js?v=7.2"></script>
 </body>
 </html>
