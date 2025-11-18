@@ -77,7 +77,7 @@ function formatIdeas(ideas) {
     story: idea.story || '',
     hook: idea.hook || '',
     why: idea.why || '',
-    platforms: Array.isArray(idea.platforms) ? idea.platforms : ['tiktok', 'instagram'],
+    platforms: Array.isArray(idea.platforms) && idea.platforms.length > 0 ? [idea.platforms[0]] : ['tiktok'],
     createdAt: new Date().toISOString()
   }))
 }
@@ -152,7 +152,7 @@ export function getFallbackIdeas() {
       story: "Start with the sound of grinding, build anticipation, reveal your unique preparation method.",
       hook: "This is my favorite part of the morning...",
       why: "Morning routines are relatable and coffee content performs consistently well.",
-      platforms: ["instagram", "tiktok"],
+      platforms: ["tiktok"],
       createdAt: new Date().toISOString()
     },
     {
@@ -164,7 +164,7 @@ export function getFallbackIdeas() {
       story: "Build up the 'perfect' moment, then reveal all the attempts and mess behind it.",
       hook: "Everyone thinks I have it together, but here's what you don't see...",
       why: "Authenticity and vulnerability create strong audience connection.",
-      platforms: ["instagram", "tiktok", "youtube"],
+      platforms: ["youtube"],
       createdAt: new Date().toISOString()
     },
     {
@@ -176,7 +176,7 @@ export function getFallbackIdeas() {
       story: "Start with the 'before', show key moments of the process, dramatic reveal.",
       hook: "Watch what happens when I spend 3 hours on this...",
       why: "Transformation content is highly engaging and shareable.",
-      platforms: ["tiktok", "instagram", "youtube"],
+      platforms: ["youtube"],
       createdAt: new Date().toISOString()
     },
     {
@@ -188,7 +188,7 @@ export function getFallbackIdeas() {
       story: "Start with the question, share personal experience, give actionable advice.",
       hook: "You keep asking me this, so here's the real answer...",
       why: "Directly addressing audience questions builds community and trust.",
-      platforms: ["youtube", "instagram", "tiktok"],
+      platforms: ["youtube"],
       createdAt: new Date().toISOString()
     },
     {
@@ -200,7 +200,7 @@ export function getFallbackIdeas() {
       story: "Morning to night journey, showing the variety and energy of your life.",
       hook: "Come spend a day with me...",
       why: "DITL content is consistently popular and helps audience feel connected.",
-      platforms: ["instagram", "tiktok", "youtube"],
+      platforms: ["youtube"],
       createdAt: new Date().toISOString()
     },
     {
@@ -212,7 +212,7 @@ export function getFallbackIdeas() {
       story: "Hook with the myth, build tension, reveal the truth, explain the impact.",
       hook: "Everyone believes this, but it's completely wrong...",
       why: "Educational content that challenges assumptions drives engagement and shares.",
-      platforms: ["tiktok", "instagram", "youtube"],
+      platforms: ["youtube"],
       createdAt: new Date().toISOString()
     },
     {
@@ -224,7 +224,7 @@ export function getFallbackIdeas() {
       story: "Introduce the collaboration, explore the unexpected connection, create something together.",
       hook: "You'd never expect us to work together, but watch this...",
       why: "Collaborations expand reach and create fresh, interesting content.",
-      platforms: ["instagram", "tiktok", "youtube"],
+      platforms: ["youtube"],
       createdAt: new Date().toISOString()
     }
   ]

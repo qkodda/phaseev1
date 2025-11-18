@@ -210,7 +210,7 @@ body {
 }
 
 #homepage.page {
-    background: #ffefd6;
+    background: #ffffff;
 }
 
 .page::-webkit-scrollbar {
@@ -2517,32 +2517,15 @@ END GENERATOR STYLES */
 }
 
 .card-action-btn.skip-btn {
-    background: rgba(239, 68, 68, 0.9);
-    color: white;
+    background: transparent;
+    color: #ef4444;
 }
 
 .card-action-btn.pin-btn {
-    background: var(--gradient-tiffany);
-    color: white;
+    background: transparent;
+    color: #3182ce;
     position: relative;
     overflow: hidden;
-}
-
-.card-action-btn.pin-btn::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.3) 50%,
-        rgba(255, 255, 255, 0) 100%
-    );
-    animation: shimmer 2.5s infinite;
-    pointer-events: none;
 }
 
 .card-action-btn:hover {
@@ -2894,7 +2877,7 @@ END GENERATOR STYLES */
 .ideas-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 12px;
+    row-gap: 12px;
     max-height: 261px;
     overflow-y: auto;
     overflow-x: visible;
@@ -2917,7 +2900,7 @@ END GENERATOR STYLES */
     border-radius: 12px;
     padding: 12px 36px;
     border: none;
-    width: 320px;
+    width: 360px;
     max-width: 100%;
     height: 70px;
     display: flex;
@@ -2926,9 +2909,28 @@ END GENERATOR STYLES */
     gap: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 6px 360deg rgba(0, 0, 0, 0.3);
     margin: 0 auto;
     justify-self: center;
+}
+
+/* Platform-specific backgrounds for collapsed cards */
+.idea-card-collapsed[data-platform*="tiktok"] {
+    background: #000000;
+}
+
+.idea-card-collapsed[data-platform*="tiktok"] .collapsed-title,
+.idea-card-collapsed[data-platform*="tiktok"] .collapsed-summary {
+    color: #ffffff;
+}
+
+.idea-card-collapsed[data-platform*="youtube"] {
+    background: #CC1F1F;
+}
+
+.idea-card-collapsed[data-platform*="youtube"] .collapsed-title,
+.idea-card-collapsed[data-platform*="youtube"] .collapsed-summary {
+    color: #ffffff;
 }
 
 .idea-card-collapsed:hover {
@@ -3042,7 +3044,7 @@ END GENERATOR STYLES */
 .schedule-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    row-gap: 12px;
     max-height: 261px;
     overflow-y: auto;
     overflow-x: visible;
@@ -3076,7 +3078,7 @@ END GENERATOR STYLES */
 }
 
 .action-pill-btn {
-    background: var(--gradient-tiffany);
+    background: #000000;
     border: none;
     border-radius: 8px;
     padding: 10px 16px;
@@ -3099,7 +3101,7 @@ END GENERATOR STYLES */
 }
 
 .action-icon-btn {
-    background: var(--gradient-tiffany);
+    background: #000000;
     border: none;
     border-radius: 8px;
     width: 48px;
@@ -3138,7 +3140,7 @@ END GENERATOR STYLES */
 
 .action-pill-btn:hover,
 .action-icon-btn:hover {
-    background: var(--gradient-tiffany-hover);
+    background: #1a1a1a;
     transform: scale(1.05);
 }
 

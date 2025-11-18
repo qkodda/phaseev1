@@ -664,10 +664,7 @@ function confirmScheduleDate(selectedDateStr) {
 function createScheduledCard(idea) {
     const iconMap = {
         'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
-        'instagram': '<img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="platform-icon">',
-        'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">',
-        'twitter': '<img src="https://cdn.simpleicons.org/x/000000" alt="Twitter" class="platform-icon">',
-        'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
+        'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">'
     };
     const scheduledPlatforms = Array.isArray(idea.platforms) ? idea.platforms : [];
     const platformIconsHTML = scheduledPlatforms.map(p => iconMap[p] || '').join('');
@@ -735,10 +732,7 @@ function expandIdeaCard(card) {
     // Create platform icons HTML
     const iconMap = {
         'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
-        'instagram': '<img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="platform-icon">',
-        'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">',
-        'twitter': '<img src="https://cdn.simpleicons.org/x/000000" alt="Twitter" class="platform-icon">',
-        'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
+        'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">'
     };
     const platformIconsHTML = ideaData.platforms.map(p => iconMap[p] || '').join('');
 
@@ -1223,7 +1217,7 @@ const ideaTemplates = [
         story: 'Start filming. Do some things. Stop filming. Boom - content. You\'re crushing it already.',
         hook: 'I was gonna make something good today but... *gestures vaguely at everything*',
         why: 'Because our AI took a sick day and this is all we got. At least you showed up.',
-        platforms: ['tiktok', 'instagram', 'youtube']
+        platforms: ['tiktok']
     },
     {
         title: 'Just Film Your Coffee or Whatever',
@@ -1233,7 +1227,7 @@ const ideaTemplates = [
         story: 'Pour. Stir. Look pensively at cup. Sip. Deep sigh. That\'s the whole story.',
         hook: 'This coffee represents my entire personality...',
         why: 'Because the algorithm loves coffee content almost as much as it loves your existential dread.',
-        platforms: ['tiktok', 'instagram']
+        platforms: ['tiktok']
     },
     {
         title: 'Dance Like Nobody\'s Watching (They Are)',
@@ -1243,7 +1237,7 @@ const ideaTemplates = [
         story: 'Three seconds of confidence, followed by instant regret. Perfect for TikTok.',
         hook: 'My therapist said I should step outside my comfort zone so...',
         why: 'Because our AI is sleeping and this is what creativity looks like without artificial intelligence.',
-        platforms: ['tiktok', 'instagram']
+        platforms: ['tiktok']
     },
     {
         title: 'Point Camera at Face, Say Words',
@@ -1253,7 +1247,7 @@ const ideaTemplates = [
         story: 'Beginning, middle, end. Or just middle. Who has time for narrative structure?',
         hook: 'Hot take incoming... *pauses for effect I don\'t have*',
         why: 'Because sometimes the bar is in hell and we\'re all just trying to step over it.',
-        platforms: ['tiktok', 'youtube', 'instagram']
+        platforms: ['youtube']
     },
     {
         title: 'Film Something, Add Text, Call it Art',
@@ -1263,7 +1257,7 @@ const ideaTemplates = [
         story: 'The story is that you need to post something today and this is what you got.',
         hook: 'POV: You\'re pretending you planned this content...',
         why: 'Because our AI is out getting cigarettes and these are the ideas we\'re left with.',
-        platforms: ['tiktok', 'instagram', 'youtube']
+        platforms: ['youtube']
     },
     {
         title: 'Behind the Scenes of Not Knowing What You\'re Doing',
@@ -1273,7 +1267,7 @@ const ideaTemplates = [
         story: 'Start with confidence. Descend into confusion. End with "well that happened."',
         hook: 'Watch me pretend I have my life together for 60 seconds...',
         why: 'Because vulnerability is trending and you\'re vulnerable AF right now.',
-        platforms: ['youtube', 'instagram', 'tiktok']
+        platforms: ['youtube']
     },
     {
         title: 'Lipsyncing - Because Real Words Are Hard',
@@ -1283,7 +1277,7 @@ const ideaTemplates = [
         story: 'There is no story. Just vibes and borrowed audio.',
         hook: '*Points at text* "This is about to be relatable..."',
         why: 'Because our AI model is currently "unavailable" and so is our creativity, apparently.',
-        platforms: ['tiktok', 'instagram']
+        platforms: ['tiktok']
     }
 ];
 
@@ -1559,7 +1553,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let userProfile = {
                 contentType: 'creator',
                 targetAudience: 'Gen Z and Millennials',
-                platforms: ['tiktok', 'instagram', 'youtube'],
+                platforms: ['tiktok', 'youtube'],
                 cultureValues: ['Authentic', 'Creative', 'Bold']
             };
             
@@ -1571,7 +1565,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         brandName: profile.brand_name || 'your brand',
                         contentType: profile.role || 'creator',
                         targetAudience: profile.target_audience || 'Gen Z and Millennials',
-                        platforms: profile.platforms || ['tiktok', 'instagram', 'youtube'],
+                        platforms: profile.platforms || ['tiktok', 'youtube'],
                         cultureValues: profile.culture_values || ['Authentic', 'Creative', 'Bold'],
                         contentGoals: profile.content_goals || '',
                         industry: profile.industry || '',
