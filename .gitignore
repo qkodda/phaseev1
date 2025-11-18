@@ -37,7 +37,7 @@ npm-debug.log*
 .cache/
 
 # SECURITY: Sensitive configuration files
-supabase.js
+# supabase.js now uses env vars, safe to commit
 
 # Documentation - Keep private
 *.md
