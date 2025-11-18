@@ -1885,30 +1885,19 @@ body {
     opacity: 1 !important;
 }
 
-/* TikTok swipe cards - black background, white text (front card only) */
-.idea-card[data-platform="tiktok"]:nth-child(1 of .idea-card) {
+/* All swipe cards - black background, white text */
+.idea-swiper .idea-card {
     background: #000000 !important;
 }
 
-.idea-card[data-platform="tiktok"] .title-text,
-.idea-card[data-platform="tiktok"] .section-label,
-.idea-card[data-platform="tiktok"] .section-content,
-.idea-card[data-platform="tiktok"] .card-title,
-.idea-card[data-platform="tiktok"] .card-section .section-text {
+.idea-swiper .idea-card .title-text,
+.idea-swiper .idea-card .section-label,
+.idea-swiper .idea-card .section-content,
+.idea-swiper .idea-card .card-title,
+.idea-swiper .idea-card .card-section .section-text,
+.idea-swiper .idea-card h3,
+.idea-swiper .idea-card p {
     color: #ffffff !important;
-}
-
-/* YouTube swipe cards - red background, black text (front card only) */
-.idea-card[data-platform="youtube"]:nth-child(1 of .idea-card) {
-    background: #FF0000 !important;
-}
-
-.idea-card[data-platform="youtube"] .title-text,
-.idea-card[data-platform="youtube"] .section-label,
-.idea-card[data-platform="youtube"] .section-content,
-.idea-card[data-platform="youtube"] .card-title,
-.idea-card[data-platform="youtube"] .card-section .section-text {
-    color: #000000 !important;
 }
 
 .idea-card:active {
@@ -3858,29 +3847,16 @@ END GENERATOR STYLES */
     word-wrap: break-word;
 }
 
-/* Platform logo on swipe cards - center bottom */
-.idea-card[data-platform="tiktok"]::after {
+/* TikTok logo on all swipe cards - center bottom */
+.idea-swiper .idea-card::after {
     content: '';
     position: absolute;
     bottom: 16px;
     left: 50%;
     transform: translateX(-50%);
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     background: url('https://cdn.simpleicons.org/tiktok/ffffff') no-repeat center;
-    background-size: contain;
-    z-index: 10;
-}
-
-.idea-card[data-platform="youtube"]::after {
-    content: '';
-    position: absolute;
-    bottom: 16px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 24px;
-    height: 24px;
-    background: url('https://cdn.simpleicons.org/youtube/000000') no-repeat center;
     background-size: contain;
     z-index: 10;
 }
