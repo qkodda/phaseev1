@@ -5074,10 +5074,105 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         initVibeSelector();
         initTrendStrip();
+        initPlatformSelector();
     });
 } else {
     // DOM already loaded
     initVibeSelector();
     initTrendStrip();
+    initPlatformSelector();
+}
+
+// ============================================
+// PLATFORM SELECTOR ANIMATION
+// ============================================
+
+/**
+ * Initialize platform selector with animation
+ */
+function initPlatformSelector() {
+    // Get or initialize selected platform from localStorage
+    let selectedPlatform = localStorage.getItem('selectedPlatform') || 'tiktok';
+    
+    // Set initial platform state
+    setPlatformState(selectedPlatform);
+    
+    // Add click handlers to platform buttons
+    const tiktokBtn = document.getElementById('platform-btn-tiktok');
+    const youtubeBtn = document.getElementById('platform-btn-youtube');
+    
+    if (tiktokBtn) {
+        tiktokBtn.addEventListener('click', () => {
+            if (selectedPlatform !== 'tiktok') {
+                selectedPlatform = 'tiktok';
+                localStorage.setItem('selectedPlatform', selectedPlatform);
+                setPlatformState(selectedPlatform);
+            }
+        });
+    }
+    
+    if (youtubeBtn) {
+        youtubeBtn.addEventListener('click', () => {
+            if (selectedPlatform !== 'youtube') {
+                selectedPlatform = 'youtube';
+                localStorage.setItem('selectedPlatform', selectedPlatform);
+                setPlatformState(selectedPlatform);
+            }
+        });
+    }
+}
+
+/**
+ * Set platform state and trigger distinctive animation sequence
+ */
+function setPlatformState(platform) {
+    const homepage = document.getElementById('homepage');
+    if (!homepage) return;
+    
+    const tiktokBtn = document.getElementById('platform-btn-tiktok');
+    const youtubeBtn = document.getElementById('platform-btn-youtube');
+    const platformGroup = document.querySelector('.platform-selector-group');
+    const textboxContainer = document.getElementById('header-input-container');
+    
+    // Get the button that was just activated
+    const activatingBtn = platform === 'tiktok' ? tiktokBtn : youtubeBtn;
+    
+    // 1. Tap feedback on hero icon - distinctive "I've been chosen" reaction
+    if (activatingBtn) {
+        activatingBtn.classList.add('activating');
+        setTimeout(() => {
+            activatingBtn.classList.remove('activating');
+        }, 250);
+    }
+    
+    // 2. Trigger color pulse/halo from the icon
+    if (platformGroup) {
+        platformGroup.classList.add('pulsing');
+        setTimeout(() => {
+            platformGroup.classList.remove('pulsing');
+        }, 350);
+    }
+    
+    // 3. Textbox icon swap animation
+    if (textboxContainer) {
+        textboxContainer.classList.add('swapping');
+        setTimeout(() => {
+            textboxContainer.classList.remove('swapping');
+        }, 200);
+    }
+    
+    // 4. Coordinated theme shift - remove old, add new platform class
+    // This triggers CSS transitions for hero, swipe card, header, underlay
+    homepage.classList.remove('platform--tiktok', 'platform--youtube');
+    homepage.classList.add(`platform--${platform}`);
+    
+    // 5. Update platform button active states
+    if (platform === 'tiktok') {
+        tiktokBtn?.classList.add('active');
+        youtubeBtn?.classList.remove('active');
+    } else {
+        youtubeBtn?.classList.add('active');
+        tiktokBtn?.classList.remove('active');
+    }
 }
 

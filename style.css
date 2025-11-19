@@ -192,6 +192,8 @@ body {
 /* ============================================
    PAGE SYSTEM
    ============================================ */
+/* SCROLL CONTAINER: This is the main scroll container for all pages */
+/* CRITICAL: Changing overflow-y or height here will break scrolling */
 .page {
     position: absolute;
     top: 0;
@@ -200,7 +202,7 @@ body {
     height: 100%;
     display: none;
     flex-direction: column;
-    overflow-y: auto;
+    overflow-y: auto; /* MAIN SCROLL CONTAINER - DO NOT CHANGE */
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
@@ -211,6 +213,13 @@ body {
 
 #homepage.page {
     background: #ffffff;
+    margin-top: 0;
+    padding-top: 0;
+    top: 0 !important;
+}
+
+body:has(#homepage.page.active) {
+    align-items: flex-start;
 }
 
 .page::-webkit-scrollbar {
@@ -268,7 +277,9 @@ body {
     font-size: 18px;
     font-weight: 700;
     color: rgba(40, 40, 40, 0.95);
-    margin-bottom: 16px;
+    margin-bottom: 8px;
+    margin-left: 15px;
+    align-self: flex-start;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -1178,7 +1189,7 @@ body {
     gap: 0 !important;
     box-shadow: none !important;
     border-radius: 0 !important;
-    position: fixed !important;
+    position: relative !important;
     top: 0 !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
@@ -1187,6 +1198,7 @@ body {
     z-index: 1000 !important;
     overflow: visible !important;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    margin: 0 auto 0 auto;
 }
 
 .hero-header.expanded {
@@ -1222,6 +1234,16 @@ body {
 .hero-header .header-logo {
     filter: brightness(0);
     height: 32px;
+    transition: filter 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Platform-specific header logo tinting */
+.platform--tiktok .hero-header .header-logo {
+    filter: brightness(0); /* Black for TikTok */
+}
+
+.platform--youtube .hero-header .header-logo {
+    filter: brightness(0) saturate(100%) invert(15%) sepia(95%) saturate(7404%) hue-rotate(358deg) brightness(95%) contrast(115%); /* Red for YouTube */
 }
 
 .profile-icon-btn {
@@ -1238,6 +1260,18 @@ body {
 
 .profile-icon-btn svg path {
     fill: #000000;
+    transition: fill 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Platform-specific profile icon colors - Staggered animation */
+.platform--tiktok .profile-icon-btn svg path {
+    fill: #000000;
+    transition: fill 300ms cubic-bezier(0.4, 0, 0.2, 1) 50ms; /* 50ms delay */
+}
+
+.platform--youtube .profile-icon-btn svg path {
+    fill: #CC1F1F;
+    transition: fill 300ms cubic-bezier(0.4, 0, 0.2, 1) 50ms; /* 50ms delay */
 }
 
 .profile-icon-btn:hover {
@@ -1254,13 +1288,18 @@ body {
     font-size: 13px;
     font-weight: 500;
     margin: 0;
-    padding: 0;
-    letter-spacing: 0.2px;
-    transition: opacity 1s ease;
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Platform-specific header greeting colors - Staggered animation */
+.platform--tiktok .header-greeting {
+    color: #000000;
+    transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1) 50ms; /* 50ms delay */
+}
+
+.platform--youtube .header-greeting {
+    color: #1a1a1a;
+    transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1) 50ms; /* 50ms delay */
 }
 
 .header-greeting #header-user-name {
@@ -1270,7 +1309,7 @@ body {
 /* Hero Section (Textbox Area) */
 .hero-section {
     position: relative;
-    margin: 105px auto 0;
+    margin: 0 auto 0 !important;
     width: 400px;
     max-width: 400px;
     height: 75px;
@@ -1281,6 +1320,52 @@ body {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     overflow: visible;
     left: -25px;
+    transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hero Section Color Wave Animation - Coordinated with platform switch */
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #CC1F1F 0%, rgba(204, 31, 31, 0.3) 50%, transparent 100%);
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    filter: blur(20px);
+}
+
+.platform--youtube .hero-section::before {
+    transform: translate(-50%, -50%) scale(20);
+    opacity: 0.4;
+}
+
+.platform--tiktok .hero-section::before {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+}
+
+/* Platform-specific hero container colors - Coordinated theme shift */
+.platform--tiktok .hero-section {
+    background: #000000;
+    border-color: #000000;
+    transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.platform--youtube .hero-section {
+    background: #CC1F1F;
+    border-color: #CC1F1F;
+    transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .platform-selector-group {
@@ -1291,6 +1376,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     z-index: 10;
 }
 
@@ -1319,6 +1405,91 @@ body {
     transform: scale(1.05);
 }
 
+/* Platform Button Active State & Distinctive Tap Animation */
+.platform-selector-btn {
+    transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
+                filter 200ms ease;
+    position: relative;
+}
+
+.platform-selector-btn.active {
+    transform: scale(1.1);
+}
+
+/* Tap feedback - distinctive "I've been chosen" reaction */
+.platform-selector-btn.activating {
+    animation: platformButtonActivate 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.platform-selector-btn:active {
+    transform: scale(0.95);
+}
+
+@keyframes platformButtonActivate {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+    40% {
+        transform: scale(1.15) rotate(2deg);
+    }
+    70% {
+        transform: scale(1.08) rotate(-1deg);
+    }
+    100% {
+        transform: scale(1.1) rotate(0deg);
+    }
+}
+
+/* Color pulse/halo from selected icon - positioned at button center */
+.platform-selector-group::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 20px; /* TikTok button center (40px / 2) */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 50%, transparent 100%);
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+    z-index: 0;
+    pointer-events: none;
+    transition: left 200ms cubic-bezier(0.4, 0, 0.2, 1),
+                background 200ms ease;
+    filter: blur(15px);
+}
+
+/* TikTok halo - positioned at TikTok button */
+.platform--tiktok .platform-selector-group::after {
+    left: 20px; /* TikTok button center */
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 50%, transparent 100%);
+}
+
+/* YouTube halo - positioned at YouTube button, red pulse */
+.platform--youtube .platform-selector-group::after {
+    left: 68px; /* YouTube button center (40px + 8px gap + 20px) */
+    background: radial-gradient(circle, rgba(204, 31, 31, 0.6) 0%, rgba(204, 31, 31, 0.3) 50%, transparent 100%);
+}
+
+/* Halo expansion animation trigger */
+.platform-selector-group.pulsing::after {
+    animation: platformHaloPulse 350ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes platformHaloPulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    30% {
+        opacity: 0.7;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(15);
+        opacity: 0;
+    }
+}
+
 .platform-indicator {
     position: absolute;
     width: 14px;
@@ -1326,6 +1497,17 @@ body {
     background: white;
     border-radius: 2px;
     z-index: 1;
+    transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    left: 0;
+}
+
+/* Platform indicator positioning */
+.platform--tiktok .platform-indicator {
+    transform: translateX(0);
+}
+
+.platform--youtube .platform-indicator {
+    transform: translateX(48px); /* Move to YouTube button position (40px button + 8px gap) */
 }
 
 .header-input-container {
@@ -1338,6 +1520,7 @@ body {
     flex-shrink: 0;
 }
 
+/* Textbox platform icon - shows active platform */
 .header-input-container::before {
     content: '';
     position: absolute;
@@ -1350,6 +1533,32 @@ body {
     background-size: contain;
     z-index: 3;
     pointer-events: none;
+    transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1),
+                transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Platform-specific textbox icon */
+.platform--tiktok .header-input-container::before {
+    background-image: url('https://cdn.simpleicons.org/tiktok/000000');
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+}
+
+.platform--youtube .header-input-container::before {
+    background-image: url('https://cdn.simpleicons.org/youtube/FF0000');
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+}
+
+/* Textbox icon swap animation */
+.platform--tiktok .header-input-container.swapping::before {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.8) translateX(-4px);
+}
+
+.platform--youtube .header-input-container.swapping::before {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.8) translateX(-4px);
 }
 
 .header-input-container.expanded {
@@ -1606,6 +1815,7 @@ body {
    TREND FACTS STRIP
    ============================================ */
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
+/* 🔒 TREND SCROLLER POSITION LOCKED - DO NOT MOVE UNLESS EXPLICITLY REQUESTED 🔒 */
 .trend-strip-container {
     width: 100% !important;
     max-width: 100% !important;
@@ -1616,7 +1826,7 @@ body {
     position: relative !important;
     left: 0 !important;
     right: 0 !important;
-    margin: -40px 0 0 !important;
+    margin: 10px 0 0 !important; /* 🔒 LOCKED POSITION - DO NOT CHANGE */
     background: transparent !important;
     padding: 0 !important;
     pointer-events: auto !important;
@@ -1762,7 +1972,77 @@ body {
     transform: scale(0.95);
 }
 
+/* ============================================
+   HOMEPAGE LAYOUT STRUCTURE
+   ============================================ */
+/* 
+   SCROLL-SAFE LAYOUT LOCK-IN:
+   - Main scroll container: .page (overflow-y: auto)
+   - All sections flow naturally in document order
+   - No fixed heights on section containers (content determines height)
+   - No overflow: hidden on section containers (allows natural scroll)
+   - Sections remain in vertical order: TopBar → Hero → Trend → Swipe → Drawing → Schedule → Bottom
+*/
+
+/* Main Homepage Layout Container */
+/* SCROLL-SAFE: min-height allows content to expand, no max-height constraint */
+.homepage-layout {
+    width: 100%;
+    min-height: 100vh; /* Allows content to expand beyond viewport */
+    margin-top: 0;
+    padding-top: 0;
+    /* DO NOT ADD: height, max-height, overflow properties that would constrain scroll */
+}
+
+/* Section Containers - Structural wrappers only */
+/* SCROLL-SAFE: Width-only constraints, no height/overflow restrictions */
+.topbar-section,
+.hero-section-container,
+.trend-scroller-section,
+.swipe-module-section,
+.drawing-board-section,
+.schedule-section,
+.bottom-actions-section {
+    width: 100%;
+    /* DO NOT ADD: height, max-height, overflow: hidden, position: fixed/sticky */
+    /* Content height determines section height - preserves natural scroll flow */
+}
+
+.hero-section-container {
+    margin-top: 5px !important;
+    display: block !important;
+    position: relative !important;
+}
+
+.hero-section-container .hero-section {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.topbar-section {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+/* Drawing Board Section and Below - Positioning */
+.drawing-board-section {
+    margin-top: 15px;
+}
+
+/* Schedule Section and Below - Positioning */
+.schedule-section {
+    margin-top: 15px;
+}
+
+/* Swipe Module Section Positioning */
+.swipe-module-section {
+    margin-top: -65px;
+}
+
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
+/* SCROLL-SAFE: overflow-x: visible allows horizontal content, no vertical overflow constraint */
 .homepage-content {
     padding-top: 60px;
     padding-left: 0;
@@ -1771,7 +2051,8 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-x: visible;
+    overflow-x: visible; /* SCROLL-SAFE: Does not constrain vertical scroll */
+    /* DO NOT ADD: overflow-y, height, max-height that would create nested scroll */
 }
 
 .homepage-content.expanded {
@@ -1898,6 +2179,35 @@ body {
 /* All swipe cards - black background, white text */
 .idea-swiper .idea-card {
     background: #000000 !important;
+    transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+                transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Platform-specific swipe card colors - Coordinated theme shift */
+.platform--tiktok .idea-swiper .idea-card {
+    background: #000000 !important;
+}
+
+.platform--youtube .idea-swiper .idea-card {
+    background: #CC1F1F !important;
+}
+
+/* Subtle breathing effect on platform switch */
+.platform--youtube .idea-swiper .idea-card:nth-child(1 of .idea-card):not(.swiping),
+.platform--tiktok .idea-swiper .idea-card:nth-child(1 of .idea-card):not(.swiping) {
+    animation: cardBreathe 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes cardBreathe {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.01) translateY(-1px);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .idea-swiper .idea-card .title-text,
@@ -2149,6 +2459,20 @@ body {
     border: none !important;
     border-radius: 16px !important;
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.12) !important;
+    transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Platform-specific underlay container colors - Coordinated theme shift */
+.platform--tiktok .card-shadow-container::before,
+.platform--tiktok .card-shadow-container::after {
+    background: rgba(0, 0, 0, 0.6) !important;
+    transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.platform--youtube .card-shadow-container::before,
+.platform--youtube .card-shadow-container::after {
+    background: rgba(204, 31, 31, 0.5) !important;
+    transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .card-shadow-container::before {
@@ -2532,7 +2856,7 @@ END GENERATOR STYLES */
 
 .card-action-btn.pin-btn {
     background: transparent;
-    color: #3182ce;
+    color: #22c55e;
     position: relative;
     overflow: hidden;
 }
@@ -2570,6 +2894,8 @@ END GENERATOR STYLES */
 .pinned-ideas {
     margin-top: -2px;
     margin-bottom: 20px;
+    margin-left: auto;
+    margin-right: auto;
     width: 370px;
     max-width: 370px;
     display: flex;
@@ -2583,7 +2909,15 @@ END GENERATOR STYLES */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 0;
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.schedule-header .component-title {
+    margin-left: 0;
+    margin-bottom: 8px;
 }
 
 .schedule-header-icons {
@@ -2602,16 +2936,16 @@ END GENERATOR STYLES */
     justify-content: center;
     border-radius: 8px;
     transition: all 0.3s ease;
-    color: var(--color-tiffany-dark);
+    color: #000000;
 }
 
 .schedule-icon-btn svg path {
-    fill: var(--color-tiffany-dark);
+    fill: #000000;
 }
 
 .schedule-icon-btn:hover {
-    background: rgba(79, 209, 197, 0.15);
-    color: var(--color-tiffany-dark);
+    background: rgba(0, 0, 0, 0.1);
+    color: #000000;
 }
 
 .schedule-icon-btn:active {
@@ -2938,6 +3272,7 @@ END GENERATOR STYLES */
     background-repeat: no-repeat;
     background-position: center;
     pointer-events: none;
+    transition: filter 0.3s ease, opacity 0.3s ease;
 }
 
 /* Platform-specific backgrounds for collapsed cards */
@@ -2952,6 +3287,7 @@ END GENERATOR STYLES */
 
 .idea-card-collapsed[data-platform*="tiktok"]::after {
     filter: brightness(0) invert(1);
+    transition: filter 0.3s ease, opacity 0.3s ease;
 }
 
 .idea-card-collapsed[data-platform*="youtube"] {
@@ -2967,11 +3303,29 @@ END GENERATOR STYLES */
     background-image: url('youtube-watermark.svg');
     transform: translateY(-50%) rotate(-25deg);
     opacity: 0.5;
+    transition: filter 0.3s ease, opacity 0.3s ease;
 }
 
-.idea-card-collapsed:hover {
+.idea-card-collapsed:hover,
+.idea-card-collapsed:active {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Glow effect on SVG watermarks when collapsed card is hovered or touched */
+.idea-card-collapsed:hover::after,
+.idea-card-collapsed:active::after {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.5)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+}
+
+.idea-card-collapsed[data-platform*="tiktok"]:hover::after,
+.idea-card-collapsed[data-platform*="tiktok"]:active::after {
+    filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 15px rgba(0, 242, 234, 0.7)) drop-shadow(0 0 20px rgba(255, 0, 80, 0.5));
+}
+
+.idea-card-collapsed[data-platform*="youtube"]:hover::after,
+.idea-card-collapsed[data-platform*="youtube"]:active::after {
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 15px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 20px rgba(255, 0, 0, 0.5));
 }
 
 .idea-card-collapsed .collapsed-content {
@@ -3107,8 +3461,12 @@ END GENERATOR STYLES */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: -2px 0 20px;
+    margin: -2px auto 20px;
     gap: 12px;
+    width: 370px;
+    max-width: 370px;
+    padding: 0 15px;
+    box-sizing: border-box;
 }
 
 .action-pill-btn {
@@ -3884,9 +4242,10 @@ END GENERATOR STYLES */
     word-wrap: break-word;
 }
 
-/* TikTok logo on all swipe cards - center bottom */
+/* Platform-specific swipe card watermark SVG - Swaps based on platform */
 
-.idea-swiper .idea-card::after {
+/* TikTok watermark */
+.platform--tiktok .idea-swiper .idea-card::after {
     content: '';
     position: absolute;
     bottom: -50px;
@@ -3894,7 +4253,7 @@ END GENERATOR STYLES */
     transform: translateX(-50%) rotate(25deg);
     width: 380px;
     height: 380px;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" fill="white"/></svg>');
+    background-image: url('tiktok-watermark.svg');
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
@@ -3902,6 +4261,29 @@ END GENERATOR STYLES */
     z-index: 1 !important;
     pointer-events: none;
     display: block !important;
+    transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1),
+                transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* YouTube watermark */
+.platform--youtube .idea-swiper .idea-card::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-25deg);
+    width: 380px;
+    height: 380px;
+    background-image: url('youtube-watermark.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    opacity: 0.15 !important;
+    z-index: 1 !important;
+    pointer-events: none;
+    display: block !important;
+    transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1),
+                transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Platform Icon Wrappers */
