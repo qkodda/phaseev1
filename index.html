@@ -23,7 +23,7 @@
         }
     </style>
     
-        <link rel="stylesheet" href="style.css?v=11.1"></head>
+        <link rel="stylesheet" href="style.css?v=14.3"></head>
 <body>
     <div class="app-container">
         <!-- Coordinate Grid (Developer Tool) -->
@@ -332,25 +332,33 @@
 
         <!-- HOMEPAGE -->
         <div id="homepage" class="page">
-            <!-- Header Component -->
-            <header class="app-header hero-header" id="app-header">
-                <div class="header-top-row">
-                    <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
-                        <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
-                    </button>
-                    <h2 class="header-greeting" id="header-greeting">Welcome back, <span id="header-user-name">John</span></h2>
-                    <button class="profile-icon-btn" onclick="navigateTo('profile-page')" aria-label="Profile">
-                        <svg viewBox="0 0 24 24" width="22" height="22">
-                            <path fill="white" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                        </svg>
-                    </button>
-                </div>
-            </header>
-            
-            <!-- Hero Section (Textbox) -->
-            <div class="hero-section">
+            <!-- HomePageLayout Container -->
+            <div class="homepage-layout">
+                <!-- TopBarSection -->
+                <section class="topbar-section">
+                    <header class="app-header hero-header" id="app-header">
+                        <div class="header-top-row">
+                            <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
+                                <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
+                            </button>
+                            <h2 class="header-greeting" id="header-greeting">Welcome back, <span id="header-user-name">John</span></h2>
+                            <button class="profile-icon-btn" onclick="navigateTo('profile-page')" aria-label="Profile">
+                                <svg viewBox="0 0 24 24" width="22" height="22">
+                                    <path fill="white" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </header>
+                </section>
+                
+                <!-- HeroSection -->
+                <section class="hero-section-container">
+                    <div class="hero-section">
                 <div class="platform-selector-group">
-                    <button class="platform-selector-btn youtube-btn" data-platform="youtube">
+                    <button class="platform-selector-btn tiktok-btn" data-platform="tiktok" id="platform-btn-tiktok">
+                        <img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok">
+                    </button>
+                    <button class="platform-selector-btn youtube-btn" data-platform="youtube" id="platform-btn-youtube">
                         <img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube">
                     </button>
                     <div class="platform-indicator"></div>
@@ -450,100 +458,115 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="homepage-content" id="homepage-content">
-                <!-- Trend Facts Strip -->
-                <div class="trend-strip-container" id="trend-strip-container">
-                    <div class="trend-strip" id="trend-strip">
-                        <!-- Trend facts will be dynamically populated -->
-                    </div>
-                </div>
-                <!-- Hero Section - Hidden, greeting now in header -->
-                <section class="hero-section" id="hero-section" style="display: none;">
-                    <h2 class="hero-title">Welcome back, <span id="user-name">John</span></h2>
-                    <p class="hero-subtitle">Let's Build Some Content!</p>
                 </section>
 
-                <!-- Idea Swiper Component -->
-                <section class="idea-swiper" id="idea-swiper">
-                    <div class="card-stack" id="card-stack">
-                        <!-- SUBSCRIPTION EXPIRED CARD (Unmovable - shown when trial expires) -->
-                        <div class="subscription-expired-card" id="subscription-expired-card" style="display: none;">
-                            <div class="expired-card-content">
-                                <div class="expired-icon">⚠️</div>
-                                <h2 class="expired-title">Your Trial Has Ended</h2>
-                                <p class="expired-message">Subscribe now to continue generating amazing content ideas and keep your creative flow going!</p>
-                                <button class="expired-subscribe-btn" onclick="navigateTo('paywall-page')">
-                                    View Subscription Plans
+                <!-- TrendScrollerSection -->
+                <section class="trend-scroller-section">
+                    <div class="trend-strip-container" id="trend-strip-container">
+                        <div class="trend-strip" id="trend-strip">
+                            <!-- Trend facts will be dynamically populated -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SwipeModuleSection -->
+                <section class="swipe-module-section">
+                    <div class="homepage-content" id="homepage-content">
+                        <!-- Hero Section - Hidden, greeting now in header -->
+                        <section class="hero-section" id="hero-section" style="display: none;">
+                            <h2 class="hero-title">Welcome back, <span id="user-name">John</span></h2>
+                            <p class="hero-subtitle">Let's Build Some Content!</p>
+                        </section>
+
+                        <!-- SwipeCardStack -->
+                        <div class="swipe-card-stack-container">
+                            <section class="idea-swiper" id="idea-swiper">
+                                <div class="card-stack" id="card-stack">
+                                    <!-- SUBSCRIPTION EXPIRED CARD (Unmovable - shown when trial expires) -->
+                                    <div class="subscription-expired-card" id="subscription-expired-card" style="display: none;">
+                                        <div class="expired-card-content">
+                                            <div class="expired-icon">⚠️</div>
+                                            <h2 class="expired-title">Your Trial Has Ended</h2>
+                                            <p class="expired-message">Subscribe now to continue generating amazing content ideas and keep your creative flow going!</p>
+                                            <button class="expired-subscribe-btn" onclick="navigateTo('paywall-page')">
+                                                View Subscription Plans
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Idea cards will be dynamically inserted here -->
+                                </div>
+                                
+                                <!-- Shadow Container (uninteractive, positioned under cards) -->
+                                <div class="card-shadow-container"></div>
+                            </section>
+                        </div>
+
+                        <!-- Swiper Info -->
+                        <div class="swiper-info" id="swiper-info">
+                            <span id="ideas-count">7 Ideas</span> - <span id="refresh-time">Refreshed just now</span>
+                        </div>
+
+                        <!-- DrawingBoardSection -->
+                        <section class="drawing-board-section">
+                            <section class="pinned-ideas" id="pinned-ideas">
+                                <h3 class="component-title">Drawing Board <span class="count">(0)</span></h3>
+                                <div class="ideas-grid">
+                                    <div class="empty-state">
+                                        <p>No pinned ideas yet. Start swiping!</p>
+                                    </div>
+                                </div>
+                            </section>
+                        </section>
+
+                        <!-- ScheduleSection -->
+                        <section class="schedule-section">
+                            <section class="schedule-component" id="schedule-component">
+                                <div class="schedule-header">
+                                    <h3 class="component-title">Schedule</h3>
+                                    <div class="schedule-header-icons">
+                                        <button class="schedule-icon-btn" id="calendar-toggle-btn" aria-label="Toggle Calendar">
+                                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                                <path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                                            </svg>
+                                        </button>
+                                        <button class="schedule-icon-btn" id="share-btn" aria-label="Share">
+                                            <svg viewBox="0 0 24 24" width="20" height="20">
+                                                <path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <!-- Expandable Calendar -->
+                                <div class="schedule-calendar-container" id="schedule-calendar-container">
+                                    <div class="schedule-calendar" id="schedule-calendar">
+                                        <!-- Calendar will be generated here -->
+                                    </div>
+                                </div>
+                                <div class="schedule-list">
+                                    <div class="empty-state">
+                                        <p>No scheduled content. Pin ideas and schedule them here!</p>
+                                    </div>
+                                </div>
+                            </section>
+                        </section>
+
+                        <!-- BottomActionsSection -->
+                        <section class="bottom-actions-section">
+                            <div class="bottom-action-buttons">
+                                <button class="action-icon-btn" id="how-it-works-btn" aria-label="How it Works">
+                                    <svg viewBox="0 0 24 24" width="22" height="22">
+                                        <path fill="white" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                    </svg>
+                                </button>
+                                <button class="action-icon-btn" onclick="navigateTo('settings-page')" aria-label="Settings">
+                                    <svg viewBox="0 0 24 24" width="22" height="22">
+                                        <path fill="white" d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                                    </svg>
                                 </button>
                             </div>
-                        </div>
-                        <!-- Idea cards will be dynamically inserted here -->
-                    </div>
-                    
-                    <!-- Shadow Container (uninteractive, positioned under cards) -->
-                    <div class="card-shadow-container"></div>
-                </section>
-
-                <!-- Swiper Info -->
-                <div class="swiper-info" id="swiper-info">
-                    <span id="ideas-count">7 Ideas</span> - <span id="refresh-time">Refreshed just now</span>
-                </div>
-
-                <!-- Pinned Ideas Component -->
-                <section class="pinned-ideas" id="pinned-ideas">
-                    <h3 class="component-title">Drawing Board <span class="count">(0)</span></h3>
-                    <div class="ideas-grid">
-                        <div class="empty-state">
-                            <p>No pinned ideas yet. Start swiping!</p>
-                        </div>
+                        </section>
                     </div>
                 </section>
-
-                <!-- Schedule Component -->
-                <section class="schedule-component" id="schedule-component">
-                    <div class="schedule-header">
-                        <h3 class="component-title">Schedule</h3>
-                        <div class="schedule-header-icons">
-                            <button class="schedule-icon-btn" id="calendar-toggle-btn" aria-label="Toggle Calendar">
-                                <svg viewBox="0 0 24 24" width="20" height="20">
-                                    <path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
-                                </svg>
-                            </button>
-                            <button class="schedule-icon-btn" id="share-btn" aria-label="Share">
-                                <svg viewBox="0 0 24 24" width="20" height="20">
-                                    <path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <!-- Expandable Calendar -->
-                    <div class="schedule-calendar-container" id="schedule-calendar-container">
-                        <div class="schedule-calendar" id="schedule-calendar">
-                            <!-- Calendar will be generated here -->
-                        </div>
-                    </div>
-                    <div class="schedule-list">
-                        <div class="empty-state">
-                            <p>No scheduled content. Pin ideas and schedule them here!</p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Bottom Action Buttons -->
-                <div class="bottom-action-buttons">
-                    <button class="action-icon-btn" id="how-it-works-btn" aria-label="How it Works">
-                        <svg viewBox="0 0 24 24" width="22" height="22">
-                            <path fill="white" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                        </svg>
-                    </button>
-                    <button class="action-icon-btn" onclick="navigateTo('settings-page')" aria-label="Settings">
-                        <svg viewBox="0 0 24 24" width="22" height="22">
-                            <path fill="white" d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
-                        </svg>
-                    </button>
-                </div>
             </div>
         </div>
 
@@ -1240,6 +1263,6 @@
         </div>
     </div>
 
-    <script type="module" src="app.js?v=7.8"></script>
+    <script type="module" src="app.js?v=7.9"></script>
 </body>
 </html>
