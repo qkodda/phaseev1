@@ -204,12 +204,25 @@ export async function upsertUserProfile(profile) {
 // ============================================
 
 /**
+ * Internal helper: Get the correct ideas table name
+ * Uses 'ideas' table (current table name)
+ */
+let _ideasTableName = null
+async function _getIdeasTableName() {
+  // Always use 'ideas' table (this is the correct table name)
+  // Reset cache to ensure we're using the correct table
+  _ideasTableName = 'ideas'
+  return _ideasTableName
+}
+
+/**
  * Get all ideas for a user (scheduled and pinned)
  */
 export async function getUserIdeas(userId) {
   try {
+    const tableName = await _getIdeasTableName()
     const { data, error } = await supabase
-      .from('user_ideas')
+      .from(tableName)
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
@@ -227,8 +240,9 @@ export async function getUserIdeas(userId) {
  */
 export async function saveIdea(idea) {
   try {
+    const tableName = await _getIdeasTableName()
     const { data, error } = await supabase
-      .from('user_ideas')
+      .from(tableName)
       .insert([idea])
       .select()
       .single()
@@ -247,8 +261,9 @@ export async function saveIdea(idea) {
  */
 export async function updateIdea(ideaId, updates) {
   try {
+    const tableName = await _getIdeasTableName()
     const { data, error } = await supabase
-      .from('user_ideas')
+      .from(tableName)
       .update(updates)
       .eq('id', ideaId)
       .select()
@@ -268,8 +283,9 @@ export async function updateIdea(ideaId, updates) {
  */
 export async function deleteIdea(ideaId) {
   try {
+    const tableName = await _getIdeasTableName()
     const { error } = await supabase
-      .from('user_ideas')
+      .from(tableName)
       .delete()
       .eq('id', ideaId)
 
@@ -287,8 +303,9 @@ export async function deleteIdea(ideaId) {
  */
 export async function getIdeasByType(userId, type) {
   try {
+    const tableName = await _getIdeasTableName()
     const { data, error } = await supabase
-      .from('user_ideas')
+      .from(tableName)
       .select('*')
       .eq('user_id', userId)
       .eq('type', type)
@@ -307,11 +324,12 @@ export async function getIdeasByType(userId, type) {
  */
 export async function getScheduledIdeasForDate(userId, date) {
   try {
+    const tableName = await _getIdeasTableName()
     const { data, error } = await supabase
-      .from('user_ideas')
+      .from(tableName)
       .select('*')
       .eq('user_id', userId)
-      .eq('type', 'scheduled')
+      .eq('is_scheduled', true) // Use is_scheduled boolean instead of type field
       .eq('scheduled_date', date)
       .order('created_at', { ascending: false })
 
@@ -320,5 +338,155 @@ export async function getScheduledIdeasForDate(userId, date) {
   } catch (error) {
     console.error('❌ Get scheduled ideas for date error:', error)
     return { data: null, error }
+  }
+}
+
+// ============================================
+// SEALED IDEA PERSISTENCE FUNCTIONS
+// ============================================
+
+/**
+ * Save an idea to the drawing board (pinned)
+ * Sealed function: isolates pinned idea persistence logic
+ * @param {Object} idea - Idea object to save
+ * @param {string} userId - User ID
+ * @returns {Promise<{success: boolean, idea?: Object, error?: Error}>}
+ */
+export async function saveIdeaToDrawingBoard(idea, userId) {
+  try {
+    const ideaToSave = {
+      ...idea,
+      user_id: userId,
+      // Removed 'type' field - database uses is_pinned/is_scheduled booleans instead
+      is_pinned: true,
+      is_scheduled: false
+    }
+
+    const result = await saveIdea(ideaToSave)
+    
+    if (result.error || !result.data) {
+      return { success: false, error: result.error || new Error('Failed to save idea') }
+    }
+
+    return { success: true, idea: result.data }
+  } catch (error) {
+    console.error('❌ saveIdeaToDrawingBoard error:', error)
+    return { success: false, error }
+  }
+}
+
+/**
+ * Schedule an idea (save or update as scheduled)
+ * Sealed function: isolates scheduled idea persistence logic
+ * @param {Object} idea - Idea object (may have id for updates)
+ * @param {string} scheduledDate - ISO date string (YYYY-MM-DD)
+ * @param {string} userId - User ID
+ * @returns {Promise<{success: boolean, idea?: Object, error?: Error}>}
+ */
+export async function scheduleIdea(idea, scheduledDate, userId) {
+  try {
+    const ideaToSave = {
+      ...idea,
+      user_id: userId,
+      // Removed 'type' field - database uses is_pinned/is_scheduled booleans instead
+      is_pinned: false,
+      is_scheduled: true,
+      scheduled_date: scheduledDate
+    }
+
+    let result
+    if (idea.id) {
+      // Update existing idea
+      result = await updateIdea(idea.id, ideaToSave)
+    } else {
+      // Create new idea
+      result = await saveIdea(ideaToSave)
+    }
+
+    if (result.error || !result.data) {
+      return { success: false, error: result.error || new Error('Failed to schedule idea') }
+    }
+
+    return { success: true, idea: result.data }
+  } catch (error) {
+    console.error('❌ scheduleIdea error:', error)
+    return { success: false, error }
+  }
+}
+
+/**
+ * Load user ideas (pinned and/or scheduled)
+ * Sealed function: unified loader with consistent table handling
+ * @param {string} userId - User ID
+ * @param {Object} options - Query options
+ * @param {string} options.type - 'pinned' | 'scheduled' | 'all' (default: 'all')
+ * @param {string} options.scheduledDate - Optional date filter for scheduled ideas
+ * @param {number} options.limit - Optional limit
+ * @param {string} options.orderBy - Field to order by (default: 'created_at')
+ * @param {string} options.order - 'asc' | 'desc' (default: 'desc')
+ * @returns {Promise<{success: boolean, ideas?: Array, pinnedCount?: number, scheduledCount?: number, error?: Error}>}
+ */
+export async function loadUserIdeas(userId, options = {}) {
+  try {
+    const {
+      type = 'all',
+      scheduledDate,
+      limit,
+      orderBy = 'created_at',
+      order = 'desc'
+    } = options
+
+    // Get all ideas for user (single query)
+    const result = await getUserIdeas(userId)
+    
+    if (result.error || !result.data) {
+      return { success: false, error: result.error || new Error('Failed to load ideas') }
+    }
+
+    let allIdeas = result.data || []
+
+    // Apply date filter if specified
+    if (scheduledDate) {
+      allIdeas = allIdeas.filter(idea => idea.scheduled_date === scheduledDate)
+    }
+
+    // Split into pinned and scheduled in JavaScript
+    const pinned = allIdeas.filter(idea => idea.is_pinned === true)
+    const scheduled = allIdeas.filter(idea => idea.is_scheduled === true)
+
+    // Filter by type if specified
+    let filteredIdeas = allIdeas
+    if (type === 'pinned') {
+      filteredIdeas = pinned
+    } else if (type === 'scheduled') {
+      filteredIdeas = scheduled
+    }
+    // else type === 'all' or undefined, use allIdeas
+
+    // Apply limit if specified
+    if (limit && limit > 0) {
+      filteredIdeas = filteredIdeas.slice(0, limit)
+    }
+
+    // Apply ordering
+    filteredIdeas.sort((a, b) => {
+      const aVal = a[orderBy] || ''
+      const bVal = b[orderBy] || ''
+      if (order === 'asc') {
+        return aVal > bVal ? 1 : aVal < bVal ? -1 : 0
+      } else {
+        return aVal < bVal ? 1 : aVal > bVal ? -1 : 0
+      }
+    })
+
+    return {
+      success: true,
+      ideas: filteredIdeas,
+      pinnedCount: pinned.length,
+      scheduledCount: scheduled.length
+    }
+  } catch (error) {
+    console.error('❌ loadUserIdeas error:', error)
+    return { success: false, error }
   }
 }

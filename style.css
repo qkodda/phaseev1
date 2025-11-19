@@ -2261,6 +2261,92 @@ body {
     background: #CC1F1F !important;
 }
 
+/* Build more card - platform-specific theming */
+/* LAYERED POSITIONING: This card is always present, layered underneath all idea cards (z-index: 0) */
+.platform--tiktok .idea-swiper .build-more-card {
+    background: #000000 !important;
+    color: #ffffff !important;
+    z-index: 0 !important; /* Bottom layer - lowest z-index, underneath all other cards */
+}
+
+.platform--youtube .idea-swiper .build-more-card {
+    background: #CC1F1F !important;
+    color: #ffffff !important;
+    z-index: 0 !important; /* Bottom layer - lowest z-index, underneath all other cards */
+}
+
+/* Build more card - platform-specific watermark (same as regular cards) */
+.platform--tiktok .idea-swiper .build-more-card::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-25deg);
+    width: 380px;
+    height: 380px;
+    background-image: url('tiktok-watermark.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    opacity: 0.15 !important;
+    z-index: -1 !important; /* Behind all content */
+    pointer-events: none;
+    display: block !important;
+}
+
+.platform--youtube .idea-swiper .build-more-card::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-25deg);
+    width: 380px;
+    height: 380px;
+    background-image: url('youtube-watermark.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    opacity: 0.15 !important;
+    z-index: -1 !important; /* Behind all content */
+    pointer-events: none;
+    display: block !important;
+}
+
+/* Build more card - no action buttons */
+.build-more-card .card-actions-bottom {
+    display: none !important;
+}
+
+/* Build more button styling - neon orange */
+.build-more-btn {
+    background: #ff6b35 !important;
+    color: white !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.5), 0 4px 12px rgba(255, 107, 53, 0.3) !important;
+}
+
+.build-more-btn:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 0 30px rgba(255, 107, 53, 0.7), 0 6px 16px rgba(255, 107, 53, 0.4) !important;
+    background: #ff7d4d !important;
+}
+
+.build-more-btn:active {
+    transform: scale(0.98) !important;
+    box-shadow: 0 0 15px rgba(255, 107, 53, 0.4), 0 2px 8px rgba(255, 107, 53, 0.3) !important;
+}
+
+/* Loading placeholder - platform-specific theming */
+.platform--tiktok .idea-swiper .loading-placeholder {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+.platform--youtube .idea-swiper .loading-placeholder {
+    background: #CC1F1F !important;
+    color: #ffffff !important;
+}
+
 /* Subtle breathing effect on platform switch */
 .platform--youtube .idea-swiper .idea-card:nth-child(1 of .idea-card):not(.swiping),
 .platform--tiktok .idea-swiper .idea-card:nth-child(1 of .idea-card):not(.swiping) {
@@ -2916,31 +3002,71 @@ END GENERATOR STYLES */
 }
 
 .card-action-btn.skip-btn {
-    color: #ef4444;
+    color: #ef4444; /* Default red for TikTok */
+}
+
+/* TikTok state: thumbs down icon is red */
+.platform--tiktok .idea-swiper .card-action-btn.skip-btn {
+    color: #ef4444 !important;
+}
+
+.platform--tiktok .idea-swiper .card-action-btn.skip-btn svg {
+    color: #ef4444 !important;
+    fill: #ef4444 !important;
+}
+
+/* YouTube state: thumbs down icon is black */
+.platform--youtube .idea-swiper .card-action-btn.skip-btn {
+    color: #000000 !important;
 }
 
 .card-action-btn.pin-btn {
     color: #22c55e;
 }
 
-/* Glow effect on icons - similar to collapsed cards */
+/* Platform-specific pin icon colors - TikTok red (same as thumbs down), YouTube black */
+.platform--tiktok .idea-swiper .card-action-btn.pin-btn {
+    color: #ef4444 !important;
+}
+
+.platform--tiktok .idea-swiper .card-action-btn.pin-btn svg {
+    color: #ef4444 !important;
+    fill: #ef4444 !important;
+}
+
+.platform--youtube .idea-swiper .card-action-btn.pin-btn {
+    color: #000000 !important;
+}
+
+.platform--youtube .idea-swiper .card-action-btn.pin-btn svg {
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+/* Glow effects removed - clean icons for both platforms */
 .card-action-btn.skip-btn svg {
-    filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6)) drop-shadow(0 0 12px rgba(239, 68, 68, 0.4));
+    filter: none;
+}
+
+/* YouTube state: black icon */
+.platform--youtube .idea-swiper .card-action-btn.skip-btn svg {
+    filter: none !important;
+    color: #000000 !important;
 }
 
 .card-action-btn.pin-btn svg {
-    filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.6)) drop-shadow(0 0 12px rgba(34, 197, 94, 0.4));
+    filter: none;
 }
 
-/* Enhanced glow on hover/touch */
+/* No enhanced glow on hover/touch */
 .card-action-btn.skip-btn:hover svg,
 .card-action-btn.skip-btn:active svg {
-    filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.8)) drop-shadow(0 0 16px rgba(239, 68, 68, 0.6)) drop-shadow(0 0 20px rgba(239, 68, 68, 0.4));
+    filter: none;
 }
 
 .card-action-btn.pin-btn:hover svg,
 .card-action-btn.pin-btn:active svg {
-    filter: drop-shadow(0 0 12px rgba(34, 197, 94, 0.8)) drop-shadow(0 0 16px rgba(34, 197, 94, 0.6)) drop-shadow(0 0 20px rgba(34, 197, 94, 0.4));
+    filter: none;
 }
 
 .card-action-btn:hover {
@@ -2986,7 +3112,7 @@ END GENERATOR STYLES */
     position: relative;
 }
 
-/* Schedule Header with Icons */
+/* Schedule Header with Icons - Title left, icons right, vertically centered */
 .schedule-header {
     display: flex;
     justify-content: space-between;
@@ -2998,8 +3124,9 @@ END GENERATOR STYLES */
 }
 
 .schedule-header .component-title {
+    margin: 0;
     margin-left: 0;
-    margin-bottom: 8px;
+    align-self: flex-start;
 }
 
 .schedule-header-icons {
@@ -3303,14 +3430,14 @@ END GENERATOR STYLES */
     flex-direction: column;
     align-items: center;
     row-gap: 8px;
-    max-height: 261px;
+    max-height: 226px; /* Exactly 3 cards: 70px + 8px gap + 70px + 8px gap + 70px = 226px */
     overflow-y: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
     width: 100%;
     padding: 0 10px;
     margin: 0 auto;
-    justify-content: center;
+    justify-content: flex-start; /* Changed from center to allow scrolling to top */
 }
 
 .ideas-grid::-webkit-scrollbar {
@@ -3517,13 +3644,14 @@ END GENERATOR STYLES */
     flex-direction: column;
     align-items: center;
     row-gap: 8px;
-    max-height: 261px;
+    max-height: 226px; /* Exactly 3 cards: 70px + 8px gap + 70px + 8px gap + 70px = 226px */
     overflow-y: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
     width: 100%;
     padding: 0 10px;
     margin: 0 auto;
+    justify-content: flex-start; /* Ensure scrolling to top works */
 }
 
 .schedule-list::-webkit-scrollbar {
@@ -4330,7 +4458,7 @@ END GENERATOR STYLES */
 
 /* Platform-specific swipe card watermark SVG - Swaps based on platform */
 
-/* TikTok watermark */
+/* TikTok watermark - Behind all content */
 .platform--tiktok .idea-swiper .idea-card::after {
     content: '';
     position: absolute;
@@ -4344,14 +4472,14 @@ END GENERATOR STYLES */
     background-position: center;
     background-size: contain;
     opacity: 0.15 !important;
-    z-index: 1 !important;
+    z-index: -1 !important; /* Behind all content (text, buttons, etc.) */
     pointer-events: none;
     display: block !important;
     transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1),
                 transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* YouTube watermark */
+/* YouTube watermark - Behind all content */
 .platform--youtube .idea-swiper .idea-card::after {
     content: '';
     position: absolute;
@@ -4365,7 +4493,7 @@ END GENERATOR STYLES */
     background-position: center;
     background-size: contain;
     opacity: 0.15 !important;
-    z-index: 1 !important;
+    z-index: -1 !important; /* Behind all content (text, buttons, etc.) */
     pointer-events: none;
     display: block !important;
     transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1),
@@ -4844,7 +4972,7 @@ select.custom-dropdown {
     justify-content: center;
     height: 100%;
     text-align: center;
-    padding: 24px 20px; /* Reduced from 30px for better fit */
+    padding: 24px;
     position: relative;
     gap: 8px; /* Tighter spacing */
 }
@@ -4943,37 +5071,56 @@ select.custom-dropdown {
     border: none;
     border-radius: 8px;
     padding: 12px;
-    margin: -8px auto 12px auto;
+    margin: -8px 0 12px 0;
     font-family: 'Courier New', monospace;
     font-size: 11px;
     color: white;
     text-align: left;
-    height: 120px;
-    width: 85%;
-    max-width: 320px;
+    min-height: 120px;
+    width: 100%;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     position: relative;
+    overflow: visible;
+    box-sizing: border-box;
 }
 
 .thinking-line {
     opacity: 0.9;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
+    text-overflow: clip;
     line-height: 1.6;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    will-change: transform, opacity;
+    display: block;
+    min-height: 1.6em;
+    width: 100%;
 }
 
 @keyframes fadeInLine {
     from {
         opacity: 0;
-        transform: translateX(-10px);
+        transform: translateX(-10px) translateY(5px);
     }
     to {
         opacity: 0.9;
-        transform: translateX(0);
+        transform: translateX(0) translateY(0);
     }
+}
+
+/* Smooth scrolling effect for thinking lines */
+.ai-thinking-window {
+    overflow: visible;
+    position: relative;
+}
+
+.ai-thinking-window .thinking-line {
+    display: block;
+    min-height: 1.6em;
+    width: 100%;
 }
 
 @keyframes pulseGlow {

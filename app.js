@@ -502,7 +502,10 @@ function navigateTo(pageId) {
         });
         
         const cardStack = document.getElementById('card-stack');
-        const existingCards = cardStack ? cardStack.querySelectorAll('.idea-card') : [];
+        const existingCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.build-more-card)') : [];
+        
+        // Auto-load build more card on app open (always present at bottom layer)
+        createBuildMoreCard();
         
         // Only generate if cards haven't been generated yet
         if (existingCards.length === 0) {
@@ -543,6 +546,47 @@ let cardsRemaining = 7; // Track remaining cards
 const TRIAL_DURATION_MS = 3 * 24 * 60 * 60 * 1000;
 let trialCountdownInterval = null;
 const PROFILE_STORAGE_KEY = 'phasee_profile';
+
+/**
+ * Create and add build more card - Auto-loads on app open, positioned at bottom layer (lowest z-index)
+ * LAYERED POSITIONING: This card is always present, layered underneath all idea cards like a sandwich
+ */
+function createBuildMoreCard() {
+    const cardStack = document.getElementById('card-stack');
+    if (!cardStack) return;
+    
+    // Check if build more card already exists
+    const existingBuildMoreCard = cardStack.querySelector('.build-more-card');
+    if (existingBuildMoreCard) {
+        // Update platform theming if it exists
+        const currentPlatform = localStorage.getItem('selectedPlatform') || 'tiktok';
+        existingBuildMoreCard.dataset.platform = currentPlatform;
+        return existingBuildMoreCard;
+    }
+    
+    // Get current platform for theming
+    const currentPlatform = localStorage.getItem('selectedPlatform') || 'tiktok';
+    
+    // Create build more card
+    const buildMoreCard = document.createElement('div');
+    buildMoreCard.className = 'idea-card build-more-card';
+    buildMoreCard.dataset.platform = currentPlatform;
+    buildMoreCard.style.zIndex = '0'; // Bottom layer - lowest z-index, underneath all other cards
+    
+    buildMoreCard.innerHTML = `
+        <div class="card-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 20px;">
+            <h3 class="card-title" style="font-size: 24px; margin-bottom: 32px; font-weight: 700; color: #ffffff;">Ah snap, you fresh out!</h3>
+            <button class="build-more-btn" onclick="handleBuildMore()" style="padding: 16px 32px; background: #ff6b35; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                Build More!
+            </button>
+        </div>
+    `;
+    
+    // Insert at the beginning of card-stack so it's at the bottom layer
+    cardStack.insertBefore(buildMoreCard, cardStack.firstChild);
+    console.log('✅ Build more card created and positioned at bottom layer');
+    return buildMoreCard;
+}
 
 // ============================================
 // COLLAPSED CARD ACTIONS (Global Functions)
@@ -588,6 +632,16 @@ function confirmScheduleDate(selectedDateStr) {
     const scheduleList = document.querySelector('.schedule-list');
     if (!scheduleList) return;
 
+    // Check schedule limit before scheduling (max 30 scheduled ideas)
+    const existingScheduledCards = scheduleList.querySelectorAll('.idea-card-collapsed');
+    console.log('🔍 Schedule limit check: Current scheduled count =', existingScheduledCards.length);
+    
+    if (existingScheduledCards.length >= 30) {
+        console.warn('⚠️ Schedule limit reached! Cannot schedule more ideas.');
+        showAlertModal('Schedule Limit Reached', 'You can only schedule up to 30 ideas at a time. Please delete a scheduled idea before scheduling another.');
+        return;
+    }
+
     // Remove empty state if present
     const emptyState = scheduleList.querySelector('.empty-state');
     if (emptyState) {
@@ -597,11 +651,17 @@ function confirmScheduleDate(selectedDateStr) {
     // Create scheduled card (different from pinned)
     const scheduledCard = createScheduledCard(ideaData);
     
+    // Validate card was created
+    if (!scheduledCard) {
+        console.error('❌ Failed to create scheduled card');
+        showAlertModal('Error', 'Failed to create scheduled card. Please try again.');
+        return;
+    }
+    
     // Insert in chronological order
-    const existingCards = scheduleList.querySelectorAll('.idea-card-collapsed');
     let inserted = false;
     
-    for (let card of existingCards) {
+    for (let card of existingScheduledCards) {
         const cardData = JSON.parse(card.dataset.idea);
         if (cardData.scheduledDate && ideaData.scheduledDate < cardData.scheduledDate) {
             scheduleList.insertBefore(scheduledCard, card);
@@ -613,10 +673,17 @@ function confirmScheduleDate(selectedDateStr) {
     if (!inserted) {
         scheduleList.appendChild(scheduledCard);
     }
+    
+    console.log('✅ Scheduled card added to schedule list. Total scheduled:', scheduleList.querySelectorAll('.idea-card-collapsed').length);
 
     // Remove from pinned
-    pendingScheduleCard.remove();
+    if (pendingScheduleCard && pendingScheduleCard.parentNode) {
+        pendingScheduleCard.remove();
+    }
     refreshPinnedCount();
+    
+    // Clear pendingScheduleCard after scheduling to allow scheduling more ideas
+    pendingScheduleCard = null;
 
     // Save to Supabase
     saveScheduledIdeaToSupabase(ideaData, selectedDateStr)
@@ -648,6 +715,19 @@ function confirmScheduleDate(selectedDateStr) {
  * Create a scheduled card (with date, no expand/delete)
  */
 function createScheduledCard(idea) {
+    console.log('📅 createScheduledCard called with:', {
+        title: idea?.title,
+        hasId: !!idea?.id,
+        platforms: idea?.platforms,
+        scheduledDate: idea?.scheduledDate
+    });
+    
+    // Validate idea data
+    if (!idea || !idea.title) {
+        console.error('❌ Invalid idea data passed to createScheduledCard:', idea);
+        return null;
+    }
+    
     const iconMap = {
         'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
         'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">'
@@ -656,6 +736,8 @@ function createScheduledCard(idea) {
     const scheduledPlatforms = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? [idea.platforms[0]] : ['tiktok'];
     const platformIconsHTML = scheduledPlatforms.map(p => iconMap[p] || '').filter(html => html).join('');
     const singlePlatform = scheduledPlatforms[0];
+    
+    console.log('🎯 Creating scheduled card with platform:', singlePlatform);
 
     const scheduledCard = document.createElement('div');
     scheduledCard.className = 'idea-card-collapsed';
@@ -665,7 +747,7 @@ function createScheduledCard(idea) {
             <div class="collapsed-title">
                 <span class="title-text">"${idea.title}"</span>
             </div>
-            <div class="collapsed-summary">${idea.summary}</div>
+            <div class="collapsed-summary">${idea.summary || ''}</div>
         </div>
     `;
 
@@ -673,11 +755,17 @@ function createScheduledCard(idea) {
     const ideaWithSinglePlatform = { ...idea, platforms: scheduledPlatforms };
     scheduledCard.dataset.idea = JSON.stringify(ideaWithSinglePlatform);
     scheduledCard.dataset.platforms = scheduledPlatforms[0];
+    
+    console.log('✅ Scheduled card created:', {
+        title: idea.title,
+        platform: singlePlatform,
+        hasDataset: !!scheduledCard.dataset.idea
+    });
 
     // Add click handler for expansion (entire card, except date badge)
     scheduledCard.addEventListener('click', (e) => {
-        // Don't expand if clicking on the date badge
-        if (e.target.closest('.collapsed-scheduled-date')) {
+        // Don't expand if clicking on the date badge or action buttons
+        if (e.target.closest('.collapsed-scheduled-date') || e.target.closest('.collapsed-action-btn')) {
             return;
         }
         expandIdeaCard(scheduledCard);
@@ -1268,6 +1356,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Generate initial 7 cards (only if homepage is active)
     if (document.getElementById('homepage').classList.contains('active')) {
+        // Auto-load build more card on app open (always present at bottom layer)
+        createBuildMoreCard();
         generateNewIdeas({ showLoading: false });
     }
 
@@ -1461,10 +1551,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Get current platform state - CRITICAL for platform-specific content generation
+        const currentPlatform = localStorage.getItem('selectedPlatform') || 'tiktok';
+        console.log('🎯 Generating ideas for platform:', currentPlatform);
+
         const {
             customDirection = '',
             isCampaign = false,
-            preferredPlatforms = [],
+            preferredPlatforms = [currentPlatform], // Use current platform state
             showLoading = true
         } = options;
 
@@ -1570,8 +1664,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('🎨 Including vibe context:', vibeContext);
             }
             
-            // Start live thinking animation with personalized steps
-            startLiveThinking(userProfile);
+            // Start live thinking animation AFTER placeholder is in DOM
+            // Use setTimeout to ensure DOM is ready and animation starts immediately
+            setTimeout(() => {
+                startLiveThinking(userProfile);
+            }, 50);
 
             console.log('⚡ Generating full idea set (7 ideas)...');
             const allIdeasRaw = await generateContentIdeas(userProfile, customDirection + vibeContext, isCampaign, preferredPlatforms, 7);
@@ -1603,7 +1700,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 batchIdeas.forEach((idea) => {
                     const ideaInstance = cloneIdeaTemplate(idea);
+                    // ENFORCE CURRENT PLATFORM STATE - Critical for platform-specific theming
+                    const currentPlatform = localStorage.getItem('selectedPlatform') || 'tiktok';
+                    ideaInstance.platforms = [currentPlatform]; // Force single platform matching current state
                     const card = createIdeaCard(ideaInstance);
+                    // Set platform data attribute for CSS theming
+                    card.dataset.platform = currentPlatform;
                     cardStack.insertBefore(card, generatorCard);
                     ideasStack.push(ideaInstance);
                 });
@@ -1634,7 +1736,7 @@ document.addEventListener('DOMContentLoaded', () => {
             placeholders.forEach(placeholder => {
                 const title = placeholder.querySelector('.loading-title');
                 if (title) {
-                    title.textContent = 'Service Unavailable';
+                    title.textContent = 'Phasee is Building!';
                     title.style.color = 'rgba(255, 255, 255, 0.7)';
                 }
             });
@@ -1646,12 +1748,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 placeholders.forEach(p => p.remove());
                 
                 // Fallback to template ideas - create 7 different random ideas
+                // ENFORCE CURRENT PLATFORM STATE - Filter templates by current platform
+                const currentPlatform = localStorage.getItem('selectedPlatform') || 'tiktok';
+                const platformFilteredTemplates = ideaTemplates.filter(t => 
+                    Array.isArray(t.platforms) && t.platforms.includes(currentPlatform)
+                );
+                const templatesToUse = platformFilteredTemplates.length > 0 ? platformFilteredTemplates : ideaTemplates;
+                
                 ideasStack = [];
                 for (let i = 0; i < 7; i++) {
-                    const randomIdea = ideaTemplates[Math.floor(Math.random() * ideaTemplates.length)];
+                    const randomIdea = templatesToUse[Math.floor(Math.random() * templatesToUse.length)];
                     const ideaInstance = cloneIdeaTemplate(randomIdea);
+                    // ENFORCE CURRENT PLATFORM STATE
+                    ideaInstance.platforms = [currentPlatform];
                     ideasStack.push(ideaInstance);
                     const card = createIdeaCard(ideaInstance);
+                    // Set platform data attribute for CSS theming
+                    card.dataset.platform = currentPlatform;
                     cardStack.appendChild(card);
                 }
                 
@@ -1696,19 +1809,23 @@ document.addEventListener('DOMContentLoaded', () => {
      * Create a loading placeholder card with live AI thinking process
      */
     function createLoadingPlaceholder(number) {
+        // Get current platform for theming
+        const currentPlatform = localStorage.getItem('selectedPlatform') || 'tiktok';
+        
         const placeholder = document.createElement('div');
         placeholder.className = 'idea-card loading-placeholder';
+        placeholder.dataset.platform = currentPlatform; // Set platform for CSS theming
         placeholder.innerHTML = `
             <div class="loading-content">
                 <div class="logo-loader" aria-hidden="true">
                     <img src="/PHasse-Logo.png" alt="" class="logo-fill-animated">
                 </div>
-                <h3 class="loading-title">Service Unavailable</h3>
+                <h3 class="loading-title">Phasee is Building!</h3>
                 <div class="ai-thinking-window">
-                    <div class="thinking-line">▸ Loading brand profile...</div>
-                    <div class="thinking-line">▸ Analyzing target audience...</div>
-                    <div class="thinking-line">▸ Scanning platform trends...</div>
-                    <div class="thinking-line">▸ Generating unique concepts...</div>
+                    <div class="thinking-line">▸ Scouring the web...</div>
+                    <div class="thinking-line">▸ Formulating viral concepts...</div>
+                    <div class="thinking-line">▸ Analyzing trending content...</div>
+                    <div class="thinking-line">▸ Crafting unique angles...</div>
                 </div>
             </div>
         `;
@@ -1729,44 +1846,79 @@ document.addEventListener('DOMContentLoaded', () => {
         const cultureValue = userProfile.cultureValues?.[0] || 'authentic';
         
         const thinkingSteps = [
-            `▸ Loading ${brandName} profile...`,
-            `▸ Analyzing ${audience} behavior...`,
-            `▸ Scanning ${platform} trends...`,
-            `▸ Studying ${industry} content gaps...`,
-            `▸ Evaluating ${productionLevel} resources...`,
+            `▸ Scouring the web for trends...`,
+            `▸ Formulating viral concepts...`,
+            `▸ Analyzing top-performing content...`,
+            `▸ Crafting scroll-stopping hooks...`,
             `▸ Researching ${platform} algorithms...`,
-            `▸ Generating ${cultureValue} concepts...`,
-            `▸ Crafting ${audience} hooks...`,
-            `▸ Optimizing for ${platform} virality...`,
+            `▸ Identifying content gaps...`,
+            `▸ Generating unique angles...`,
+            `▸ Optimizing for maximum engagement...`,
             `▸ Refining ${brandName} voice...`,
-            `▸ Building scroll-stopping ideas...`,
-            `▸ Finalizing unique angles...`
+            `▸ Building breakthrough ideas...`,
+            `▸ Polishing viral potential...`,
+            `▸ Finalizing your content strategy...`
         ];
         
         let stepIndex = 0;
-        const windows = document.querySelectorAll('.ai-thinking-window');
         
-        if (thinkingInterval) clearInterval(thinkingInterval);
+        // Clear any existing interval
+        if (thinkingInterval) {
+            clearInterval(thinkingInterval);
+            thinkingInterval = null;
+        }
         
-        thinkingInterval = setInterval(() => {
+        // Function to update thinking lines
+        const updateThinkingLines = () => {
+            const windows = document.querySelectorAll('.ai-thinking-window');
+            
+            if (windows.length === 0) {
+                console.log('⚠️ No thinking windows found, waiting...');
+                return;
+            }
+            
             windows.forEach(window => {
                 const lines = window.querySelectorAll('.thinking-line');
                 
-                // Shift lines up
+                if (lines.length < 4) {
+                    console.log('⚠️ Not enough thinking lines found:', lines.length);
+                    return;
+                }
+                
+                // Shift lines up (scroll effect)
                 lines[0].textContent = lines[1].textContent;
                 lines[1].textContent = lines[2].textContent;
                 lines[2].textContent = lines[3].textContent;
                 lines[3].textContent = thinkingSteps[stepIndex % thinkingSteps.length];
                 
-                // Add fade-in animation
-                lines[3].style.animation = 'fadeInLine 0.3s ease';
-                setTimeout(() => {
-                    lines[3].style.animation = '';
-                }, 300);
+                // Reset animation and add fade-in effect
+                lines[3].style.animation = 'none';
+                // Force reflow to restart animation
+                void lines[3].offsetWidth;
+                lines[3].style.animation = 'fadeInLine 0.4s ease';
+                
+                // Also add subtle slide-up animation to all lines for smooth scrolling effect
+                lines.forEach((line, index) => {
+                    if (index < 3) {
+                        line.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+                        line.style.transform = 'translateY(-100%)';
+                        setTimeout(() => {
+                            line.style.transform = 'translateY(0)';
+                        }, 10);
+                    }
+                });
             });
             
             stepIndex++;
-        }, 800); // Update every 800ms
+        };
+        
+        // Start immediately
+        updateThinkingLines();
+        
+        // Then update every 800ms
+        thinkingInterval = setInterval(updateThinkingLines, 800);
+        
+        console.log('✅ Thinking animation started');
     }
 
     function stopLiveThinking() {
@@ -1899,9 +2051,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!idea.id) {
             idea.id = generateIdeaId();
         }
+        
+        // ENFORCE CURRENT PLATFORM STATE - Critical for platform-specific theming
+        const currentPlatform = localStorage.getItem('selectedPlatform') || 'tiktok';
+        if (Array.isArray(idea.platforms)) {
+            idea.platforms = [currentPlatform]; // Force single platform matching current state
+        } else {
+            idea.platforms = [currentPlatform];
+        }
+        
         const card = document.createElement('div');
         card.className = 'idea-card';
         card.dataset.idea = JSON.stringify(idea);
+        card.dataset.platform = currentPlatform; // Set platform for CSS theming
 
         card.innerHTML = `
             <div class="card-content">
@@ -1959,8 +2121,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return platforms.map(platform => {
             const platformLower = platform.toLowerCase();
+            // TikTok: No icon displayed (watermark SVG represents platform)
             if (platformLower === 'tiktok') {
-                return `<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">`;
+                return '';
             } else if (platformLower === 'youtube') {
                 return `
                     <div class="platform-icon-group-collapsed">
@@ -2158,7 +2321,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const ideaData = JSON.parse(card.dataset.idea);
 
         if (direction === 'right') {
-            // Check limit before pinning
+            // Check limit before pinning (max 7 pinned ideas)
             const grid = document.querySelector('.pinned-ideas .ideas-grid');
             const existingPinnedCards = grid ? grid.querySelectorAll('.idea-card-collapsed') : [];
             
@@ -2187,6 +2350,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     platforms: ideaData.platforms
                 });
                 
+                // Save to Supabase (non-blocking - card stays in UI even if DB fails)
                 savePinnedIdeaToSupabase(ideaData)
                     .then(savedIdea => {
                         if (savedIdea) {
@@ -2201,21 +2365,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                 console.warn('Failed to update pinned idea dataset with Supabase record:', err);
                             }
                         } else {
-                            console.error('❌ Save returned null - removing from UI');
-                            if (pinnedCard && pinnedCard.parentNode) {
-                                pinnedCard.remove();
-                                refreshPinnedCount();
-                            }
-                            showAlertModal('Save Failed', 'Could not save pinned idea. Please check your connection and try again.');
+                            // Database save failed, but keep card locally
+                            console.warn('⚠️ Database save failed, keeping card locally only');
+                            // Don't remove card or show error - user can still use it locally
                         }
                     })
                     .catch(err => {
-                        console.error('❌ Failed to save pinned idea:', err);
-                        if (pinnedCard && pinnedCard.parentNode) {
-                            pinnedCard.remove();
-                            refreshPinnedCount();
-                        }
-                        showAlertModal('Save Failed', 'Could not save pinned idea. Please check your connection and try again.');
+                        // Database error - log but don't disrupt user experience
+                        console.warn('⚠️ Database save error (keeping card locally):', err.message || err);
+                        // Don't remove card or show error modal - card remains functional locally
                     });
             }
         }
@@ -2233,8 +2391,39 @@ document.addEventListener('DOMContentLoaded', () => {
             ideasRemaining--;
             updateSwiperInfo();
             updateIdeaGeneratorVisibility();
+            
+            // Check if all 7 cards are gone, show 8th "Build more" card
+            const cardStack = document.getElementById('card-stack');
+            const remainingCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.build-more-card):not(.loading-placeholder)') : [];
+            if (remainingCards.length === 0) {
+                showBuildMoreCard();
+            }
         }, 350); // Reduced from 500ms to match faster animation
     }
+
+    
+    /**
+     * Show "Build more" card when all 7 ideas are gone
+     * Note: Card is always present, this just ensures it's visible
+     */
+    function showBuildMoreCard() {
+        const buildMoreCard = createBuildMoreCard();
+        if (buildMoreCard) {
+            // Update platform theming
+            const currentPlatform = localStorage.getItem('selectedPlatform') || 'tiktok';
+            buildMoreCard.dataset.platform = currentPlatform;
+            console.log('✅ Build more card shown');
+        }
+    }
+    
+    /**
+     * Handle "Build more" button click
+     */
+    window.handleBuildMore = function() {
+        // Build more card stays in place (always present at bottom layer)
+        // Just generate 7 new ideas
+        generateNewIdeas({ showLoading: true });
+    };
 
     /**
      * Skip card (swipe left)
@@ -2339,16 +2528,34 @@ document.addEventListener('DOMContentLoaded', () => {
      * Add a pinned idea to the pinned ideas section
      */
     function addPinnedIdea(idea) {
+        console.log('📌 addPinnedIdea called with:', {
+            title: idea?.title,
+            hasId: !!idea?.id,
+            platforms: idea?.platforms
+        });
+        
         const grid = document.querySelector('.pinned-ideas .ideas-grid');
-        if (!grid) return null;
+        if (!grid) {
+            console.error('❌ Could not find .pinned-ideas .ideas-grid');
+            return null;
+        }
+
+        // Validate idea data
+        if (!idea || !idea.title) {
+            console.error('❌ Invalid idea data passed to addPinnedIdea:', idea);
+            showAlertModal('Error', 'Invalid idea data. Please try again.');
+            return null;
+        }
 
         if (!idea.id) {
             idea.id = generateIdeaId();
+            console.log('🆔 Generated new idea ID:', idea.id);
         }
 
         // Check if already at 7 pinned ideas limit
         const existingPinnedCards = grid.querySelectorAll('.idea-card-collapsed');
         if (existingPinnedCards.length >= 7) {
+            console.warn('⚠️ Pin limit reached:', existingPinnedCards.length);
             showAlertModal('Pin Limit Reached', 'You can only pin up to 7 ideas at a time. Please schedule or delete an idea before pinning another.');
             return null;
         }
@@ -2368,6 +2575,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const platformsArray = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? [idea.platforms[0]] : ['tiktok'];
         const platformIconsHTML = platformsArray.map(p => iconMap[p] || '').filter(html => html).join('');
         const singlePlatform = platformsArray[0];
+        
+        console.log('🎯 Creating collapsed card with platform:', singlePlatform);
 
         // Create collapsed card
         const collapsedCard = document.createElement('div');
@@ -2378,7 +2587,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="collapsed-title">
                     <span class="title-text">"${idea.title}"</span>
                 </div>
-                <div class="collapsed-summary">${idea.summary}</div>
+                <div class="collapsed-summary">${idea.summary || ''}</div>
             </div>
         `;
 
@@ -2386,14 +2595,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const ideaWithSinglePlatform = { ...idea, platforms: platformsArray };
         collapsedCard.dataset.idea = JSON.stringify(ideaWithSinglePlatform);
         collapsedCard.dataset.platforms = platformsArray[0];
+        
+        console.log('✅ Collapsed card created:', {
+            title: idea.title,
+            platform: singlePlatform,
+            hasDataset: !!collapsedCard.dataset.idea
+        });
 
         // Add click handler for expansion
         collapsedCard.addEventListener('click', (e) => {
+            // Don't expand if clicking on action buttons
+            if (e.target.closest('.collapsed-action-btn')) {
+                return;
+            }
             expandIdeaCard(collapsedCard);
         });
 
-        grid.appendChild(collapsedCard);
+        // Add new pinned idea at the top of the grid (most recent first)
+        if (grid.firstChild) {
+            grid.insertBefore(collapsedCard, grid.firstChild);
+        } else {
+            grid.appendChild(collapsedCard);
+        }
         refreshPinnedCount();
+        console.log('✅ Collapsed card added to grid (at top)');
         return collapsedCard;
     }
 
@@ -2450,18 +2675,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const calendarModal = document.getElementById('calendar-modal');
     const closeCalendar = document.getElementById('close-calendar');
-    const confirmScheduleBtn = document.getElementById('confirm-schedule-date');
 
     if (closeCalendar) {
         closeCalendar.addEventListener('click', () => {
             calendarModal.classList.remove('active');
             pendingScheduleCard = null;
-        });
-    }
-
-    if (confirmScheduleBtn) {
-        confirmScheduleBtn.addEventListener('click', () => {
-            confirmScheduleDate();
         });
     }
 
@@ -2751,6 +2969,12 @@ function navigateMonth(direction) {
 let pickerCalendarMonth = new Date();
 
 function generateCalendarPicker() {
+    // Reset to current month when opening calendar (allows fresh start each time)
+    const today = new Date();
+    if (pickerCalendarMonth < today) {
+        pickerCalendarMonth = new Date(today);
+    }
+    
     const calendarPickerEl = document.getElementById('calendar-picker-container');
     if (!calendarPickerEl) return;
 
@@ -2809,7 +3033,7 @@ function generateCalendarPicker() {
     const month = pickerCalendarMonth.getMonth();
     const firstDay = new Date(year, month, 1);
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const today = new Date();
+    // Note: 'today' is already declared at the top of this function
     const startDay = firstDay.getDay();
 
     for (let i = 0; i < startDay; i++) {
@@ -2833,8 +3057,20 @@ function generateCalendarPicker() {
             dateEl.classList.add('today');
         }
 
-        // Disable past dates
-        if (date < today && date.toDateString() !== today.toDateString()) {
+        // Calculate max date (30 days from today, inclusive)
+        const maxDate = new Date(today);
+        maxDate.setDate(maxDate.getDate() + 30);
+        maxDate.setHours(0, 0, 0, 0); // Start of day for comparison
+        
+        // Normalize dates for comparison (remove time component)
+        const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const maxDateOnly = new Date(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate());
+        
+        // Disable past dates and dates beyond 30 days
+        if (dateOnly < todayOnly) {
+            dateEl.classList.add('disabled');
+        } else if (dateOnly > maxDateOnly) {
             dateEl.classList.add('disabled');
         } else {
             dateEl.addEventListener('click', () => {
@@ -2854,6 +3090,21 @@ if (typeof window !== 'undefined') {
 
 function navigatePickerMonth(direction) {
     pickerCalendarMonth.setMonth(pickerCalendarMonth.getMonth() + direction);
+    
+    // Ensure we don't go too far in the past (limit to current month minimum)
+    const today = new Date();
+    const minMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    if (pickerCalendarMonth < minMonth) {
+        pickerCalendarMonth = new Date(minMonth);
+    }
+    
+    // Allow navigating up to 2 months ahead (to cover 30+ days)
+    const maxMonth = new Date(today);
+    maxMonth.setMonth(maxMonth.getMonth() + 2);
+    if (pickerCalendarMonth > maxMonth) {
+        pickerCalendarMonth = new Date(maxMonth);
+    }
+    
     generateCalendarPicker();
 }
 
@@ -3264,6 +3515,13 @@ function generateIdeaId() {
 function cloneIdeaTemplate(template) {
     const clone = JSON.parse(JSON.stringify(template));
     clone.id = generateIdeaId();
+    // ENFORCE CURRENT PLATFORM STATE - Ensure ideas match current platform selection
+    const currentPlatform = localStorage.getItem('selectedPlatform') || 'tiktok';
+    if (Array.isArray(clone.platforms)) {
+        clone.platforms = [currentPlatform]; // Force single platform matching current state
+    } else {
+        clone.platforms = [currentPlatform];
+    }
     return clone;
 }
 
@@ -4005,7 +4263,7 @@ const LocalStorage = {
 async function savePinnedIdeaToSupabase(ideaData) {
     try {
         console.log('📡 Importing Supabase functions...');
-        const { saveIdea, getCurrentUser } = await import('./supabase.js');
+        const { saveIdeaToDrawingBoard, getCurrentUser } = await import('./supabase.js');
         const { user, error: userError } = await getCurrentUser();
         
         if (userError || !user) {
@@ -4013,51 +4271,84 @@ async function savePinnedIdeaToSupabase(ideaData) {
             return null;
         }
         
-        console.log('👤 User authenticated:', user.id);
-        console.log('📝 Idea data being saved:', {
-            title: ideaData.title,
-            summary: ideaData.summary?.substring(0, 50) + '...',
-            platforms: ideaData.platforms,
-            is_pinned: true,
-            is_scheduled: false,
-            action: ideaData.action ? 'present' : 'missing',
-            setup: ideaData.setup ? 'present' : 'missing',
-            story: ideaData.story ? 'present' : 'missing',
-            hook: ideaData.hook ? 'present' : 'missing'
-        });
-        
-        const { data: savedIdea, error: saveError } = await saveIdea({
-            ...ideaData,
-            user_id: user.id,
-            type: 'pinned',
-            is_pinned: true,
-            is_scheduled: false
-        });
-        
-        if (saveError || !savedIdea) {
-            console.error('❌ saveIdea failed:', saveError);
-            return null;
+        // Validate required fields
+        if (!ideaData || !ideaData.title) {
+            console.error('❌ Invalid idea data: missing title', ideaData);
+            throw new Error('Idea data is missing required fields (title)');
         }
         
-        console.log('✅ Idea saved to Supabase with ID:', savedIdea.id);
+        // Ensure platforms is an array and enforce single platform
+        const platformsArray = Array.isArray(ideaData.platforms) && ideaData.platforms.length > 0 
+            ? [ideaData.platforms[0]] 
+            : ['tiktok'];
+        
+        // Prepare clean idea data for saving
+        const cleanIdeaData = {
+            title: ideaData.title || 'Untitled Idea',
+            summary: ideaData.summary || '',
+            action: ideaData.action || null,
+            setup: ideaData.setup || null,
+            story: ideaData.story || null,
+            hook: ideaData.hook || null,
+            platforms: platformsArray,
+            is_pinned: true,
+            is_scheduled: false
+        };
+        
+        console.log('👤 User authenticated:', user.id);
+        console.log('📝 Idea data being saved:', {
+            title: cleanIdeaData.title,
+            summary: cleanIdeaData.summary?.substring(0, 50) + '...',
+            platforms: cleanIdeaData.platforms,
+            is_pinned: cleanIdeaData.is_pinned,
+            is_scheduled: cleanIdeaData.is_scheduled,
+            action: cleanIdeaData.action ? 'present' : 'missing',
+            setup: cleanIdeaData.setup ? 'present' : 'missing',
+            story: cleanIdeaData.story ? 'present' : 'missing',
+            hook: cleanIdeaData.hook ? 'present' : 'missing'
+        });
+        
+        const result = await saveIdeaToDrawingBoard(cleanIdeaData, user.id);
+        
+        if (!result.success || !result.idea) {
+            console.error('❌ saveIdeaToDrawingBoard failed:', result.error);
+            console.error('❌ Error details:', {
+                message: result.error?.message,
+                details: result.error?.details,
+                hint: result.error?.hint,
+                code: result.error?.code
+            });
+            throw new Error(result.error?.message || 'Failed to save idea to database');
+        }
+        
+        console.log('✅ Idea saved to Supabase with ID:', result.idea.id);
         
         // Track pinned event
-        await trackGenerationEvent('pinned', {
-            direction: ideaData.direction,
-            is_campaign: ideaData.is_campaign,
-            platforms: ideaData.platforms
-        });
+        try {
+            await trackGenerationEvent('pinned', {
+                direction: ideaData.direction,
+                is_campaign: ideaData.is_campaign,
+                platforms: platformsArray
+            });
+        } catch (trackError) {
+            console.warn('⚠️ Failed to track pinned event:', trackError);
+        }
         
-        return savedIdea;
+        return result.idea;
     } catch (error) {
-        console.error('Error saving pinned idea to Supabase:', error);
+        console.error('❌ Error saving pinned idea to Supabase:', error);
+        console.error('❌ Error stack:', error.stack);
         
         // Track error
-        trackAppEvent({
-            page_name: 'home',
-            error_type: 'save_pinned_error',
-            error_message: error.message
-        });
+        try {
+            trackAppEvent({
+                page_name: 'home',
+                error_type: 'save_pinned_error',
+                error_message: error.message || 'Unknown error'
+            });
+        } catch (trackError) {
+            console.warn('⚠️ Failed to track error event:', trackError);
+        }
         
         return null;
     }
@@ -4068,7 +4359,7 @@ async function savePinnedIdeaToSupabase(ideaData) {
  */
 async function saveScheduledIdeaToSupabase(ideaData, scheduledDate) {
     try {
-        const { saveIdea, updateIdea, getCurrentUser } = await import('./supabase.js');
+        const { scheduleIdea, getCurrentUser } = await import('./supabase.js');
         const { user, error: userError } = await getCurrentUser();
         
         if (userError || !user) {
@@ -4076,35 +4367,11 @@ async function saveScheduledIdeaToSupabase(ideaData, scheduledDate) {
             return null;
         }
         
-        let savedIdea;
-        if (ideaData.id) {
-            const { data, error } = await updateIdea(ideaData.id, {
-                ...ideaData,
-                is_pinned: false,
-                is_scheduled: true,
-                scheduled_date: scheduledDate,
-                status: 'scheduled'
-            });
-            if (error) {
-                console.error('Error updating idea:', error);
-                return null;
-            }
-            savedIdea = data;
-        } else {
-            const { data, error } = await saveIdea({
-                ...ideaData,
-                user_id: user.id,
-                type: 'scheduled',
-                is_pinned: false,
-                is_scheduled: true,
-                scheduled_date: scheduledDate,
-                status: 'scheduled'
-            });
-            if (error) {
-                console.error('Error saving idea:', error);
-                return null;
-            }
-            savedIdea = data;
+        const result = await scheduleIdea(ideaData, scheduledDate, user.id);
+        
+        if (!result.success || !result.idea) {
+            console.error('Error scheduling idea:', result.error);
+            return null;
         }
         
         // Track scheduled event
@@ -4114,7 +4381,7 @@ async function saveScheduledIdeaToSupabase(ideaData, scheduledDate) {
             platforms: ideaData.platforms
         });
         
-        return savedIdea;
+        return result.idea;
     } catch (error) {
         console.error('Error saving scheduled idea to Supabase:', error);
         
@@ -4181,104 +4448,105 @@ async function loadIdeasFromSupabase() {
         }
         
         // Import Supabase functions
-        const { supabase } = await import('./supabase.js');
+        const { loadUserIdeas } = await import('./supabase.js');
         
-        // Load pinned ideas
-        const { data: pinnedIdeas, error: pinnedError } = await supabase
-            .from('ideas')
-            .select('*')
-            .eq('user_id', user.id)
-            .eq('is_pinned', true)
-            .order('created_at', { ascending: false });
+        // Load all ideas (pinned and scheduled) using sealed function
+        const result = await loadUserIdeas(user.id, { type: 'all' });
         
-        if (pinnedError) {
-            console.error('❌ Error loading pinned ideas:', pinnedError);
-        } else if (pinnedIdeas && pinnedIdeas.length > 0) {
-            console.log('✅ Loaded', pinnedIdeas.length, 'pinned ideas');
-            if (!addPinnedIdeaFn) {
-                console.warn('⚠️ addPinnedIdea helper not available; skipping pinned idea render.');
-            } else {
-                pinnedIdeas.forEach(idea => {
-                    // Enforce single platform
-                    const platforms = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? [idea.platforms[0]] : ['tiktok'];
-                    addPinnedIdeaFn({
-                        id: idea.id,
-                        title: idea.title,
-                        summary: idea.summary,
-                        action: idea.action,
-                        setup: idea.setup,
-                        hook: idea.hook,
-                        story: idea.story,
-                        why: idea.why,
-                        platforms: platforms,
-                        direction: idea.direction,
-                        is_campaign: idea.is_campaign,
-                        is_pinned: idea.is_pinned,
-                        is_scheduled: idea.is_scheduled,
-                        scheduledDate: idea.scheduled_date ? idea.scheduled_date.toString() : null
-                    });
-                });
-            }
+        if (!result.success) {
+            console.error('❌ Error loading ideas:', result.error);
         } else {
-            // Add empty state if no pinned ideas
-            if (pinnedGrid) {
-                pinnedGrid.innerHTML = '';
-            }
-        }
-        
-        refreshPinnedCountFn?.();
-        
-        // Load scheduled ideas
-        const { data: scheduledIdeas, error: scheduledError } = await supabase
-            .from('ideas')
-            .select('*')
-            .eq('user_id', user.id)
-            .eq('is_scheduled', true)
-            .order('scheduled_date', { ascending: true });
-        
-        if (scheduledError) {
-            console.error('❌ Error loading scheduled ideas:', scheduledError);
-        } else if (scheduledIdeas && scheduledIdeas.length > 0) {
-            console.log('✅ Loaded', scheduledIdeas.length, 'scheduled ideas');
+            const allIdeas = result.ideas || []
             
-            if (scheduleList) {
-                if (!createScheduledCardFn) {
-                    console.warn('⚠️ createScheduledCard helper not available; skipping scheduled idea render.');
+            // Process pinned ideas
+            const pinnedIdeas = allIdeas.filter(idea => idea.is_pinned === true)
+            
+            if (pinnedIdeas.length > 0) {
+                console.log('✅ Loaded', pinnedIdeas.length, 'pinned ideas');
+                if (!addPinnedIdeaFn) {
+                    console.warn('⚠️ addPinnedIdea helper not available; skipping pinned idea render.');
                 } else {
-                    scheduledIdeas.forEach(idea => {
-                        const selectedDate = new Date(idea.scheduled_date);
-                        const month = selectedDate.toLocaleDateString('en-US', { month: 'short' });
-                        const day = selectedDate.getDate();
-                        
+                    pinnedIdeas.forEach(idea => {
                         // Enforce single platform
                         const platforms = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? [idea.platforms[0]] : ['tiktok'];
-                        
-                        const scheduledCard = createScheduledCardFn({
+                        addPinnedIdeaFn({
                             id: idea.id,
                             title: idea.title,
                             summary: idea.summary,
                             action: idea.action,
                             setup: idea.setup,
                             hook: idea.hook,
+                            story: idea.story,
                             why: idea.why,
                             platforms: platforms,
-                            scheduledDate: idea.scheduled_date,
-                            scheduledMonth: month,
-                            scheduledDay: day
+                            direction: idea.direction,
+                            is_campaign: idea.is_campaign,
+                            is_pinned: idea.is_pinned,
+                            is_scheduled: idea.is_scheduled,
+                            scheduledDate: idea.scheduled_date ? idea.scheduled_date.toString() : null
                         });
-                        
-                        if (scheduledCard) {
-                            scheduleList.appendChild(scheduledCard);
-                        }
                     });
+                }
+            } else {
+                // Add empty state if no pinned ideas
+                if (pinnedGrid) {
+                    pinnedGrid.innerHTML = '';
                 }
             }
             
-            generateScheduleCalendarFn?.();
-        } else {
-            // Add empty state if no scheduled ideas
-            if (scheduleList) {
-                scheduleList.innerHTML = '<div class="empty-state"><p>No scheduled ideas yet. Pin an idea and set a date!</p></div>';
+            refreshPinnedCountFn?.();
+            
+            // Process scheduled ideas (ordered by scheduled_date ascending)
+            const scheduledIdeas = allIdeas
+                .filter(idea => idea.is_scheduled === true)
+                .sort((a, b) => {
+                    const dateA = a.scheduled_date || ''
+                    const dateB = b.scheduled_date || ''
+                    return dateA.localeCompare(dateB)
+                })
+            
+            if (scheduledIdeas.length > 0) {
+                console.log('✅ Loaded', scheduledIdeas.length, 'scheduled ideas');
+                
+                if (scheduleList) {
+                    if (!createScheduledCardFn) {
+                        console.warn('⚠️ createScheduledCard helper not available; skipping scheduled idea render.');
+                    } else {
+                        scheduledIdeas.forEach(idea => {
+                            const selectedDate = new Date(idea.scheduled_date);
+                            const month = selectedDate.toLocaleDateString('en-US', { month: 'short' });
+                            const day = selectedDate.getDate();
+                            
+                            // Enforce single platform
+                            const platforms = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? [idea.platforms[0]] : ['tiktok'];
+                            
+                            const scheduledCard = createScheduledCardFn({
+                                id: idea.id,
+                                title: idea.title,
+                                summary: idea.summary,
+                                action: idea.action,
+                                setup: idea.setup,
+                                hook: idea.hook,
+                                why: idea.why,
+                                platforms: platforms,
+                                scheduledDate: idea.scheduled_date,
+                                scheduledMonth: month,
+                                scheduledDay: day
+                            });
+                            
+                            if (scheduledCard) {
+                                scheduleList.appendChild(scheduledCard);
+                            }
+                        });
+                    }
+                }
+                
+                generateScheduleCalendarFn?.();
+            } else {
+                // Add empty state if no scheduled ideas
+                if (scheduleList) {
+                    scheduleList.innerHTML = '<div class="empty-state"><p>No scheduled ideas yet. Pin an idea and set a date!</p></div>';
+                }
             }
         }
         
@@ -4373,35 +4641,47 @@ window.handleUserSignOut = handleUserSignOutLocal;
  */
 async function initializeApp() {
     try {
+        console.log('🚀 initializeApp() called');
         const user = await initAuth();
+        console.log('🚀 initAuth() returned:', user ? `User: ${user.email} (ID: ${user.id})` : 'null');
         
         if (!user) {
+            console.log('❌ No user, navigating to sign-in-page');
             navigateTo('sign-in-page');
             return;
         }
         
         console.log('✅ User authenticated:', user.email);
+        console.log('🔍 Checking onboarding for user ID:', user.id);
         
         const onboardingComplete = await hasCompletedOnboarding(user.id);
+        console.log('🔍 Onboarding complete?', onboardingComplete);
         
         if (!onboardingComplete) {
+            console.log('❌ Onboarding not complete, navigating to onboarding-1-page');
             navigateTo('onboarding-1-page');
             return;
         }
         
+        console.log('🔍 Checking trial/subscription for user ID:', user.id);
         const trialExpired = await isTrialExpired(user.id);
         const hasSubscription = await hasActiveSubscription(user.id);
+        console.log('🔍 Trial expired?', trialExpired);
+        console.log('🔍 Has subscription?', hasSubscription);
         
         if (trialExpired && !hasSubscription) {
+            console.log('❌ Trial expired and no subscription, navigating to paywall-page');
             navigateTo('paywall-page');
             return;
         }
         
+        console.log('✅ All checks passed, navigating to homepage');
         navigateTo('homepage');
         // Note: loadIdeasFromSupabase() is called by navigateTo('homepage'), no need to call it again here
         
     } catch (error) {
-        console.error('Error initializing app:', error);
+        console.error('❌ Error initializing app:', error);
+        console.error('❌ Error stack:', error.stack);
         navigateTo('sign-in-page');
     }
 }
@@ -5107,6 +5387,11 @@ function initPlatformSelector() {
                 selectedPlatform = 'tiktok';
                 localStorage.setItem('selectedPlatform', selectedPlatform);
                 setPlatformState(selectedPlatform);
+                // Regenerate ideas for new platform state
+                const cardStack = document.getElementById('card-stack');
+                if (cardStack) {
+                    generateNewIdeas({ showLoading: false });
+                }
             }
         });
     }
@@ -5117,6 +5402,11 @@ function initPlatformSelector() {
                 selectedPlatform = 'youtube';
                 localStorage.setItem('selectedPlatform', selectedPlatform);
                 setPlatformState(selectedPlatform);
+                // Regenerate ideas for new platform state
+                const cardStack = document.getElementById('card-stack');
+                if (cardStack) {
+                    generateNewIdeas({ showLoading: false });
+                }
             }
         });
     }
