@@ -23,7 +23,7 @@
         }
     </style>
     
-        <link rel="stylesheet" href="style.css?v=14.3"></head>
+        <link rel="stylesheet" href="style.css?v=14.4"></head>
 <body>
     <div class="app-container">
         <!-- Coordinate Grid (Developer Tool) -->
@@ -354,15 +354,14 @@
                 <!-- HeroSection -->
                 <section class="hero-section-container">
                     <div class="hero-section">
-                <div class="platform-selector-group">
-                    <button class="platform-selector-btn tiktok-btn" data-platform="tiktok" id="platform-btn-tiktok">
-                        <img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok">
-                    </button>
-                    <button class="platform-selector-btn youtube-btn" data-platform="youtube" id="platform-btn-youtube">
-                        <img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube">
-                    </button>
-                    <div class="platform-indicator"></div>
-                </div>
+                    <div style="position: absolute; left: 33.5px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 8px; z-index: 10;">
+                        <button class="platform-selector-btn tiktok-btn" data-platform="tiktok" id="platform-btn-tiktok">
+                            <img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok">
+                        </button>
+                        <button class="platform-selector-btn youtube-btn" data-platform="youtube" id="platform-btn-youtube" style="margin-left: -10px;">
+                            <img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube">
+                        </button>
+                    </div>
                 <div class="header-input-container" id="header-input-container">
                     <input 
                         type="text" 

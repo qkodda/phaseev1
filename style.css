@@ -212,7 +212,7 @@ body {
 }
 
 #homepage.page {
-    background: #ffffff;
+    background: #ffffff !important;
     margin-top: 0;
     padding-top: 0;
     top: 0 !important;
@@ -1368,24 +1368,12 @@ body {
                 border-color 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.platform-selector-group {
-    position: absolute;
-    left: 33.5px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    z-index: 10;
-}
-
 .platform-selector-btn {
-    width: 40px;
-    height: 40px;
+    width: auto;
+    height: auto;
     background: transparent;
     border: none;
-    border-radius: 8px;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1393,15 +1381,90 @@ body {
     transition: all 0.3s ease;
     position: relative;
     z-index: 2;
+    padding: 0;
 }
 
 .platform-selector-btn img {
-    width: 36px;
-    height: 36px;
+    width: 24px;
+    height: 24px;
+    transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1),
+                transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1; /* Visible by default */
+    transform: scale(1);
+}
+
+/* Button icon visibility logic:
+   - Active platform icon: Hidden in button (it's in textbox)
+   - Inactive platform icon: Visible in button (clickable to switch)
+*/
+
+/* Default state: Show both icons (will be overridden by platform classes) */
+.platform-selector-btn.tiktok-btn img {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.platform-selector-btn.youtube-btn img {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* TikTok active: Hide TikTok button completely (it's in textbox), show YouTube button */
+.platform--tiktok .platform-selector-btn.tiktok-btn {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.platform--tiktok .platform-selector-btn.tiktok-btn img {
+    display: none !important;
+}
+
+.platform--tiktok .platform-selector-btn.youtube-btn {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+.platform--tiktok .platform-selector-btn.youtube-btn img {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+    display: block !important;
+}
+
+/* YouTube active: Hide YouTube button completely (it's in textbox), show TikTok button */
+.platform--youtube .platform-selector-btn.youtube-btn {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.platform--youtube .platform-selector-btn.youtube-btn img {
+    display: none !important;
+}
+
+.platform--youtube .platform-selector-btn.tiktok-btn {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+.platform--youtube .platform-selector-btn.tiktok-btn img {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+    display: block !important;
 }
 
 .platform-selector-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: transparent;
     transform: scale(1.05);
 }
 
@@ -1441,11 +1504,11 @@ body {
 }
 
 /* Color pulse/halo from selected icon - positioned at button center */
-.platform-selector-group::after {
+.hero-section::after {
     content: '';
     position: absolute;
     top: 50%;
-    left: 20px; /* TikTok button center (40px / 2) */
+    left: 33.5px;
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -1460,19 +1523,19 @@ body {
 }
 
 /* TikTok halo - positioned at TikTok button */
-.platform--tiktok .platform-selector-group::after {
-    left: 20px; /* TikTok button center */
+.platform--tiktok .hero-section::after {
+    left: 33.5px;
     background: radial-gradient(circle, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 50%, transparent 100%);
 }
 
 /* YouTube halo - positioned at YouTube button, red pulse */
-.platform--youtube .platform-selector-group::after {
-    left: 68px; /* YouTube button center (40px + 8px gap + 20px) */
+.platform--youtube .hero-section::after {
+    left: 81.5px; /* 33.5px + 40px (button width) + 8px (gap) */
     background: radial-gradient(circle, rgba(204, 31, 31, 0.6) 0%, rgba(204, 31, 31, 0.3) 50%, transparent 100%);
 }
 
 /* Halo expansion animation trigger */
-.platform-selector-group.pulsing::after {
+.hero-section.pulsing::after {
     animation: platformHaloPulse 350ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -1512,15 +1575,15 @@ body {
 
 .header-input-container {
     position: relative;
-    width: 300px;
-    max-width: 300px;
+    width: 315px;
+    max-width: 315px;
     margin-left: auto;
     margin-right: 0;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
 }
 
-/* Textbox platform icon - shows active platform */
+/* Textbox platform icon - shows ONLY the active platform */
 .header-input-container::before {
     content: '';
     position: absolute;
@@ -1529,36 +1592,40 @@ body {
     transform: translateY(-50%);
     width: 24px;
     height: 24px;
-    background: url('https://cdn.simpleicons.org/tiktok/000000') no-repeat center;
     background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
     z-index: 3;
     pointer-events: none;
-    transition: opacity 200ms cubic-bezier(0.4, 0, 0.2, 1),
-                transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1),
+                transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
+                background-image 250ms ease;
+    opacity: 0; /* Hidden by default */
+    background-image: none; /* No icon by default */
 }
 
-/* Platform-specific textbox icon */
+/* Platform-specific textbox icon - ONLY show active platform */
 .platform--tiktok .header-input-container::before {
-    background-image: url('https://cdn.simpleicons.org/tiktok/000000');
-    opacity: 1;
-    transform: translateY(-50%) scale(1);
+    background-image: url('https://cdn.simpleicons.org/tiktok/000000') !important;
+    opacity: 1 !important;
+    transform: translateY(-50%) scale(1) !important;
 }
 
 .platform--youtube .header-input-container::before {
-    background-image: url('https://cdn.simpleicons.org/youtube/FF0000');
-    opacity: 1;
-    transform: translateY(-50%) scale(1);
+    background-image: url('https://cdn.simpleicons.org/youtube/FF0000') !important;
+    opacity: 1 !important;
+    transform: translateY(-50%) scale(1) !important;
 }
 
-/* Textbox icon swap animation */
+/* Textbox icon swap animation - fade out old, fade in new */
 .platform--tiktok .header-input-container.swapping::before {
     opacity: 0;
-    transform: translateY(-50%) scale(0.8) translateX(-4px);
+    transform: translateY(-50%) scale(0.7) translateX(-8px);
 }
 
 .platform--youtube .header-input-container.swapping::before {
     opacity: 0;
-    transform: translateY(-50%) scale(0.8) translateX(-4px);
+    transform: translateY(-50%) scale(0.7) translateX(-8px);
 }
 
 .header-input-container.expanded {
@@ -1991,6 +2058,7 @@ body {
     min-height: 100vh; /* Allows content to expand beyond viewport */
     margin-top: 0;
     padding-top: 0;
+    background: #ffffff;
     /* DO NOT ADD: height, max-height, overflow properties that would constrain scroll */
 }
 
@@ -2052,6 +2120,7 @@ body {
     flex-direction: column;
     align-items: center;
     overflow-x: visible; /* SCROLL-SAFE: Does not constrain vertical scroll */
+    background: #ffffff;
     /* DO NOT ADD: overflow-y, height, max-height that would create nested scroll */
 }
 
@@ -2819,46 +2888,59 @@ END GENERATOR STYLES */
 }
 
 .card-action-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    width: auto;
+    height: auto;
+    border-radius: 0;
     border: none;
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, filter 0.3s ease;
     position: relative;
-    overflow: hidden;
+    padding: 0;
 }
 
+/* Remove shine effect - replaced with glow */
 .card-action-btn::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
-    transform: translateX(-100%);
-    animation: buttonShine 3s ease infinite;
+    display: none;
 }
 
 .card-action-btn svg {
     position: relative;
     z-index: 1;
+    width: 28px;
+    height: 28px;
+    transition: filter 0.3s ease, transform 0.3s ease;
 }
 
 .card-action-btn.skip-btn {
-    background: transparent;
     color: #ef4444;
 }
 
 .card-action-btn.pin-btn {
-    background: transparent;
     color: #22c55e;
-    position: relative;
-    overflow: hidden;
+}
+
+/* Glow effect on icons - similar to collapsed cards */
+.card-action-btn.skip-btn svg {
+    filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6)) drop-shadow(0 0 12px rgba(239, 68, 68, 0.4));
+}
+
+.card-action-btn.pin-btn svg {
+    filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.6)) drop-shadow(0 0 12px rgba(34, 197, 94, 0.4));
+}
+
+/* Enhanced glow on hover/touch */
+.card-action-btn.skip-btn:hover svg,
+.card-action-btn.skip-btn:active svg {
+    filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.8)) drop-shadow(0 0 16px rgba(239, 68, 68, 0.6)) drop-shadow(0 0 20px rgba(239, 68, 68, 0.4));
+}
+
+.card-action-btn.pin-btn:hover svg,
+.card-action-btn.pin-btn:active svg {
+    filter: drop-shadow(0 0 12px rgba(34, 197, 94, 0.8)) drop-shadow(0 0 16px rgba(34, 197, 94, 0.6)) drop-shadow(0 0 20px rgba(34, 197, 94, 0.4));
 }
 
 .card-action-btn:hover {
@@ -3556,6 +3638,10 @@ END GENERATOR STYLES */
 
 .profile-content {
     margin-top: 0;
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* ============================================
@@ -4458,10 +4544,14 @@ END GENERATOR STYLES */
     .app-container {
         width: 100vw;
         height: 100vh;
+        max-width: 390px;
+        margin: 0 auto;
     }
     
     .app-header {
         width: 100vw;
+        max-width: 390px;
+        margin: 0 auto;
         left: 0;
         transform: none;
     }
@@ -4469,6 +4559,8 @@ END GENERATOR STYLES */
     #profile-header,
     #settings-header {
         width: 100vw;
+        max-width: 390px;
+        margin: 0 auto;
     }
 }
 

@@ -5131,7 +5131,7 @@ function setPlatformState(platform) {
     
     const tiktokBtn = document.getElementById('platform-btn-tiktok');
     const youtubeBtn = document.getElementById('platform-btn-youtube');
-    const platformGroup = document.querySelector('.platform-selector-group');
+    const heroSection = document.querySelector('.hero-section');
     const textboxContainer = document.getElementById('header-input-container');
     
     // Get the button that was just activated
@@ -5146,25 +5146,31 @@ function setPlatformState(platform) {
     }
     
     // 2. Trigger color pulse/halo from the icon
-    if (platformGroup) {
-        platformGroup.classList.add('pulsing');
+    if (heroSection) {
+        heroSection.classList.add('pulsing');
         setTimeout(() => {
-            platformGroup.classList.remove('pulsing');
+            heroSection.classList.remove('pulsing');
         }, 350);
     }
     
-    // 3. Textbox icon swap animation
+    // 3. Icon swap animation - icons appear to trade places
+    // Start fade out animation for textbox icon
     if (textboxContainer) {
         textboxContainer.classList.add('swapping');
-        setTimeout(() => {
-            textboxContainer.classList.remove('swapping');
-        }, 200);
     }
     
-    // 4. Coordinated theme shift - remove old, add new platform class
+    // 4. Coordinated theme shift - remove old, add new platform class immediately
     // This triggers CSS transitions for hero, swipe card, header, underlay
+    // CSS will automatically handle dimming the active button and showing the new textbox icon
     homepage.classList.remove('platform--tiktok', 'platform--youtube');
     homepage.classList.add(`platform--${platform}`);
+    
+    // Remove swapping class after animation completes
+    setTimeout(() => {
+        if (textboxContainer) {
+            textboxContainer.classList.remove('swapping');
+        }
+    }, 400);
     
     // 5. Update platform button active states
     if (platform === 'tiktok') {
