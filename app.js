@@ -5162,24 +5162,11 @@ function updateSelectedVibesDisplay() {
     
     if (selectedVibes.length === 0) return;
     
-    // Show first 2-3 chips, then "+X" for the rest
-    const maxVisible = 2;
-    const visibleVibes = selectedVibes.slice(0, maxVisible);
-    const remainingCount = selectedVibes.length - maxVisible;
-    
-    visibleVibes.forEach(vibe => {
-        const miniChip = document.createElement('div');
-        miniChip.className = 'selected-vibe-mini';
-        miniChip.textContent = vibe.label;
-        display.appendChild(miniChip);
-    });
-    
-    if (remainingCount > 0) {
-        const countBadge = document.createElement('div');
-        countBadge.className = 'selected-vibe-count';
-        countBadge.textContent = `+${remainingCount}`;
-        display.appendChild(countBadge);
-    }
+    // Show only count badge: "+X" format (no pills, no words)
+    const countBadge = document.createElement('div');
+    countBadge.className = 'selected-vibe-count';
+    countBadge.textContent = `+${selectedVibes.length}`;
+    display.appendChild(countBadge);
 }
 
 /**
