@@ -3118,6 +3118,9 @@ END GENERATOR STYLES */
     align-items: center;
     position: relative;
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+    border: 1px solid rgba(0, 0, 0, 0.1); /* Added grey stroke */
+    border-radius: 24px; /* Rounded corners for the container */
+    padding: 12px 0; /* Add vertical padding to give space from border */
 }
 
 
