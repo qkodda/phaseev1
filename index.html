@@ -283,7 +283,7 @@
                     <ul class="feature-list">
                         <li>✓ Always know what to post</li>
                         <li>✓ Brainfog-free idea creation</li>
-                        <li>✓ Edit &amp; schedule ideas instantly</li>
+                        <li>✓ Edit &amp; organize ideas instantly</li>
                         <li>✓ Tailored prompts for every platform</li>
                         <li>✓ Unlimited Generation</li>
                     </ul>
@@ -320,7 +320,7 @@
                     <ul class="feature-list">
                         <li>✓ Always know what to post</li>
                         <li>✓ Brainfog-free idea creation</li>
-                        <li>✓ Edit &amp; schedule ideas instantly</li>
+                        <li>✓ Edit &amp; organize ideas instantly</li>
                         <li>✓ Tailored prompts for every platform</li>
                         <li>✓ Unlimited Generation</li>
                     </ul>
@@ -517,38 +517,6 @@
                             </section>
                         </section>
 
-                        <!-- ScheduleSection -->
-                        <section class="schedule-section">
-                            <section class="schedule-component" id="schedule-component">
-                                <div class="schedule-header">
-                                    <h3 class="component-title">Schedule</h3>
-                                    <div class="schedule-header-icons">
-                                        <button class="schedule-icon-btn" id="calendar-toggle-btn" aria-label="Toggle Calendar">
-                                            <svg viewBox="0 0 24 24" width="20" height="20">
-                                                <path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
-                                            </svg>
-                                        </button>
-                                        <button class="schedule-icon-btn" id="share-btn" aria-label="Share">
-                                            <svg viewBox="0 0 24 24" width="20" height="20">
-                                                <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                                <!-- Expandable Calendar -->
-                                <div class="schedule-calendar-container" id="schedule-calendar-container">
-                                    <div class="schedule-calendar" id="schedule-calendar">
-                                        <!-- Calendar will be generated here -->
-                                    </div>
-                                </div>
-                                <div class="schedule-list">
-                                    <div class="empty-state">
-                                        <p>No scheduled content. Pin ideas and schedule them here!</p>
-                                    </div>
-                                </div>
-                            </section>
-                        </section>
-
                         <!-- BottomActionsSection -->
                         <section class="bottom-actions-section">
                             <div class="bottom-action-buttons">
@@ -595,29 +563,11 @@
                     <div class="step">
                         <div class="step-number">3</div>
                         <div class="step-text">
-                            <h4>Schedule</h4>
-                            <p>Organize your pinned ideas and plan your content calendar</p>
-                        </div>
-                    </div>
-                    
-                    <div class="step">
-                        <div class="step-number">4</div>
-                        <div class="step-text">
                             <h4>Create</h4>
                             <p>Use the detailed breakdowns to create engaging content</p>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Calendar Date Picker Modal -->
-        <div id="calendar-modal" class="modal">
-            <div class="modal-content calendar-picker-modal-content">
-                <button class="modal-close" id="close-calendar">&times;</button>
-                <h3 class="modal-title">Schedule Date</h3>
-                
-                <div id="calendar-picker-container"></div>
             </div>
         </div>
 
@@ -955,7 +905,7 @@
                         Deleting your account will permanently remove:
                     </p>
                     <ul style="color: rgba(60, 60, 60, 0.9); line-height: 1.8; margin-left: 20px;">
-                        <li>All your content ideas (pinned and scheduled)</li>
+                        <li>All your pinned content ideas</li>
                         <li>Your profile information and preferences</li>
                         <li>Your subscription and payment history</li>
                         <li>All saved settings and customizations</li>
@@ -1193,8 +1143,6 @@
                         </details>
 
                         <details class="faq-item">
-                            <summary>How do I schedule content?</summary>
-                            <p>From your pinned ideas, tap the calendar icon to add it to your schedule.</p>
                         </details>
 
                         <details class="faq-item">

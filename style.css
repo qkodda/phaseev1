@@ -2082,7 +2082,6 @@ body {
 .trend-scroller-section,
 .swipe-module-section,
 .drawing-board-section,
-.schedule-section,
 .bottom-actions-section {
     width: 100%;
     /* DO NOT ADD: height, max-height, overflow: hidden, position: fixed/sticky */
@@ -2109,11 +2108,6 @@ body {
 
 /* Drawing Board Section and Below - Positioning */
 .drawing-board-section {
-    margin-top: 15px;
-}
-
-/* Schedule Section and Below - Positioning */
-.schedule-section {
     margin-top: 15px;
 }
 
@@ -3123,178 +3117,11 @@ END GENERATOR STYLES */
     flex-direction: column;
     align-items: center;
     position: relative;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
 }
 
-/* Schedule Header with Icons - Title left, icons right, vertically centered */
-.schedule-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0;
-    width: 100%;
-    padding-left: 15px;
-    padding-right: 15px;
-}
 
-.schedule-header .component-title {
-    margin: 0;
-    margin-left: 0;
-    align-self: flex-start;
-}
 
-.schedule-header-icons {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-}
-
-.schedule-icon-btn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    color: #000000;
-}
-
-.schedule-icon-btn svg path {
-    fill: #000000;
-}
-
-.schedule-icon-btn:hover {
-    background: rgba(0, 0, 0, 0.1);
-    color: #000000;
-}
-
-.schedule-icon-btn:active {
-    transform: scale(0.95);
-}
-
-/* Expandable Calendar Container */
-.schedule-calendar-container {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-    margin-bottom: 0;
-}
-
-.schedule-calendar-container.expanded {
-    max-height: 300px; /* Increased slightly to show full calendar */
-    margin-bottom: 16px;
-}
-
-.schedule-calendar {
-    background: white;
-    border-radius: 12px;
-    padding: 11px 11px 6px 11px; /* Reduced bottom padding to minimize space below dates */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e0e0e0;
-    width: 288px; /* Reduced by 10% from 320px */
-    margin: 0 auto;
-}
-
-.calendar-month-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px; /* Reduced to eliminate excess spacing */
-}
-
-.calendar-month-title {
-    font-size: 13px; /* Reduced by 10% from 14px */
-    font-weight: 700;
-    color: rgba(40, 40, 40, 0.9);
-    text-align: center;
-    flex: 1;
-}
-
-.calendar-nav-btn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(59, 130, 246, 0.9);
-    transition: all 0.2s ease;
-}
-
-.calendar-nav-btn:hover {
-    background: rgba(59, 130, 246, 0.1);
-    border-radius: 4px;
-}
-
-.calendar-nav-btn:active {
-    transform: scale(0.9);
-}
-
-.calendar-date.today {
-    border: 2px solid #3b82f6;
-    font-weight: 700;
-}
-
-.calendar-dates-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 3px; /* Further reduced to show more calendar content */
-}
-
-.calendar-date {
-    aspect-ratio: 1;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    border-radius: 7px; /* Reduced by 10% from 8px */
-    font-size: 11px; /* Reduced by 10% from 12px */
-    font-weight: 600;
-    color: rgba(40, 40, 40, 0.8);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
-    position: relative;
-}
-
-.calendar-date .date-number {
-    font-size: 11px; /* Reduced by 10% from 12px */
-    font-weight: 600;
-}
-
-.calendar-date .date-ordinal {
-    font-size: 6px; /* Reduced by 10% from 7px */
-    font-weight: 400;
-    margin-top: -4px;
-}
-
-.calendar-date:hover {
-    background: rgba(59, 130, 246, 0.1);
-}
-
-.calendar-date.has-scheduled {
-    background: rgba(59, 130, 246, 0.15);
-    color: rgba(59, 130, 246, 0.9);
-    font-weight: 700;
-}
-
-.calendar-date.has-scheduled::after {
-    content: '';
-    position: absolute;
-    bottom: 2px;
-    width: 4px;
-    height: 4px;
-    background: #3b82f6;
-    border-radius: 50%;
-}
-
-.calendar-date:active {
-    transform: scale(0.95);
-}
 
 .idea-card-collapsed.highlight {
     border: 2px solid #3b82f6;
@@ -3639,45 +3466,7 @@ END GENERATOR STYLES */
     height: 18px;
 }
 
-/* Schedule Component */
-.schedule-component {
-    margin-top: -22px;
-    margin-bottom: 20px;
-    width: 370px;
-    max-width: 370px;
-    margin-left: auto;
-    margin-right: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
 
-.schedule-list {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    row-gap: 8px;
-    max-height: 226px; /* Exactly 3 cards: 70px + 8px gap + 70px + 8px gap + 70px = 226px */
-    overflow-y: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    width: 100%;
-    padding: 0 10px;
-    margin: 0 auto;
-    justify-content: flex-start; /* Ensure scrolling to top works */
-}
-
-.schedule-list::-webkit-scrollbar {
-    display: none;
-}
-
-.empty-state {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 32px 20px;
-    text-align: center;
-    color: rgba(255, 255, 255, 0.7);
-}
 
 /* Bottom Action Buttons Container */
 .bottom-action-buttons {
@@ -4420,12 +4209,6 @@ END GENERATOR STYLES */
 }
 
 /* Right: Schedule/Checkmark Button */
-.expanded-idea-card .card-actions-bottom .schedule-btn,
-.expanded-idea-card .card-actions-bottom .checkmark-btn {
-    grid-column: 3;
-    justify-self: end;
-    align-self: center;
-}
 
 /* Delete Button - Top Left */
 .expanded-card-actions.top-actions {
@@ -4547,10 +4330,6 @@ END GENERATOR STYLES */
 }
 
 /* Make collapsed cards clickable */
-.idea-card-collapsed {
-    cursor: pointer;
-}
-
 .idea-card-collapsed .collapsed-actions button {
     position: relative;
     z-index: 2;
@@ -4594,18 +4373,6 @@ END GENERATOR STYLES */
     position: relative;
     overflow: hidden;
     z-index: 5;
-}
-
-.expanded-action-btn.edit-btn,
-.expanded-action-btn.schedule-btn {
-    background: var(--gradient-tiffany);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.expanded-action-btn.edit-btn:hover,
-.expanded-action-btn.schedule-btn:hover {
-    background: var(--gradient-tiffany-hover);
-    transform: scale(1.1);
 }
 
 .expanded-action-btn.save-btn,

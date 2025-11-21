@@ -463,7 +463,11 @@ function navigateTo(pageId) {
         'subscription-page'
     ]);
 
-    if (restrictedPages.has(pageId) && !hasAccessToPaidContent()) {
+    // Skip subscription check for dev bypass users
+    const currentUser = getUser();
+    const isDevBypass = currentUser && currentUser.id && currentUser.id.startsWith('dev-bypass-user-');
+    
+    if (!isDevBypass && restrictedPages.has(pageId) && !hasAccessToPaidContent()) {
         const message = isTrialStarted()
             ? 'Your free trial has ended. Subscribe to continue.'
             : 'Start your free trial to unlock the full experience.';
