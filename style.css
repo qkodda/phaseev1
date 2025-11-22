@@ -3118,9 +3118,6 @@ END GENERATOR STYLES */
     align-items: center;
     position: relative;
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
-    border: 1px solid rgba(0, 0, 0, 0.1); /* Added grey stroke */
-    border-radius: 24px; /* Rounded corners for the container */
-    padding: 12px 0; /* Add vertical padding to give space from border */
 }
 
 
@@ -3329,32 +3326,60 @@ END GENERATOR STYLES */
 
 /* Platform-specific backgrounds for collapsed cards */
 .idea-card-collapsed[data-platform*="tiktok"] {
-    background: #000000;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .idea-card-collapsed[data-platform*="tiktok"] .collapsed-title,
 .idea-card-collapsed[data-platform*="tiktok"] .collapsed-summary {
-    color: #ffffff;
+    color: #1a1a1a;
+}
+
+.idea-card-collapsed[data-platform*="tiktok"] .collapsed-summary {
+    color: #666;
+}
+
+.idea-card-collapsed[data-platform*="tiktok"] .platform-icon {
+    color: #000000;
+    fill: #000000;
+    width: 9px; /* 65% smaller approx (14 * 0.35 ~= 5, but 14 * 0.65 = 9) - user said "65% smaller" which means 35% size, or "to 65%". I'll go with 9px (65% OF original) first as 5px is invisible. */
+    height: 9px;
+}
+
+.idea-card-collapsed[data-platform*="tiktok"] .collapsed-platforms {
+    position: absolute;
+    bottom: 12px;
+    right: 50px; /* Avoid edit button */
 }
 
 .idea-card-collapsed[data-platform*="tiktok"]::after {
-    filter: brightness(0) invert(1);
+    filter: opacity(0.1);
     transition: filter 0.3s ease, opacity 0.3s ease;
 }
 
 .idea-card-collapsed[data-platform*="youtube"] {
-    background: #CC1F1F;
+    background: #ffffff;
+    border: 1px solid rgba(204, 31, 31, 0.1);
 }
 
 .idea-card-collapsed[data-platform*="youtube"] .collapsed-title,
 .idea-card-collapsed[data-platform*="youtube"] .collapsed-summary {
-    color: #ffffff;
+    color: #1a1a1a;
+}
+
+.idea-card-collapsed[data-platform*="youtube"] .collapsed-summary {
+    color: #666;
+}
+
+.idea-card-collapsed[data-platform*="youtube"] .platform-icon {
+    color: #FF0000;
+    fill: #FF0000;
 }
 
 .idea-card-collapsed[data-platform*="youtube"]::after {
     background-image: url('youtube-watermark.svg');
     transform: translateY(-50%) rotate(-25deg);
-    opacity: 0.5;
+    opacity: 0.1;
     transition: filter 0.3s ease, opacity 0.3s ease;
 }
 
@@ -4964,3 +4989,334 @@ select.custom-dropdown {
     transform: scale(1.02);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
 }
+
+/* ============================================
+   PHASEE REVITAL STYLES (phasee-revital branch)
+   ============================================ */
+
+/* Variables */
+:root {
+    --color-revital-bg: #0f172a; /* Deep Blue */
+    --color-revital-surface: #ffffff;
+    --color-revital-text-primary: #1e293b;
+    --color-revital-text-secondary: #64748b;
+    --color-revital-accent: #3b82f6;
+    --gradient-revital-hero: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+    --gradient-revital-pill: linear-gradient(90deg, #a78bfa 0%, #3b82f6 100%);
+}
+
+/* Main Layout */
+body {
+    background-color: var(--color-revital-bg) !important; /* Dark rails force */
+}
+
+.phasee-revital-layout {
+    background-color: var(--color-revital-bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-x: hidden;
+    padding-bottom: 80px; /* Space for bottom actions */
+}
+
+/* Header */
+.revital-header-section {
+    padding: 20px 24px;
+    background-color: var(--color-revital-bg);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.revital-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-center {
+    text-align: center;
+    flex: 1;
+    padding: 0 12px;
+}
+
+.header-brand-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+}
+
+.header-subtext {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 2px 0 0 0;
+}
+
+/* Hero Stack */
+.hero-stack-section {
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--color-revital-bg);
+    /* Transition to white content below */
+    border-radius: 0 0 24px 24px;
+    margin-bottom: -24px; /* Overlap with next section */
+    position: relative;
+    z-index: 10;
+}
+
+.hero-card-stack {
+    position: relative;
+    width: 280px;
+    height: 160px;
+    margin-bottom: 16px;
+}
+
+.hero-card {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    background: var(--gradient-revital-hero);
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+}
+
+.hero-card.back {
+    transform: translate(-12px, -12px) scale(0.9);
+    opacity: 0.6;
+    z-index: 1;
+}
+
+.hero-card.middle {
+    transform: translate(12px, -6px) scale(0.95);
+    opacity: 0.8;
+    z-index: 2;
+}
+
+.hero-card.front {
+    transform: translate(0, 0);
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-refresh-text {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 13px;
+    margin-top: 12px;
+}
+
+/* Input Bar */
+.input-bar-section {
+    padding: 40px 24px 20px 24px; /* Extra top padding for hero overlap */
+    background-color: var(--color-revital-surface);
+    border-radius: 32px 32px 0 0; /* Top corners rounded */
+    position: relative;
+    z-index: 20; /* Above hero background */
+}
+
+.input-bar-container {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 999px;
+    padding: 6px 6px 6px 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 2px solid transparent;
+    background-image: linear-gradient(white, white), var(--gradient-revital-pill);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+}
+
+.idea-seed-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: var(--color-revital-text-primary);
+    background: transparent;
+}
+
+.idea-seed-input::placeholder {
+    color: #cbd5e1;
+}
+
+.idea-generate-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--color-revital-accent);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.idea-generate-btn:active {
+    transform: scale(0.95);
+}
+
+/* Sections (Drawing Board, Calendar, Trends) */
+.revital-section {
+    padding: 20px 24px;
+    background-color: var(--color-revital-surface);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.section-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-icon {
+    color: var(--color-revital-text-secondary);
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-revital-text-primary);
+    margin: 0;
+}
+
+.section-count {
+    background: #f1f5f9;
+    color: var(--color-revital-text-secondary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.section-action-icon {
+    color: var(--color-revital-accent);
+}
+
+/* Cards */
+.revital-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.revital-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f1f5f9;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.revital-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-revital-text-primary);
+    margin: 0 0 4px 0;
+    line-height: 1.4;
+}
+
+.card-desc {
+    font-size: 13px;
+    color: var(--color-revital-text-secondary);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Calendar Card Specifics */
+.calendar-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 340px;
+    height: 70px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.calendar-card .card-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1a1a1a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0 0 2px 0;
+}
+
+.calendar-card .card-desc {
+    font-size: 11px;
+    color: #666;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.calendar-card .card-main {
+    flex: 1;
+    margin-right: 12px;
+}
+
+.card-title.uppercase, .card-desc.uppercase {
+    text-transform: uppercase;
+}
+
+.card-date {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-revital-accent);
+    white-space: nowrap;
+}
+
+/* Trend Card Specifics */
+.trend-card {
+    background: linear-gradient(to right, #ffffff, #f8fafc);
+}
+
+/* Bottom Actions */
+.bottom-actions-section {
+    background-color: var(--color-revital-surface);
+    padding: 20px 24px 40px 24px;
+}
+
+/* Gradient Icon Support */
+.gradient-icon {
+    /* Fallback for non-supporting browsers */
+    color: #a78bfa;
+    /* Defensive: ensure no background/mask interferes */
+    background: none !important;
+    mask: none !important;
+    -webkit-mask: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+}
+
+.gradient-icon path {
+    fill: url(#revital-gradient);
+}
+
