@@ -5,6 +5,8 @@
  * Import this into app.js and replace the localStorage-only auth.
  */
 
+console.log('🔥🔥🔥 AUTH-INTEGRATION.JS LOADED - VERSION 999 🔥🔥🔥');
+
 import { supabase, signUp, signIn, signOut, getCurrentUser, resetPassword } from './supabase.js';
 
 // ============================================
