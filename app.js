@@ -1405,6 +1405,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const authToggle = document.getElementById('auth-toggle');
     const signInForm = document.getElementById('sign-in-form');
     const signUpForm = document.getElementById('sign-up-form');
+    const signInEmail = document.getElementById('signin-email');
+    const signInPassword = document.getElementById('signin-password');
+    
+    // DOORKNOB MODE: disable native validation so empty fields are allowed
+    if (signInForm) {
+        signInForm.setAttribute('novalidate', 'novalidate');
+    }
+    if (signUpForm) {
+        signUpForm.setAttribute('novalidate', 'novalidate');
+    }
+    if (signInEmail) {
+        signInEmail.removeAttribute('required');
+    }
+    if (signInPassword) {
+        signInPassword.removeAttribute('required');
+    }
     
     console.log('Auth toggle setup:', { authToggle, signInForm, signUpForm });
     
