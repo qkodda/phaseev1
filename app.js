@@ -386,12 +386,15 @@ function startRotatingText() {
 }
 
 async function personalizeHeroSection() {
-    const user = getUser();
-    if (!user) return;
+    // DOORKNOB MODE: Skip personalization
+    return;
     
-    try {
-        const profile = await getUserProfile(user.id);
-        if (!profile) return;
+    // const user = getUser();
+    // if (!user) return;
+    
+    // try {
+    //     const profile = await getUserProfile(user.id);
+    //     if (!profile) return;
         
         currentProfile = profile;
         currentBrandName = profile.brand_name || user.user_metadata?.full_name || 'there';
@@ -500,14 +503,16 @@ function navigateTo(pageId) {
     
     // Check subscription status and personalize when navigating to homepage
     if (pageId === 'homepage') {
-        setTimeout(() => checkAndEnforceSubscription(), 100);
+        // DOORKNOB MODE: Skip subscription check
+        // setTimeout(() => checkAndEnforceSubscription(), 100);
+        
         // Personalize hero section
         personalizeHeroSection();
         
-        // Reload saved ideas from Supabase (pinned/scheduled)
-        loadIdeasFromSupabase().catch(err => {
-            console.error('Failed to reload ideas:', err);
-        });
+        // DOORKNOB MODE: Skip Supabase load
+        // loadIdeasFromSupabase().catch(err => {
+        //     console.error('Failed to reload ideas:', err);
+        // });
         
         const cardStack = document.getElementById('card-stack');
         const existingCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.build-more-card)') : [];
@@ -4697,31 +4702,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ============================================
-// SUBSCRIPTION ENFORCEMENT
+// SUBSCRIPTION ENFORCEMENT - DISABLED FOR DOORKNOB MODE
 // ============================================
 
 /**
  * Check subscription status and enforce hard paywall if trial expired
+ * DISABLED - DOORKNOB MODE
  */
 async function checkAndEnforceSubscription() {
-    const user = getUser();
-    if (!user) return;
-    
-    const homePage = document.getElementById('homepage');
-    if (!homePage || !homePage.classList.contains('active')) return;
-    
-    const trialExpired = await isTrialExpired(user.id);
-    const hasSubscription = await hasActiveSubscription(user.id);
-    
-    if (trialExpired && !hasSubscription) {
-        enforceSubscriptionPaywall();
-    } else {
-        removeSubscriptionPaywall();
-    }
+    // DOORKNOB MODE: No subscription checks
+    return;
 }
 
 /**
  * Show unmovable subscription card and block all features
+ * DISABLED - DOORKNOB MODE
  */
 function enforceSubscriptionPaywall() {
     const expiredCard = document.getElementById('subscription-expired-card');
