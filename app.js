@@ -4,24 +4,24 @@
    ============================================ */
 
 // ============================================
-// IMPORTS
+// IMPORTS - TEMPORARILY DISABLED FOR DOORKNOB MODE
 // ============================================
-import {
-    initAuth,
-    isAuthenticated,
-    getUser,
-    handleSignUp,
-    handleSignIn,
-    handleSignOut,
-    getUserProfile,
-    updateUserProfile,
-    hasCompletedOnboarding,
-    markOnboardingComplete,
-    startTrial,
-    isTrialExpired,
-    hasActiveSubscription,
-    onAuthStateChange
-} from './auth-integration.js';
+// import {
+//     initAuth,
+//     isAuthenticated,
+//     getUser,
+//     handleSignUp,
+//     handleSignIn,
+//     handleSignOut,
+//     getUserProfile,
+//     updateUserProfile,
+//     hasCompletedOnboarding,
+//     markOnboardingComplete,
+//     startTrial,
+//     isTrialExpired,
+//     hasActiveSubscription,
+//     onAuthStateChange
+// } from './auth-integration.js';
 
 // ============================================
 // CULTURE VALUES CAROUSEL
