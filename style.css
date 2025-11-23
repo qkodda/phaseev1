@@ -294,7 +294,7 @@ body {
 .btn-primary {
     width: 100%;
     padding: 16px;
-    background: var(--gradient-tiffany);
+    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%); /* Revital Gradient */
     color: white;
     border: none;
     border-radius: 12px;
@@ -302,7 +302,7 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
     position: relative;
     overflow: hidden;
 }
@@ -314,24 +314,16 @@ body {
     left: -50%;
     width: 200%;
     height: 200%;
-    background: linear-gradient(
-        90deg,
-        rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.2) 50%,
-        rgba(255, 255, 255, 0) 100%
-    );
-    animation: shimmer 3s infinite;
+    background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+    transform: translateX(-100%);
+    animation: buttonShine 3s ease infinite;
     pointer-events: none;
 }
 
-.btn-primary:hover::after {
-    animation: buttonShine 0.6s ease;
-}
-
 .btn-primary:hover {
-    background: var(--gradient-tiffany-hover);
+    background: linear-gradient(135deg, #5ee1d5 0%, #4192de 50%, #b79bfb 100%); /* Lighter hover state */
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 6px 20px rgba(49, 130, 206, 0.4);
 }
 
 .btn-primary:active {
@@ -610,32 +602,43 @@ body {
     margin-bottom: 40px;
 }
 
+/* Use mask + gradient background for auth logo to match hero theme */
 .auth-logo {
+    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%);
+    -webkit-mask-image: url('PHasse-Logo.png');
+    mask-image: url('PHasse-Logo.png');
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-position: center;
+    mask-position: center;
+    /* Ensure size is maintained */
+    width: 80px; /* Use consistent width with height for contain aspect */
     height: 80px;
-    width: auto;
     margin: 0 auto 12px;
     display: block;
     position: relative;
-    /* Solid theme blue color #3b82f6 */
-    filter: brightness(0) saturate(100%) invert(46%) sepia(96%) saturate(2527%) hue-rotate(201deg) brightness(102%) contrast(93%) drop-shadow(0 2px 8px rgba(59, 130, 246, 0.4));
-    /* Removed animation for consistent theme blue color */
+    /* Reset filter so it doesn't conflict with mask */
+    filter: none;
 }
 
-.auth-logo::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        to right,
-        transparent 0%,
-        rgba(255, 255, 255, 0.8) 50%,
-        transparent 100%
-    );
-    animation: logoShine 4s ease-in-out infinite;
-    pointer-events: none;
+/* White button variant for "Create New Account" */
+.btn-white {
+    background: white !important;
+    color: #1a1a1a !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+}
+
+.btn-white:hover {
+    background: #f9fafb !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08) !important;
+}
+
+.btn-white::after {
+    display: none !important; /* No shine for white button */
 }
 
 @keyframes logoShine {
@@ -688,8 +691,11 @@ body {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(20px);
     border-radius: 24px;
-    padding: 32px 24px 24px;
+    padding: 40px 32px; /* Increased padding for expansion */
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px; /* Increased max-width to expand container */
+    margin: 0 auto; /* Center it */
 }
 
 .auth-form {
@@ -703,11 +709,14 @@ body {
 .form-title {
     font-size: 24px;
     font-weight: 700;
-    color: rgba(60, 60, 60, 0.95);
+    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     text-align: center;
     margin-bottom: 24px;
     position: relative;
-    overflow: hidden;
+    overflow: visible; /* Changed to visible to avoid clipping shadows if any */
 }
 
 .form-title::before {
@@ -731,7 +740,7 @@ body {
     width: 100%;
     margin-top: 24px;
     padding: 16px;
-    background: rgba(52, 211, 153, 0.9);
+    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%); /* Revital Gradient */
     color: white;
     border: none;
     border-radius: 12px;
@@ -739,7 +748,7 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(52, 211, 153, 0.3);
+    box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
     position: relative;
     overflow: hidden;
 }
@@ -756,18 +765,10 @@ body {
     animation: buttonShine 3s ease infinite;
 }
 
-.btn-create {
-    margin-top: 0;
-}
-
-.btn-back-signin {
-    margin-top: 24px;
-}
-
 .btn-signup:hover {
-    background: rgba(52, 211, 153, 1);
+    background: linear-gradient(135deg, #5ee1d5 0%, #4192de 50%, #b79bfb 100%); /* Lighter hover state */
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(52, 211, 153, 0.4);
+    box-shadow: 0 6px 16px rgba(49, 130, 206, 0.4);
 }
 
 .btn-signup:active {
@@ -1110,11 +1111,11 @@ body {
     left: 0;
     transform: none;
     width: 390px;
-    height: 60px;
+    height: 85px; /* Increased height for status bar clearance */
     display: flex !important;
     align-items: center;
     justify-content: space-between;
-    padding: 0 12px;
+    padding: 40px 12px 10px 12px; /* Increased top padding further to push content down */
     background: white;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
@@ -1145,8 +1146,8 @@ body {
     overflow: visible; /* Changed from hidden to prevent shine overflow */
 }
 
-/* Only apply shine to logo in non-hero headers */
-.app-header:not(.hero-header) .logo-btn::after {
+/* Apply shine to all logos including homepage and profile/settings */
+.logo-btn::after {
     content: '';
     position: absolute;
     top: -50%;
@@ -1229,6 +1230,7 @@ body {
     justify-content: space-between;
     width: 100%;
     gap: 12px;
+    position: relative; /* Relative for absolute positioning of children */
 }
 
 .hero-header .header-logo {
@@ -1282,28 +1284,37 @@ body {
     transform: scale(0.95);
 }
 
+.header-center-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute; /* Absolute position to center independently */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Adjust for own width */
+    width: 100%; /* Ensure it doesn't collapse */
+    pointer-events: none; /* Allow clicks to pass through */
+    top: 20px; /* Position text lower in the header (was centered, now pushed down) */
+    padding-top: 10px; /* Additional spacing if needed */
+}
+
 .header-greeting {
     text-align: center;
     color: #000000;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 16px; /* Increased size */
+    font-weight: 700; /* Bolder */
     margin: 0;
+    line-height: 1.2;
     transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Platform-specific header greeting colors - Staggered animation */
-.platform--tiktok .header-greeting {
-    color: #000000;
-    transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1) 50ms; /* 50ms delay */
-}
-
-.platform--youtube .header-greeting {
-    color: #1a1a1a;
-    transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1) 50ms; /* 50ms delay */
-}
-
-.header-greeting #header-user-name {
-    font-weight: 600; /* Slightly bold for name */
+.header-dynamic-prompt {
+    font-size: 13px;
+    color: rgba(26, 26, 26, 0.6); /* Darker text for visibility against white/light bg */
+    margin: 2px 0 0 0;
+    font-weight: 500;
+    text-align: center;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 /* Hero Section (Textbox Area) */
@@ -1323,21 +1334,27 @@ body {
 .hero-section {
     position: relative;
     margin: 0 auto !important; /* Centered */
-    width: 400px;
-    max-width: 95%; /* Responsive */
-    height: 75px;
+    width: 360px; /* Reduced width */
+    max-width: 90%; /* Responsive */
+    height: 65px; /* Reduced height */
     
     /* Full Gradient Background */
     background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%);
     background-size: 200% 200%; /* Enable animation */
     animation: gradientShineBackground 4s ease infinite; /* Shine animation */
     
-    border: none; /* Removed border as the container itself is now the gradient */
-    border-radius: 24px;
-    padding: 12px;
+    border: none;
+    border-radius: 22px; /* Concentric with 12px input + 10px padding */
+    padding: 10px; /* Reduced padding */
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     overflow: visible;
     transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer; /* Indicate clickable for expansion */
+}
+
+.hero-section.expanded {
+    z-index: 1000; /* Bring to front when expanded */
+    border-radius: 24px;
 }
 
 /* Platform-specific hero container colors - Keep same gradient for uniformity as per request, or minimal adjustments */
@@ -1615,7 +1632,7 @@ body {
 
 .header-idea-input {
     width: 100%;
-    padding: 14px 48px 14px 20px; /* Reduced left padding (no icon), kept right for filter */
+    padding: 14px 48px 14px 48px; /* Balanced padding: 48px left (filter) + 48px right (generate) */
     border: none;
     border-radius: 12px;
     font-size: 15px;
@@ -1680,29 +1697,32 @@ body {
 }
 
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
-/* Vibe Panel (expanded state) */
+/* Vibe Panel (expanded state) - Inside Hero Container */
 .vibe-panel {
     position: absolute !important;
-    top: calc(100% + 4px) !important; /* LOCKED - Closer to textbox */
+    top: 100% !important; /* Below textbox */
     left: 0 !important;
     right: 0 !important;
     background: white !important;
-    border-radius: 16px !important;
+    border-bottom-left-radius: 16px !important;
+    border-bottom-right-radius: 16px !important;
+    /* No top radius, attaches to input */
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
     padding: 0 !important;
     max-height: 0 !important;
     overflow: hidden !important;
-    width: 100% !important; /* LOCKED width */
+    width: 100% !important;
     opacity: 0 !important;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    z-index: 1001 !important; /* LOCKED */
+    z-index: 1001 !important;
 }
 
-.header-input-container.expanded .vibe-panel {
-    max-height: 145px !important; /* Expanded by 25px more (from 120px to 145px) */
+.hero-section.expanded .vibe-panel {
+    max-height: 300px !important; /* Enough for vibes */
     opacity: 1 !important;
-    overflow: hidden !important;
-    padding: 10px 12px !important;
+    padding: 16px 12px 12px !important;
+    margin-top: 4px; /* Slight gap */
+    border-radius: 16px !important; /* Full rounded when popped out */
 }
 
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
@@ -2068,10 +2088,13 @@ body {
     /* Content height determines section height - preserves natural scroll flow */
 }
 
+/* Hero Section Container (Textbox) - Adjusted for inside content */
 .hero-section-container {
-    margin-top: 5px !important;
+    margin-top: 24px !important; /* Added space above textbox */
+    margin-bottom: 24px !important; /* Space below before drawing board */
     display: block !important;
     position: relative !important;
+    z-index: 20;
 }
 
 .hero-section-container .hero-section {
@@ -2091,15 +2114,15 @@ body {
     margin-top: 15px;
 }
 
-/* Swipe Module Section Positioning */
+/* Swipe Module Section Positioning - Adjusted for swap */
 .swipe-module-section {
-    margin-top: -65px;
+    margin-top: 20px; /* Changed from -65px to 20px to push down from header */
 }
 
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 /* SCROLL-SAFE: overflow-x: visible allows horizontal content, no vertical overflow constraint */
 .homepage-content {
-    padding-top: 60px;
+    padding-top: 0; /* Changed from 60px to 0 as section margin handles spacing */
     padding-left: 0;
     padding-right: 0;
     padding-bottom: 40px;
@@ -2209,7 +2232,7 @@ body {
 .idea-card {
     background: #000000 !important;
     border: none !important;
-    border-radius: 16px !important;
+    border-radius: 16px !important; /* Standardized 16px */
     position: relative;
     padding: 14px !important;
     width: 300px !important;
@@ -2222,7 +2245,7 @@ body {
     position: absolute !important;
     top: 25px !important;
     left: 0 !important;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3) !important;
     overflow: hidden !important;
     cursor: grab !important;
     transition: none !important;
@@ -2232,72 +2255,59 @@ body {
     opacity: 1 !important;
 }
 
-/* All swipe cards - black background, white text */
+/* All swipe cards - White background, black text */
 .idea-swiper .idea-card {
-    background: #000000 !important;
+    background: #ffffff !important;
     transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
                 transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Platform-specific swipe card colors - Coordinated theme shift */
+/* Platform-specific swipe card colors - Override to white */
 .platform--tiktok .idea-swiper .idea-card {
-    background: #000000 !important;
+    background: #ffffff !important;
 }
 
 .platform--youtube .idea-swiper .idea-card {
-    background: #CC1F1F !important;
+    background: #ffffff !important;
 }
 
-/* Build more card - platform-specific theming */
+/* Text color update for white cards */
+.idea-swiper .idea-card .title-text,
+.idea-swiper .idea-card .section-label,
+.idea-swiper .idea-card .section-content,
+.idea-swiper .idea-card .card-title,
+.idea-swiper .idea-card .card-section .section-text,
+.idea-swiper .idea-card h3,
+.idea-swiper .idea-card p {
+    color: #1a1a1a !important; /* Black text */
+}
+
+/* Ensure Loading Card and Build More Card have NO TikTok/YouTube icons/watermarks */
+.platform--tiktok .idea-swiper .loading-placeholder::after,
+.platform--tiktok .idea-swiper .build-more-card::after,
+.platform--youtube .idea-swiper .loading-placeholder::after,
+.platform--youtube .idea-swiper .build-more-card::after {
+    display: none !important;
+    background-image: none !important;
+    content: none !important;
+}
+
+/* Build more card - Gradient Background (UNDER the cards) */
 /* LAYERED POSITIONING: This card is always present, layered underneath all idea cards (z-index: 0) */
 .platform--tiktok .idea-swiper .build-more-card {
-    background: #000000 !important;
+    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%) !important;
     color: #ffffff !important;
-    z-index: 0 !important; /* Bottom layer - lowest z-index, underneath all other cards */
+    z-index: 0 !important;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3) !important;
 }
 
 .platform--youtube .idea-swiper .build-more-card {
-    background: #CC1F1F !important;
+    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%) !important;
     color: #ffffff !important;
-    z-index: 0 !important; /* Bottom layer - lowest z-index, underneath all other cards */
+    z-index: 0 !important;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3) !important;
 }
 
-/* Build more card - platform-specific watermark (same as regular cards) */
-.platform--tiktok .idea-swiper .build-more-card::after {
-    content: '';
-    position: absolute;
-    bottom: -50px;
-    left: 50%;
-    transform: translateX(-50%) rotate(-25deg);
-    width: 380px;
-    height: 380px;
-    background-image: url('tiktok-watermark.svg');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    opacity: 0.15 !important;
-    z-index: -1 !important; /* Behind all content */
-    pointer-events: none;
-    display: block !important;
-}
-
-.platform--youtube .idea-swiper .build-more-card::after {
-    content: '';
-    position: absolute;
-    bottom: -50px;
-    left: 50%;
-    transform: translateX(-50%) rotate(-25deg);
-    width: 380px;
-    height: 380px;
-    background-image: url('youtube-watermark.svg');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    opacity: 0.15 !important;
-    z-index: -1 !important; /* Behind all content */
-    pointer-events: none;
-    display: block !important;
-}
 
 /* Build more card - no action buttons */
 .build-more-card .card-actions-bottom {
@@ -2323,15 +2333,17 @@ body {
     box-shadow: 0 0 15px rgba(255, 107, 53, 0.4), 0 2px 8px rgba(255, 107, 53, 0.3) !important;
 }
 
-/* Loading placeholder - platform-specific theming */
+/* Loading placeholder - Gradient background */
 .platform--tiktok .idea-swiper .loading-placeholder {
-    background: #000000 !important;
+    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%) !important;
     color: #ffffff !important;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3) !important;
 }
 
 .platform--youtube .idea-swiper .loading-placeholder {
-    background: #CC1F1F !important;
+    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%) !important;
     color: #ffffff !important;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3) !important;
 }
 
 /* Subtle breathing effect on platform switch */
@@ -2359,7 +2371,7 @@ body {
 .idea-swiper .idea-card .card-section .section-text,
 .idea-swiper .idea-card h3,
 .idea-swiper .idea-card p {
-    color: #ffffff !important;
+    color: #1a1a1a !important; /* Black text enforced */
 }
 
 .idea-card:active {
@@ -2591,29 +2603,29 @@ body {
     align-items: center !important;
 }
 
-/* Background shadow containers - black with 60% opacity */
+/* Background shadow containers - Gradient with opacity look */
 .card-shadow-container::before,
 .card-shadow-container::after {
     content: '' !important;
     width: calc(50% - 4px) !important;
     height: 100% !important;
-    background: rgba(0, 0, 0, 0.6) !important;
+    background: var(--gradient-tiffany) !important;
     border: none !important;
-    border-radius: 16px !important;
+    border-radius: 16px !important; /* Standardized 16px */
     box-shadow: 0 0 30px rgba(0, 0, 0, 0.12) !important;
     transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* Platform-specific underlay container colors - Coordinated theme shift */
+/* Platform-specific underlay container colors - Override to Gradient */
 .platform--tiktok .card-shadow-container::before,
 .platform--tiktok .card-shadow-container::after {
-    background: rgba(0, 0, 0, 0.6) !important;
+    background: var(--gradient-tiffany) !important;
     transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .platform--youtube .card-shadow-container::before,
 .platform--youtube .card-shadow-container::after {
-    background: rgba(204, 31, 31, 0.5) !important;
+    background: var(--gradient-tiffany) !important;
     transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
@@ -3085,19 +3097,15 @@ END GENERATOR STYLES */
     transform: scale(1.1);
 }
 
-/* Pinned Ideas Component */
+/* Pinned Ideas Component - Aligned with Revital Card List */
 .pinned-ideas {
-    margin-top: -2px;
-    margin-bottom: 20px;
-    margin-left: auto;
-    margin-right: auto;
-    width: 370px;
-    max-width: 370px;
+    margin-top: 0;
+    margin-bottom: 0;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
 }
 
 
@@ -3249,60 +3257,48 @@ END GENERATOR STYLES */
     display: flex;
     flex-direction: column;
     align-items: center;
-    row-gap: 8px;
-    max-height: 226px; /* Exactly 3 cards: 70px + 8px gap + 70px + 8px gap + 70px = 226px */
-    overflow-y: auto;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    row-gap: 12px; /* Matched gap: 12px with calendar list */
     width: 100%;
-    padding: 0 10px;
+    padding: 0; /* Removed padding to rely on card width */
     margin: 0 auto;
-    justify-content: flex-start; /* Changed from center to allow scrolling to top */
 }
 
 .ideas-grid::-webkit-scrollbar {
     display: none;
 }
 
-/* Collapsed Idea Card (for pinned/scheduled) */
-.idea-card-collapsed {
+/* Collapsed Idea Card (for pinned/scheduled/trends) */
+.idea-card-collapsed,
+.calendar-card,
+.trend-card {
     background: white;
-    border-radius: 16px; /* Matched .calendar-card / .revital-card */
-    padding: 16px;       /* Matched .calendar-card / .revital-card */
-    border: 1px solid #f1f5f9; /* Matched .calendar-card / .revital-card */
-    width: 340px;        /* Matched .calendar-card */
-    height: 70px;        /* Matched .calendar-card */
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid #f1f5f9;
+    width: 340px;
+    height: 70px;
     display: flex;
     align-items: center;
     justify-content: flex-start;
     gap: 12px;
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s; /* Matched .calendar-card */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);   /* Matched .calendar-card */
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     margin: 0 auto;
     justify-self: center;
     position: relative;
     overflow: hidden;
     flex-shrink: 0;
     align-self: center;
-    box-sizing: border-box; /* Ensure padding doesn't expand width */
+    box-sizing: border-box;
 }
 
-.idea-card-collapsed::after {
-    content: '';
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%) rotate(25deg);
-    width: 90px;
-    height: 90px;
-    opacity: 0.5;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 111.29 128.57"><path d="M97.38,27.45c-.87-.45-1.71-.94-2.53-1.47-2.38-1.57-4.57-3.42-6.51-5.51-4.86-5.53-6.68-11.15-7.35-15.09h.03c-.56-3.27-.34-5.38-.3-5.38l-22.07.04.17,85.33c0,1.15,0,2.28-.04,3.4,0,.14-.01.27-.02.42,0,.06,0,.13-.01.19v.05c-.46,6.22-3.98,11.8-9.40,14.89-2.78,1.59-5.92,2.43-9.13,2.43-10.28.02-18.63-8.35-18.65-18.7-.02-10.35,8.3-18.75,18.58-18.77,1.95,0,3.88.3,5.73.9l-.02-22.47c-11.36-1.44-22.81,1.93-31.57,9.3-3.80,3.31-6.99,7.26-9.43,11.67-.93,1.61-4.43,8.07-4.83,18.54-.26,5.95,1.54,12.1,2.4,14.65v.05c.54,1.50,2.62,6.61,6.01,10.91,2.73,3.45,5.96,6.49,9.58,9v-.05s.05.05.05.05c10.70,7.24,22.54,6.74,22.54,6.74,2.05-.09,8.92-.02,16.71-3.73,8.64-4.12,13.56-10.23,13.56-10.23,3.14-3.65,5.63-7.82,7.37-12.31,1.99-5.25,2.64-11.55,2.64-14.07l-.09-45.27c.27.16,3.84,2.51,3.84,2.51,0,0,5.14,3.28,13.16,5.41,5.75,1.51,13.50,1.82,13.50,1.82l-.04-21.91c-2.71.3-8.23-.55-13.87-3.35Z"/></svg>');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    pointer-events: none;
-    transition: filter 0.3s ease, opacity 0.3s ease;
+/* Ensure no watermarks on any collapsed cards */
+.idea-card-collapsed::after,
+.calendar-card::after,
+.trend-card::after {
+    display: none !important;
+    content: none !important;
 }
 
 /* Platform-specific backgrounds for collapsed cards */
@@ -3323,8 +3319,8 @@ END GENERATOR STYLES */
 .idea-card-collapsed[data-platform*="tiktok"] .platform-icon {
     color: #000000;
     fill: #000000;
-    width: 9px; /* 65% smaller approx (14 * 0.35 ~= 5, but 14 * 0.65 = 9) - user said "65% smaller" which means 35% size, or "to 65%". I'll go with 9px (65% OF original) first as 5px is invisible. */
-    height: 9px;
+    width: 9px; /* Reverted to 9px */
+    height: 9px; /* Reverted to 9px */
 }
 
 .idea-card-collapsed[data-platform*="tiktok"] .collapsed-platforms {
@@ -3570,17 +3566,18 @@ END GENERATOR STYLES */
     font-weight: 700;
     color: rgba(40, 40, 40, 0.95);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-top: 36px;
-    margin-bottom: 24px;
+    margin-top: 0; /* Removed top margin to bring it up */
+    margin-bottom: 16px;
     text-align: center;
 }
 
 .profile-content {
-    margin-top: 0;
+    margin-top: -30px; /* Bring content UP 30px as requested */
     width: 100%;
     max-width: 340px;
     display: flex;
     flex-direction: column;
+    gap: 0;
 }
 
 /* ============================================
@@ -5148,6 +5145,12 @@ body {
 .revital-section {
     padding: 20px 24px;
     background-color: var(--color-revital-surface);
+    /* No separator line */
+    border-top: none;
+}
+
+.revital-section:first-of-type {
+    border-top: none;
 }
 
 .section-header {
@@ -5183,6 +5186,28 @@ body {
     font-weight: 600;
 }
 
+.section-action-btn {
+    background: transparent;
+    border: none;
+    padding: 8px;
+    margin: -8px; /* Negative margin to increase hit area without affecting layout */
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background-color 0.2s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.section-action-btn:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    transform: scale(1.1);
+}
+
+.section-action-btn:active {
+    transform: scale(0.95);
+}
+
 .section-action-icon {
     color: var(--color-revital-accent);
 }
@@ -5196,7 +5221,7 @@ body {
 
 .revital-card {
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 16px; /* Standardized 16px */
     padding: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     border: 1px solid #f1f5f9;
@@ -5301,10 +5326,10 @@ body {
     fill: url(#revital-gradient);
 }
 
-/* Filter Button in Textbox */
+/* Filter Button in Textbox - Moved to LEFT */
 .header-filter-btn {
     position: absolute;
-    right: 12px;
+    left: 12px; /* Moved to left */
     top: 50%;
     transform: translateY(-50%);
     background: transparent;
@@ -5328,6 +5353,37 @@ body {
 .header-filter-btn svg {
     width: 20px;
     height: 20px;
-    transform: rotate(45deg); /* Rotated 45 degrees clockwise */
+    transform: rotate(90deg); /* Rotated 90 degrees total */
+}
+
+/* Generate Button (Lightbulb) - New on RIGHT */
+.header-generate-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fbbf24; /* Warm yellow/gold for lightbulb */
+    transition: all 0.2s ease;
+    z-index: 4;
+    border-radius: 50%;
+}
+
+.header-generate-btn:hover {
+    color: #f59e0b; /* Darker gold */
+    background: rgba(251, 191, 36, 0.1);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.header-generate-btn svg {
+    width: 20px;
+    height: 20px;
+    /* No rotation needed for bulb */
 }
 

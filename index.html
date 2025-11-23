@@ -23,7 +23,7 @@
         }
     </style>
     
-        <link rel="stylesheet" href="style.css?v=16.1"></head>
+        <link rel="stylesheet" href="style.css?v=16.2"></head>
 <body>
     <div class="app-container">
         <!-- Global SVG Definitions -->
@@ -46,7 +46,7 @@
         <div id="sign-in-page" class="page active">
             <div class="page-content">
                 <div class="auth-header">
-                    <img src="PHasse-Logo.png" alt="Phasee Logo" class="auth-logo">
+                    <div class="auth-logo"></div>
                     <p class="app-tagline">Automate your content ideas!</p>
                 </div>
 
@@ -93,7 +93,7 @@
                     </form>
 
                     <!-- Sign Up Button -->
-                    <button id="auth-toggle" class="btn-signup">
+                    <button id="auth-toggle" class="btn-signup btn-white">
                         Create New Account
                     </button>
                 </div>
@@ -351,7 +351,10 @@
                             <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
                                 <img src="PHasse-Logo.png" alt="Phasee Logo" class="header-logo">
                             </button>
-                            <h2 class="header-greeting" id="header-greeting">Welcome back, <span id="header-user-name">John</span></h2>
+                            <div class="header-center-group">
+                                <h2 class="header-greeting" id="header-greeting">Welcome back, <span id="header-user-name">John</span></h2>
+                                <p class="header-dynamic-prompt" id="header-dynamic-prompt">3 Ideas Scheduled! What's next?</p>
+                            </div>
                             <button class="profile-icon-btn" onclick="navigateTo('profile-page')" aria-label="Profile">
                                 <svg viewBox="0 0 24 24" width="22" height="22">
                                     <path fill="white" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
@@ -361,118 +364,7 @@
                     </header>
                 </section>
                 
-                <!-- HeroSection -->
-                <section class="hero-section-container">
-                    <div class="hero-section">
-                    <!-- Platform buttons removed -->
-                <div class="header-input-container" id="header-input-container">
-                    <input 
-                        type="text" 
-                        class="header-idea-input" 
-                        id="header-idea-input" 
-                        placeholder="What's your idea?"
-                        maxlength="100"
-                    >
-                    
-                    <!-- Filter Button -->
-                    <button class="header-filter-btn" id="header-filter-btn" aria-label="Filter">
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="4" y1="21" x2="4" y2="14"></line>
-                            <line x1="4" y1="10" x2="4" y2="3"></line>
-                            <line x1="12" y1="21" x2="12" y2="12"></line>
-                            <line x1="12" y1="8" x2="12" y2="3"></line>
-                            <line x1="20" y1="21" x2="20" y2="16"></line>
-                            <line x1="20" y1="12" x2="20" y2="3"></line>
-                            <line x1="1" y1="14" x2="7" y2="14"></line>
-                            <line x1="9" y1="8" x2="15" y2="8"></line>
-                            <line x1="17" y1="16" x2="23" y2="16"></line>
-                        </svg>
-                    </button>
-                    
-                    <!-- Selected Vibes Display (collapsed state) -->
-                    <div class="selected-vibes-display" id="selected-vibes-display"></div>
-                    
-                    <!-- Expanded Vibe Panel -->
-                    <div class="vibe-panel" id="vibe-panel">
-                        <div class="vibe-section">
-                            <h4 class="vibe-category-label">Tone</h4>
-                            <div class="vibe-chips-row">
-                                <div class="chips-inner">
-                                    <button class="vibe-chip" data-vibe="humor" data-category="tone">+ Humor</button>
-                                    <button class="vibe-chip" data-vibe="relatable" data-category="tone">+ Relatable</button>
-                                    <button class="vibe-chip" data-vibe="sentimental" data-category="tone">+ Sentimental</button>
-                                    <button class="vibe-chip" data-vibe="bold" data-category="tone">+ Bold</button>
-                                    <button class="vibe-chip" data-vibe="educational" data-category="tone">+ Educational</button>
-                                    <button class="vibe-chip" data-vibe="aspirational" data-category="tone">+ Aspirational</button>
-                                    <button class="vibe-chip" data-vibe="controversial" data-category="tone">+ Controversial</button>
-                                    <button class="vibe-chip" data-vibe="empathetic" data-category="tone">+ Empathetic</button>
-                                    <!-- Duplicate for seamless loop -->
-                                    <button class="vibe-chip" data-vibe="humor" data-category="tone">+ Humor</button>
-                                    <button class="vibe-chip" data-vibe="relatable" data-category="tone">+ Relatable</button>
-                                    <button class="vibe-chip" data-vibe="sentimental" data-category="tone">+ Sentimental</button>
-                                    <button class="vibe-chip" data-vibe="bold" data-category="tone">+ Bold</button>
-                                    <button class="vibe-chip" data-vibe="educational" data-category="tone">+ Educational</button>
-                                    <button class="vibe-chip" data-vibe="aspirational" data-category="tone">+ Aspirational</button>
-                                    <button class="vibe-chip" data-vibe="controversial" data-category="tone">+ Controversial</button>
-                                    <button class="vibe-chip" data-vibe="empathetic" data-category="tone">+ Empathetic</button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="vibe-section">
-                            <h4 class="vibe-category-label">Setting</h4>
-                            <div class="vibe-chips-row">
-                                <div class="chips-inner">
-                                    <button class="vibe-chip" data-vibe="indoors" data-category="context">+ Indoors</button>
-                                    <button class="vibe-chip" data-vibe="outdoors" data-category="context">+ Outdoors</button>
-                                    <button class="vibe-chip" data-vibe="at-home" data-category="context">+ At Home</button>
-                                    <button class="vibe-chip" data-vibe="in-studio" data-category="context">+ In Studio</button>
-                                    <button class="vibe-chip" data-vibe="on-location" data-category="context">+ On Location</button>
-                                    <button class="vibe-chip" data-vibe="pov" data-category="context">+ POV</button>
-                                    <button class="vibe-chip" data-vibe="behind-scenes" data-category="context">+ Behind Scenes</button>
-                                    <button class="vibe-chip" data-vibe="day-in-life" data-category="context">+ Day in Life</button>
-                                    <!-- Duplicate for seamless loop -->
-                                    <button class="vibe-chip" data-vibe="indoors" data-category="context">+ Indoors</button>
-                                    <button class="vibe-chip" data-vibe="outdoors" data-category="context">+ Outdoors</button>
-                                    <button class="vibe-chip" data-vibe="at-home" data-category="context">+ At Home</button>
-                                    <button class="vibe-chip" data-vibe="in-studio" data-category="context">+ In Studio</button>
-                                    <button class="vibe-chip" data-vibe="on-location" data-category="context">+ On Location</button>
-                                    <button class="vibe-chip" data-vibe="pov" data-category="context">+ POV</button>
-                                    <button class="vibe-chip" data-vibe="behind-scenes" data-category="context">+ Behind Scenes</button>
-                                    <button class="vibe-chip" data-vibe="day-in-life" data-category="context">+ Day in Life</button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="vibe-section">
-                            <h4 class="vibe-category-label">Intent</h4>
-                            <div class="vibe-chips-row">
-                                <div class="chips-inner">
-                                    <button class="vibe-chip" data-vibe="product" data-category="intent">+ Product</button>
-                                    <button class="vibe-chip" data-vibe="campaign" data-category="intent">+ Campaign</button>
-                                    <button class="vibe-chip" data-vibe="announcement" data-category="intent">+ Announcement</button>
-                                    <button class="vibe-chip" data-vibe="tutorial" data-category="intent">+ Tutorial</button>
-                                    <button class="vibe-chip" data-vibe="comparison" data-category="intent">+ Comparison</button>
-                                    <button class="vibe-chip" data-vibe="storytime" data-category="intent">+ Storytime</button>
-                                    <button class="vibe-chip" data-vibe="q-and-a" data-category="intent">+ Q&A</button>
-                                    <button class="vibe-chip" data-vibe="trend-remix" data-category="intent">+ Trend Remix</button>
-                                    <!-- Duplicate for seamless loop -->
-                                    <button class="vibe-chip" data-vibe="product" data-category="intent">+ Product</button>
-                                    <button class="vibe-chip" data-vibe="campaign" data-category="intent">+ Campaign</button>
-                                    <button class="vibe-chip" data-vibe="announcement" data-category="intent">+ Announcement</button>
-                                    <button class="vibe-chip" data-vibe="tutorial" data-category="intent">+ Tutorial</button>
-                                    <button class="vibe-chip" data-vibe="comparison" data-category="intent">+ Comparison</button>
-                                    <button class="vibe-chip" data-vibe="storytime" data-category="intent">+ Storytime</button>
-                                    <button class="vibe-chip" data-vibe="q-and-a" data-category="intent">+ Q&A</button>
-                                    <button class="vibe-chip" data-vibe="trend-remix" data-category="intent">+ Trend Remix</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                </section>
-
-                <!-- SwipeModuleSection -->
+                <!-- SwipeModuleSection (Moved above Hero Textbox) -->
                 <section class="swipe-module-section">
                     <div class="homepage-content" id="homepage-content">
                         <!-- Hero Section - Hidden, greeting now in header -->
@@ -509,6 +401,125 @@
                             <span id="ideas-count">7 Ideas</span> - <span id="refresh-time">Refreshed just now</span>
                         </div>
 
+                        <!-- HeroSection (Textbox) - Moved Inside Content -->
+                        <section class="hero-section-container">
+                            <div class="hero-section">
+                                <div class="header-input-container" id="header-input-container">
+                                    <!-- Filter Button (Moved to left) -->
+                                    <button class="header-filter-btn" id="header-filter-btn" aria-label="Filter">
+                                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="4" y1="21" x2="4" y2="14"></line>
+                                            <line x1="4" y1="10" x2="4" y2="3"></line>
+                                            <line x1="12" y1="21" x2="12" y2="12"></line>
+                                            <line x1="12" y1="8" x2="12" y2="3"></line>
+                                            <line x1="20" y1="21" x2="20" y2="16"></line>
+                                            <line x1="20" y1="12" x2="20" y2="3"></line>
+                                            <line x1="1" y1="14" x2="7" y2="14"></line>
+                                            <line x1="9" y1="8" x2="15" y2="8"></line>
+                                            <line x1="17" y1="16" x2="23" y2="16"></line>
+                                        </svg>
+                                    </button>
+
+                                    <input 
+                                        type="text" 
+                                        class="header-idea-input" 
+                                        id="header-idea-input" 
+                                        placeholder="What's your idea?"
+                                        maxlength="100"
+                                    >
+                                    
+                                    <!-- Lightbulb Generation Button (New, Right Side) -->
+                                    <button class="header-generate-btn" id="header-generate-btn" aria-label="Generate Ideas">
+                                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M9 21h6"></path>
+                                            <path d="M12 3a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-1.26C6.19 14.47 5 12.38 5 10a7 7 0 0 1 7-7z"></path>
+                                        </svg>
+                                    </button>
+                                    
+                                    <!-- Selected Vibes Display (collapsed state) -->
+                                    <div class="selected-vibes-display" id="selected-vibes-display"></div>
+                                    
+                                    <!-- Expanded Vibe Panel -->
+                                    <div class="vibe-panel" id="vibe-panel">
+                                        <div class="vibe-section">
+                                            <h4 class="vibe-category-label">Tone</h4>
+                                            <div class="vibe-chips-row">
+                                                <div class="chips-inner">
+                                                    <button class="vibe-chip" data-vibe="humor" data-category="tone">+ Humor</button>
+                                                    <button class="vibe-chip" data-vibe="relatable" data-category="tone">+ Relatable</button>
+                                                    <button class="vibe-chip" data-vibe="sentimental" data-category="tone">+ Sentimental</button>
+                                                    <button class="vibe-chip" data-vibe="bold" data-category="tone">+ Bold</button>
+                                                    <button class="vibe-chip" data-vibe="educational" data-category="tone">+ Educational</button>
+                                                    <button class="vibe-chip" data-vibe="aspirational" data-category="tone">+ Aspirational</button>
+                                                    <button class="vibe-chip" data-vibe="controversial" data-category="tone">+ Controversial</button>
+                                                    <button class="vibe-chip" data-vibe="empathetic" data-category="tone">+ Empathetic</button>
+                                                    <!-- Duplicate for seamless loop -->
+                                                    <button class="vibe-chip" data-vibe="humor" data-category="tone">+ Humor</button>
+                                                    <button class="vibe-chip" data-vibe="relatable" data-category="tone">+ Relatable</button>
+                                                    <button class="vibe-chip" data-vibe="sentimental" data-category="tone">+ Sentimental</button>
+                                                    <button class="vibe-chip" data-vibe="bold" data-category="tone">+ Bold</button>
+                                                    <button class="vibe-chip" data-vibe="educational" data-category="tone">+ Educational</button>
+                                                    <button class="vibe-chip" data-vibe="aspirational" data-category="tone">+ Aspirational</button>
+                                                    <button class="vibe-chip" data-vibe="controversial" data-category="tone">+ Controversial</button>
+                                                    <button class="vibe-chip" data-vibe="empathetic" data-category="tone">+ Empathetic</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="vibe-section">
+                                            <h4 class="vibe-category-label">Setting</h4>
+                                            <div class="vibe-chips-row">
+                                                <div class="chips-inner">
+                                                    <button class="vibe-chip" data-vibe="indoors" data-category="context">+ Indoors</button>
+                                                    <button class="vibe-chip" data-vibe="outdoors" data-category="context">+ Outdoors</button>
+                                                    <button class="vibe-chip" data-vibe="at-home" data-category="context">+ At Home</button>
+                                                    <button class="vibe-chip" data-vibe="in-studio" data-category="context">+ In Studio</button>
+                                                    <button class="vibe-chip" data-vibe="on-location" data-category="context">+ On Location</button>
+                                                    <button class="vibe-chip" data-vibe="pov" data-category="context">+ POV</button>
+                                                    <button class="vibe-chip" data-vibe="behind-scenes" data-category="context">+ Behind Scenes</button>
+                                                    <button class="vibe-chip" data-vibe="day-in-life" data-category="context">+ Day in Life</button>
+                                                    <!-- Duplicate for seamless loop -->
+                                                    <button class="vibe-chip" data-vibe="indoors" data-category="context">+ Indoors</button>
+                                                    <button class="vibe-chip" data-vibe="outdoors" data-category="context">+ Outdoors</button>
+                                                    <button class="vibe-chip" data-vibe="at-home" data-category="context">+ At Home</button>
+                                                    <button class="vibe-chip" data-vibe="in-studio" data-category="context">+ In Studio</button>
+                                                    <button class="vibe-chip" data-vibe="on-location" data-category="context">+ On Location</button>
+                                                    <button class="vibe-chip" data-vibe="pov" data-category="context">+ POV</button>
+                                                    <button class="vibe-chip" data-vibe="behind-scenes" data-category="context">+ Behind Scenes</button>
+                                                    <button class="vibe-chip" data-vibe="day-in-life" data-category="context">+ Day in Life</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="vibe-section">
+                                            <h4 class="vibe-category-label">Intent</h4>
+                                            <div class="vibe-chips-row">
+                                                <div class="chips-inner">
+                                                    <button class="vibe-chip" data-vibe="product" data-category="intent">+ Product</button>
+                                                    <button class="vibe-chip" data-vibe="campaign" data-category="intent">+ Campaign</button>
+                                                    <button class="vibe-chip" data-vibe="announcement" data-category="intent">+ Announcement</button>
+                                                    <button class="vibe-chip" data-vibe="tutorial" data-category="intent">+ Tutorial</button>
+                                                    <button class="vibe-chip" data-vibe="comparison" data-category="intent">+ Comparison</button>
+                                                    <button class="vibe-chip" data-vibe="storytime" data-category="intent">+ Storytime</button>
+                                                    <button class="vibe-chip" data-vibe="q-and-a" data-category="intent">+ Q&A</button>
+                                                    <button class="vibe-chip" data-vibe="trend-remix" data-category="intent">+ Trend Remix</button>
+                                                    <!-- Duplicate for seamless loop -->
+                                                    <button class="vibe-chip" data-vibe="product" data-category="intent">+ Product</button>
+                                                    <button class="vibe-chip" data-vibe="campaign" data-category="intent">+ Campaign</button>
+                                                    <button class="vibe-chip" data-vibe="announcement" data-category="intent">+ Announcement</button>
+                                                    <button class="vibe-chip" data-vibe="tutorial" data-category="intent">+ Tutorial</button>
+                                                    <button class="vibe-chip" data-vibe="comparison" data-category="intent">+ Comparison</button>
+                                                    <button class="vibe-chip" data-vibe="storytime" data-category="intent">+ Storytime</button>
+                                                    <button class="vibe-chip" data-vibe="q-and-a" data-category="intent">+ Q&A</button>
+                                                    <button class="vibe-chip" data-vibe="trend-remix" data-category="intent">+ Trend Remix</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
                         <!-- DrawingBoardSection -->
                         <section class="drawing-board-section revital-section">
                             <div class="section-header">
@@ -537,9 +548,11 @@
                                     </svg>
                                     <h3 class="section-title">Calendar</h3>
                                 </div>
-                                <svg class="section-action-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                                </svg>
+                                <button class="section-action-btn" id="calendar-send-btn" aria-label="Send Calendar">
+                                    <svg class="section-action-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                                    </svg>
+                                </button>
                             </div>
                             
                             <div class="revital-card-list" id="calendar-list">
@@ -826,8 +839,20 @@
                             <button class="platform-select-btn" data-platform="tiktok">
                                 <img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok">
                             </button>
+                            <button class="platform-select-btn" data-platform="instagram">
+                                <img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram">
+                            </button>
                             <button class="platform-select-btn" data-platform="youtube">
                                 <img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube">
+                            </button>
+                            <button class="platform-select-btn" data-platform="facebook">
+                                <img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook">
+                            </button>
+                            <button class="platform-select-btn" data-platform="linkedin">
+                                <img src="https://cdn.simpleicons.org/linkedin/0A66C2" alt="LinkedIn">
+                            </button>
+                            <button class="platform-select-btn" data-platform="x">
+                                <img src="https://cdn.simpleicons.org/x/000000" alt="X">
                             </button>
                         </div>
                     </div>
@@ -1283,6 +1308,6 @@
         </div>
     </div>
 
-    <script type="module" src="app.js?v=9.12"></script>
+    <script type="module" src="app.js?v=9.15"></script>
 </body>
 </html>
