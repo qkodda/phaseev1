@@ -155,6 +155,25 @@ export function getSession() {
  * Handle user sign-up with email confirmation
  */
 export async function handleSignUp(name, email, password) {
+    // DEV BYPASS CHECK
+    if (isDevBypassActive()) {
+        console.warn('🔧 DEV BYPASS ACTIVE - Simulating sign up (DEV ONLY)');
+        
+        const fakeUser = createDevBypassUser();
+        fakeUser.email = email;
+        fakeUser.user_metadata.full_name = name;
+        const fakeSession = createDevBypassSession(fakeUser);
+        
+        currentUser = fakeUser;
+        currentSession = fakeSession;
+        
+        return {
+            success: true,
+            requiresConfirmation: false,
+            user: fakeUser
+        };
+    }
+
     try {
         console.log('📝 Signing up user:', email);
         
@@ -220,6 +239,27 @@ export async function handleSignUp(name, email, password) {
  * Handle user sign-in
  */
 export async function handleSignIn(email, password) {
+    // DEV BYPASS CHECK
+    if (isDevBypassActive()) {
+        console.warn('🔧 DEV BYPASS ACTIVE - Simulating sign in (DEV ONLY)');
+        
+        // Create fake user if not exists (or reuse existing dev user logic)
+        if (!currentUser) {
+            const fakeUser = createDevBypassUser();
+            fakeUser.email = email; // Use entered email for realism
+            const fakeSession = createDevBypassSession(fakeUser);
+            
+            currentUser = fakeUser;
+            currentSession = fakeSession;
+        }
+        
+        return {
+            success: true,
+            user: currentUser,
+            session: currentSession
+        };
+    }
+
     try {
         console.log('🔐 Signing in user:', email);
         
@@ -274,6 +314,14 @@ export async function handleSignIn(email, password) {
  * Handle user sign-out
  */
 export async function handleSignOut() {
+    // DEV BYPASS CHECK
+    if (isDevBypassActive()) {
+        console.warn('🔧 DEV BYPASS ACTIVE - Simulating sign out (DEV ONLY)');
+        currentUser = null;
+        currentSession = null;
+        return { success: true };
+    }
+
     try {
         console.log('👋 Signing out user');
         
@@ -379,10 +427,15 @@ async function createUserProfile(userId, name, email) {
  */
 export async function getUserProfile(userId) {
     // DEV BYPASS: Return fake profile for dev bypass users (no DB access)
-    if (isDevBypassActive() && currentUser && currentUser.id.startsWith('dev-bypass-user-')) {
+    // Check if userId is provided and matches current dev user OR if dev bypass is simply active
+    // This ensures getProfile works even if called with ID directly
+    if (isDevBypassActive() && (
+        (currentUser && currentUser.id.startsWith('dev-bypass-user-')) || 
+        (typeof userId === 'string' && userId.startsWith('dev-bypass-user-'))
+    )) {
         console.log('🔧 DEV BYPASS: Returning fake profile for dev bypass user');
         return {
-            id: currentUser.id,
+            id: userId || currentUser?.id,
             email: 'dev@phasee.local',
             full_name: 'Dev User',
             display_name: 'Dev User',
@@ -502,7 +555,10 @@ export async function hasCompletedOnboarding(userId) {
     console.log('🔍 isDevBypassActive():', isDevBypassActive());
     
     // DEV BYPASS: Always return true for dev bypass users (skip onboarding)
-    if (isDevBypassActive() && currentUser && currentUser.id.startsWith('dev-bypass-user-')) {
+    if (isDevBypassActive() && (
+        (currentUser && currentUser.id.startsWith('dev-bypass-user-')) ||
+        (typeof userId === 'string' && userId.startsWith('dev-bypass-user-'))
+    )) {
         console.log('🔧 DEV BYPASS: Returning true for onboarding check');
         return true;
     }
@@ -564,7 +620,10 @@ export async function startTrial(userId) {
  */
 export async function isTrialExpired(userId) {
     // DEV BYPASS: Always return false for dev bypass users (trial never expires)
-    if (isDevBypassActive() && currentUser && currentUser.id.startsWith('dev-bypass-user-')) {
+    if (isDevBypassActive() && (
+        (currentUser && currentUser.id.startsWith('dev-bypass-user-')) ||
+        (typeof userId === 'string' && userId.startsWith('dev-bypass-user-'))
+    )) {
         console.log('🔧 DEV BYPASS: Returning false for trial expiration check');
         return false;
     }
@@ -594,7 +653,10 @@ export async function isTrialExpired(userId) {
  */
 export async function hasActiveSubscription(userId) {
     // DEV BYPASS: Always return true for dev bypass users (allows full access)
-    if (isDevBypassActive() && currentUser && currentUser.id.startsWith('dev-bypass-user-')) {
+    if (isDevBypassActive() && (
+        (currentUser && currentUser.id.startsWith('dev-bypass-user-')) ||
+        (typeof userId === 'string' && userId.startsWith('dev-bypass-user-'))
+    )) {
         console.log('🔧 DEV BYPASS: Returning true for subscription check');
         return true;
     }

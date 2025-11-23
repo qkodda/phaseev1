@@ -467,6 +467,10 @@ function navigateTo(pageId) {
     const currentUser = getUser();
     const isDevBypass = currentUser && currentUser.id && currentUser.id.startsWith('dev-bypass-user-');
     
+    if (isDevBypass) {
+        console.log('🔧 DEV BYPASS: Access granted to page:', pageId);
+    }
+    
     if (!isDevBypass && restrictedPages.has(pageId) && !hasAccessToPaidContent()) {
         const message = isTrialStarted()
             ? 'Your free trial has ended. Subscribe to continue.'
@@ -1394,7 +1398,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 signInForm.classList.add('active');
                 signUpForm.classList.remove('active');
                 authToggle.textContent = 'Create New Account';
-                authToggle.className = 'btn-signup';
+                authToggle.className = 'btn-signup btn-white';
             } else {
                 signInForm.classList.remove('active');
                 signUpForm.classList.add('active');
@@ -1428,6 +1432,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.success) {
                 console.log('✅ Sign in successful');
                 
+                // Handle dev bypass flow explicitly
+                if (result.user && result.user.id.startsWith('dev-bypass-user-')) {
+                    console.log('🔧 Processing DEV BYPASS user login');
+                    console.log('🔧 Redirecting to homepage...');
+                    // Add a small delay to ensure logs are visible
+                    setTimeout(() => {
+                        navigateTo('homepage');
+                    }, 100);
+                    return;
+                }
+
                 const onboardingComplete = await hasCompletedOnboarding(result.user.id);
                 
                 if (onboardingComplete) {
@@ -5346,12 +5361,14 @@ if (document.readyState === 'loading') {
         initVibeSelector();
         initTrendStrip();
         initPlatformSelector();
+        initCalendarAction();
     });
 } else {
     // DOM already loaded
     initVibeSelector();
     initTrendStrip();
     initPlatformSelector();
+    initCalendarAction();
 }
 
 // ============================================
@@ -5462,4 +5479,110 @@ function setPlatformState(platform) {
         tiktokBtn?.classList.remove('active');
     }
 }
+
+/**
+ * Initialize calendar action button
+ */
+function initCalendarAction() {
+    const btn = document.getElementById('calendar-send-btn');
+    if (btn) {
+        btn.addEventListener('click', () => {
+            console.log('📅 Calendar action clicked - Opening Share Modal');
+            if (typeof openShareModal === 'function') {
+                openShareModal();
+            } else {
+                console.warn('openShareModal function not found');
+            }
+        });
+    }
+}
+
+
+/**
+ * Initialize vibe selector functionality
+ */
+function initVibeSelector() {
+    const inputContainer = document.getElementById('header-input-container');
+    const vibePanel = document.getElementById('vibe-panel');
+    const headerInput = document.getElementById('header-idea-input');
+    const selectedVibesDisplay = document.getElementById('selected-vibes-display');
+    const vibeChips = document.querySelectorAll('.vibe-chip');
+    const heroSection = document.querySelector('.hero-section');
+    
+    if (!inputContainer || !vibePanel || !headerInput || !heroSection) return;
+    
+    // Toggle expander when input is focused or container clicked
+    const toggleExpand = (e) => {
+        // Don't toggle if clicking a chip or close button
+        if (e.target.closest('.vibe-chip') || e.target.closest('.close-vibe-panel')) return;
+        
+        const isExpanded = heroSection.classList.contains('expanded');
+        
+        if (!isExpanded) {
+            heroSection.classList.add('expanded');
+            inputContainer.classList.add('expanded');
+            headerInput.focus();
+        }
+        // Only close if clicking outside (handled by document listener) or explicit close
+    };
+    
+    headerInput.addEventListener('focus', toggleExpand);
+    heroSection.addEventListener('click', toggleExpand);
+    
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!heroSection.contains(e.target) && !e.target.closest('.vibe-chip')) {
+            heroSection.classList.remove('expanded');
+            inputContainer.classList.remove('expanded');
+        }
+    });
+    
+    // Handle chip selection
+    vibeChips.forEach(chip => {
+        chip.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent closing panel
+            const vibe = chip.dataset.vibe;
+            const category = chip.dataset.category;
+            const label = chip.textContent.replace('+ ', '');
+            
+            // Toggle selection
+            if (chip.classList.contains('selected')) {
+                chip.classList.remove('selected');
+                removeVibe(vibe);
+            } else {
+                chip.classList.add('selected');
+                addVibe(vibe, category, label);
+            }
+            
+            updateVibeDisplay();
+        });
+    });
+    
+    function addVibe(vibe, category, label) {
+        // Check if already exists
+        if (!selectedVibes.find(v => v.vibe === vibe)) {
+            selectedVibes.push({ vibe, category, label });
+        }
+    }
+    
+    function removeVibe(vibe) {
+        selectedVibes = selectedVibes.filter(v => v.vibe !== vibe);
+    }
+    
+    function updateVibeDisplay() {
+        if (!selectedVibesDisplay) return;
+        
+        selectedVibesDisplay.innerHTML = '';
+        
+        if (selectedVibes.length > 0) {
+            // Show count badge
+            const countBadge = document.createElement('span');
+            countBadge.className = 'selected-vibe-mini';
+            countBadge.textContent = selectedVibes.length;
+            selectedVibesDisplay.appendChild(countBadge);
+        }
+    }
+}
+
+let selectedVibes = [];
 

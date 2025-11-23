@@ -11,27 +11,47 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 // Supabase credentials from environment variables ONLY
 // These should be set in Vercel dashboard, NOT hardcoded here
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const getEnvVar = (key) => {
+  try {
+    return import.meta.env && import.meta.env[key]
+  } catch (e) {
+    return undefined
+  }
+}
+
+const supabaseUrl = getEnvVar('VITE_SUPABASE_URL')
+const supabaseAnonKey = getEnvVar('VITE_SUPABASE_ANON_KEY')
 
 // Validate configuration
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('❌ Missing Supabase credentials. Please set environment variables:');
-  console.error('   VITE_SUPABASE_URL');
-  console.error('   VITE_SUPABASE_ANON_KEY');
-  throw new Error('Supabase configuration missing');
+  console.warn('⚠️ Missing Supabase credentials. App will run in limited mode (or Dev Bypass if enabled).');
+  console.warn('   Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable backend features.');
+  // Do not throw error here, allow app to load for dev bypass
 }
 
-// Log configuration status on load (development only)
-if (import.meta.env.DEV) {
-  console.log('✅ Supabase configured:', {
-    url: supabaseUrl?.substring(0, 30) + '...',
-    keyPresent: !!supabaseAnonKey,
-    usingEnvVars: true
-  });
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Create client only if credentials exist, otherwise create a dummy object to prevent crashes
+export const supabase = (supabaseUrl && supabaseAnonKey) 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : {
+      auth: {
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+        getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+        signInWithPassword: () => Promise.reject(new Error('Supabase not configured')),
+        signUp: () => Promise.reject(new Error('Supabase not configured')),
+        signOut: () => Promise.resolve({ error: null })
+      },
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+            maybeSingle: () => Promise.resolve({ data: null, error: null })
+          })
+        }),
+        insert: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) }),
+        upsert: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) })
+      })
+    };
 
 // ============================================
 // AUTHENTICATION FUNCTIONS
