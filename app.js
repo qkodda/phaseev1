@@ -4688,8 +4688,8 @@ window.handleUserSignOut = handleUserSignOutLocal;
  */
 async function initializeApp() {
     // TEMPORARY: Skip ALL auth, go straight to homepage
-    console.log('🚪 DOORKNOB MODE: Going straight to homepage');
-    navigateTo('homepage');
+    console.log('🚪 DOORKNOB MODE: Forcing homepage on init');
+    forceEnterWorkspace();
 }
 
 // completeOnboarding function is defined earlier in the file
@@ -4763,6 +4763,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Initialize app with auth check
     await initializeApp();
+    // DOORKNOB MODE: ensure homepage renders even if init is skipped
+    forceEnterWorkspace();
     
     // Only track page views if user is authenticated (to avoid RLS errors)
     const user = getUser();
