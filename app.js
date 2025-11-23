@@ -564,6 +564,42 @@ function navigateTo(pageId) {
     window.scrollTo(0, 0);
 }
 
+/**
+ * Forcefully enter the workspace bypassing all auth/subscription logic.
+ * Used exclusively by the temporary doorknob flow.
+ */
+function forceEnterWorkspace() {
+    console.log('🚪 FORCE ENTER: Showing homepage directly');
+    
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(page => {
+        if (page.id === 'homepage') {
+            page.classList.add('active');
+            page.scrollTop = 0;
+        } else {
+            page.classList.remove('active');
+        }
+    });
+    
+    // Ensure sign-in page scroll resets
+    const signInPage = document.getElementById('sign-in-page');
+    if (signInPage) {
+        signInPage.scrollTop = 0;
+    }
+    
+    // Trigger homepage setup
+    personalizeHeroSection();
+    createBuildMoreCard();
+    
+    const cardStack = document.getElementById('card-stack');
+    const existingCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.build-more-card)') : [];
+    if (existingCards.length === 0) {
+        generateNewIdeas({ showLoading: false });
+    }
+    
+    trackPageView('homepage');
+    window.scrollTo(0, 0);
+}
 // ============================================
 // AUTH TOGGLE (Sign In / Sign Up)
 // ============================================
@@ -1458,8 +1494,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (signInButton) {
         signInButton.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('🚪 DOORKNOB BUTTON: Entering homepage');
-            navigateTo('homepage');
+            console.log('🚪 DOORKNOB BUTTON: Entering homepage (force)');
+            forceEnterWorkspace();
         });
     }
 
