@@ -39,14 +39,21 @@ export const supabase = (supabaseUrl && supabaseAnonKey)
         getUser: () => Promise.resolve({ data: { user: null }, error: null }),
         signInWithPassword: () => Promise.reject(new Error('Supabase not configured')),
         signUp: () => Promise.reject(new Error('Supabase not configured')),
-        signOut: () => Promise.resolve({ error: null })
+        signOut: () => Promise.resolve({ error: null }),
+        resetPasswordForEmail: () => Promise.resolve({ data: null, error: null })
       },
       from: () => ({
         select: () => ({
           eq: () => ({
             single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
-            maybeSingle: () => Promise.resolve({ data: null, error: null })
-          })
+            maybeSingle: () => Promise.resolve({ data: null, error: null }),
+            order: () => Promise.resolve({ data: [], error: null })
+          }),
+          order: () => Promise.resolve({ data: [], error: null }),
+          insert: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) }),
+          update: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) }),
+          upsert: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) }),
+          delete: () => ({ eq: () => Promise.resolve({ error: null }) })
         }),
         insert: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) }),
         upsert: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) })
@@ -64,7 +71,7 @@ export async function signUp(email, password, userMetadata = {}) {
   try {
     // Use production URL if set in environment, otherwise use current origin
     // This ensures verification emails always point to production, even when testing locally
-    const siteUrl = import.meta.env.VITE_SITE_URL
+    const siteUrl = getEnvVar('VITE_SITE_URL')
     const redirectTo = siteUrl ? `${siteUrl.replace(/\/$/, '')}/` : `${window.location.origin}/`
     
     console.log('🔗 Sign up redirect URL:', redirectTo)
