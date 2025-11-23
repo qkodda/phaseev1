@@ -1418,57 +1418,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sign In Form
     signInForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = document.getElementById('signin-email').value;
-        const password = document.getElementById('signin-password').value;
-        
-        const submitBtn = signInForm.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Signing in...';
-        
-        try {
-            const result = await handleSignIn(email, password);
-            
-            if (result.success) {
-                console.log('✅ Sign in successful');
-                
-                // Handle dev bypass flow explicitly
-                if (result.user && result.user.id.startsWith('dev-bypass-user-')) {
-                    console.log('🔧 Processing DEV BYPASS user login');
-                    console.log('🔧 Redirecting to homepage...');
-                    // Add a small delay to ensure logs are visible
-                    setTimeout(() => {
-                        navigateTo('homepage');
-                    }, 100);
-                    return;
-                }
-
-                const onboardingComplete = await hasCompletedOnboarding(result.user.id);
-                
-                if (onboardingComplete) {
-                    const trialExpired = await isTrialExpired(result.user.id);
-                    const hasSubscription = await hasActiveSubscription(result.user.id);
-                    
-                    if (trialExpired && !hasSubscription) {
-                        navigateTo('paywall-page');
-                    } else {
-                        navigateTo('homepage');
-                    }
-                } else {
-                    await startTrial(result.user.id);
-                    navigateTo('onboarding-1-page');
-                }
-            } else {
-                showAlertModal('Sign In Failed', result.error || 'Invalid email or password');
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            }
-        } catch (error) {
-            console.error('Sign in error:', error);
-            showAlertModal('Error', 'An error occurred. Please try again.');
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
-        }
+        // DOORKNOB MODE: Just go to homepage, no auth
+        console.log('🚪 DOORKNOB: Going to homepage');
+        navigateTo('homepage');
     });
 
     // Sign Up Form
@@ -4659,57 +4611,9 @@ window.handleUserSignOut = handleUserSignOutLocal;
  * Initialize app on load
  */
 async function initializeApp() {
-    try {
-        console.log('🚀 initializeApp() called');
-        const user = await initAuth();
-        console.log('🚀 initAuth() returned:', user ? `User: ${user.email} (ID: ${user.id})` : 'null');
-        
-        if (!user) {
-            console.log('❌ No user, navigating to sign-in-page');
-            navigateTo('sign-in-page');
-            return;
-        }
-        
-        // DEV BYPASS: Skip all checks and go straight to homepage
-        if (user.id && user.id.startsWith('dev-bypass-user-')) {
-            console.log('🔧 DEV BYPASS: Auto-navigating to homepage');
-            navigateTo('homepage');
-            return;
-        }
-        
-        console.log('✅ User authenticated:', user.email);
-        console.log('🔍 Checking onboarding for user ID:', user.id);
-        
-        const onboardingComplete = await hasCompletedOnboarding(user.id);
-        console.log('🔍 Onboarding complete?', onboardingComplete);
-        
-        if (!onboardingComplete) {
-            console.log('❌ Onboarding not complete, navigating to onboarding-1-page');
-            navigateTo('onboarding-1-page');
-            return;
-        }
-        
-        console.log('🔍 Checking trial/subscription for user ID:', user.id);
-        const trialExpired = await isTrialExpired(user.id);
-        const hasSubscription = await hasActiveSubscription(user.id);
-        console.log('🔍 Trial expired?', trialExpired);
-        console.log('🔍 Has subscription?', hasSubscription);
-        
-        if (trialExpired && !hasSubscription) {
-            console.log('❌ Trial expired and no subscription, navigating to paywall-page');
-            navigateTo('paywall-page');
-            return;
-        }
-        
-        console.log('✅ All checks passed, navigating to homepage');
-        navigateTo('homepage');
-        // Note: loadIdeasFromSupabase() is called by navigateTo('homepage'), no need to call it again here
-        
-    } catch (error) {
-        console.error('❌ Error initializing app:', error);
-        console.error('❌ Error stack:', error.stack);
-        navigateTo('sign-in-page');
-    }
+    // TEMPORARY: Skip ALL auth, go straight to homepage
+    console.log('🚪 DOORKNOB MODE: Going straight to homepage');
+    navigateTo('homepage');
 }
 
 // completeOnboarding function is defined earlier in the file
