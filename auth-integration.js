@@ -85,7 +85,7 @@ let currentSession = null;
  * DEV BYPASS: If enabled and on localhost, creates fake user/session
  */
 export async function initAuth() {
-    // DEV BYPASS CHECK - Only active when DEV_BYPASS_ENABLED is true
+    // DEV BYPASS CHECK - HIGHEST PRIORITY - ALWAYS CHECK FIRST
     console.log('🔍 initAuth called, DEV_BYPASS_ENABLED =', DEV_BYPASS_ENABLED);
     console.log('🔍 isDevBypassActive() =', isDevBypassActive());
     
@@ -239,7 +239,7 @@ export async function handleSignUp(name, email, password) {
  * Handle user sign-in
  */
 export async function handleSignIn(email, password) {
-    // DEV BYPASS CHECK
+    // DEV BYPASS CHECK - HIGHEST PRIORITY
     if (isDevBypassActive()) {
         console.warn('🔧 DEV BYPASS ACTIVE - Simulating sign in (DEV ONLY)');
         
@@ -253,6 +253,7 @@ export async function handleSignIn(email, password) {
             currentSession = fakeSession;
         }
         
+        console.log('✅ DEV BYPASS: Returning fake success');
         return {
             success: true,
             user: currentUser,
@@ -260,6 +261,7 @@ export async function handleSignIn(email, password) {
         };
     }
 
+    // NORMAL SIGN IN - Only runs if dev bypass is disabled
     try {
         console.log('🔐 Signing in user:', email);
         
