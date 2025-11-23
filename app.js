@@ -1407,6 +1407,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const signUpForm = document.getElementById('sign-up-form');
     const signInEmail = document.getElementById('signin-email');
     const signInPassword = document.getElementById('signin-password');
+    const signInButton = document.getElementById('sign-in-btn');
     
     // DOORKNOB MODE: disable native validation so empty fields are allowed
     if (signInForm) {
@@ -1453,13 +1454,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // FORM HANDLERS
     // ============================================
 
-    // Sign In Form
-    signInForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        // DOORKNOB MODE: Just go to homepage, no auth
-        console.log('🚪 DOORKNOB: Going to homepage');
-        navigateTo('homepage');
-    });
+    // Sign In Button (no actual auth)
+    if (signInButton) {
+        signInButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('🚪 DOORKNOB BUTTON: Entering homepage');
+            navigateTo('homepage');
+        });
+    }
 
     // Sign Up Form
     signUpForm.addEventListener('submit', async (e) => {
