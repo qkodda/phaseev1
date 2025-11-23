@@ -24,6 +24,23 @@
 // } from './auth-integration.js';
 
 // ============================================
+// DOORKNOB MODE - STUB AUTH FUNCTIONS
+// ============================================
+const getUser = () => ({ id: 'doorknob-user', email: 'doorknob@local.dev' });
+const getUserProfile = async () => ({ brand_name: 'Doorknob User' });
+const isTrialExpired = async () => false;
+const hasActiveSubscription = async () => true;
+const hasCompletedOnboarding = async () => true;
+const handleSignIn = async () => ({ success: true, user: getUser() });
+const handleSignUp = async () => ({ success: true, user: getUser() });
+const handleSignOut = async () => ({ success: true });
+const updateUserProfile = async () => ({ success: true });
+const markOnboardingComplete = async () => ({ success: true });
+const startTrial = async () => ({ success: true });
+const isAuthenticated = () => true;
+const onAuthStateChange = () => ({ unsubscribe: () => {} });
+
+// ============================================
 // CULTURE VALUES CAROUSEL
 // ============================================
 
