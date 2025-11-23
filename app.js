@@ -5410,6 +5410,5 @@ function initCalendarAction() {
 
 
 // Removed duplicate initVibeSelector function
-
-let selectedVibes = [];
+// Removed duplicate selectedVibes declaration (was causing SyntaxError)
 
