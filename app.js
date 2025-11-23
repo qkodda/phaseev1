@@ -4670,6 +4670,13 @@ async function initializeApp() {
             return;
         }
         
+        // DEV BYPASS: Skip all checks and go straight to homepage
+        if (user.id && user.id.startsWith('dev-bypass-user-')) {
+            console.log('🔧 DEV BYPASS: Auto-navigating to homepage');
+            navigateTo('homepage');
+            return;
+        }
+        
         console.log('✅ User authenticated:', user.email);
         console.log('🔍 Checking onboarding for user ID:', user.id);
         
