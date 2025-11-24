@@ -1120,8 +1120,8 @@ body {
    HOMEPAGE
    ============================================ */
 .app-header {
-    position: relative;
-    top: 0;
+    position: sticky;
+    top: 0 !important;
     left: 0;
     transform: none;
     width: 390px;
@@ -1130,10 +1130,17 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 12px;
+    margin: 0 !important;
     background: transparent;
     z-index: 1000;
     visibility: visible !important;
     opacity: 1 !important;
+}
+
+/* Fix misalignment on Profile/Settings pages */
+#profile-header,
+#settings-header {
+    margin-top: -10.5px !important;
 }
 
 .logo-btn {
