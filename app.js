@@ -3,42 +3,24 @@
    Main JavaScript File
    ============================================ */
 
-// ============================================
-// IMPORTS - TEMPORARILY DISABLED FOR DOORKNOB MODE
-// ============================================
-// import {
-//     initAuth,
-//     isAuthenticated,
-//     getUser,
-//     handleSignUp,
-//     handleSignIn,
-//     handleSignOut,
-//     getUserProfile,
-//     updateUserProfile,
-//     hasCompletedOnboarding,
-//     markOnboardingComplete,
-//     startTrial,
-//     isTrialExpired,
-//     hasActiveSubscription,
-//     onAuthStateChange
-// } from './auth-integration.js';
-
-// ============================================
-// DOORKNOB MODE - STUB AUTH FUNCTIONS
-// ============================================
-const getUser = () => ({ id: 'doorknob-user', email: 'doorknob@local.dev' });
-const getUserProfile = async () => ({ brand_name: 'Doorknob User' });
-const isTrialExpired = async () => false;
-const hasActiveSubscription = async () => true;
-const hasCompletedOnboarding = async () => true;
-const handleSignIn = async () => ({ success: true, user: getUser() });
-const handleSignUp = async () => ({ success: true, user: getUser() });
-const handleSignOut = async () => ({ success: true });
-const updateUserProfile = async () => ({ success: true });
-const markOnboardingComplete = async () => ({ success: true });
-const startTrial = async () => ({ success: true });
-const isAuthenticated = () => true;
-const onAuthStateChange = () => ({ unsubscribe: () => {} });
+// NOTE: PHASEE AUTH AUDIT - main UI orchestrator wiring auth + UX
+import {
+    initAuth,
+    isAuthenticated,
+    getUser,
+    handleSignUp,
+    handleSignIn,
+    handleSignOut,
+    getUserProfile,
+    updateUserProfile,
+    hasCompletedOnboarding,
+    markOnboardingComplete,
+    startTrial,
+    isTrialExpired,
+    hasActiveSubscription,
+    onAuthStateChange
+} from './auth-integration.js';
+import { isDevBypassEnabled } from './auth-config.js';
 
 // ============================================
 // CULTURE VALUES CAROUSEL
@@ -403,15 +385,15 @@ function startRotatingText() {
 }
 
 async function personalizeHeroSection() {
-    // DOORKNOB MODE: Skip personalization
-    return;
+    const user = getUser();
+    if (!user) return;
     
-    // const user = getUser();
-    // if (!user) return;
-    
-    // try {
-    //     const profile = await getUserProfile(user.id);
-    //     if (!profile) return;
+    try {
+        const profile = await getUserProfile(user.id);
+        if (!profile) {
+            console.warn('⚠️ No profile found; skipping hero personalization');
+            return;
+        }
         
         currentProfile = profile;
         currentBrandName = profile.brand_name || user.user_metadata?.full_name || 'there';
@@ -430,8 +412,7 @@ async function personalizeHeroSection() {
         
         // Update NEW header greeting
         const headerGreeting = document.getElementById('header-greeting');
-        const headerUserName = document.getElementById('header-user-name');
-        if (headerGreeting && headerUserName) {
+        if (headerGreeting) {
             const greeting = getRandomGreeting();
             headerGreeting.innerHTML = `${greeting}, <span id="header-user-name">${currentBrandName}</span>`;
             headerGreeting.style.transition = 'opacity 0.3s ease';
@@ -520,16 +501,15 @@ function navigateTo(pageId) {
     
     // Check subscription status and personalize when navigating to homepage
     if (pageId === 'homepage') {
-        // DOORKNOB MODE: Skip subscription check
-        // setTimeout(() => checkAndEnforceSubscription(), 100);
+        setTimeout(() => checkAndEnforceSubscription(), 100);
         
         // Personalize hero section
         personalizeHeroSection();
         
-        // DOORKNOB MODE: Skip Supabase load
-        // loadIdeasFromSupabase().catch(err => {
-        //     console.error('Failed to reload ideas:', err);
-        // });
+        // Reload saved ideas from Supabase (pinned/scheduled)
+        loadIdeasFromSupabase().catch(err => {
+            console.error('Failed to reload ideas:', err);
+        });
         
         const cardStack = document.getElementById('card-stack');
         const existingCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.build-more-card)') : [];
@@ -564,42 +544,6 @@ function navigateTo(pageId) {
     window.scrollTo(0, 0);
 }
 
-/**
- * Forcefully enter the workspace bypassing all auth/subscription logic.
- * Used exclusively by the temporary doorknob flow.
- */
-function forceEnterWorkspace() {
-    console.log('🚪 FORCE ENTER: Showing homepage directly');
-    
-    const pages = document.querySelectorAll('.page');
-    pages.forEach(page => {
-        if (page.id === 'homepage') {
-            page.classList.add('active');
-            page.scrollTop = 0;
-        } else {
-            page.classList.remove('active');
-        }
-    });
-    
-    // Ensure sign-in page scroll resets
-    const signInPage = document.getElementById('sign-in-page');
-    if (signInPage) {
-        signInPage.scrollTop = 0;
-    }
-    
-    // Trigger homepage setup
-    personalizeHeroSection();
-    createBuildMoreCard();
-    
-    const cardStack = document.getElementById('card-stack');
-    const existingCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.build-more-card)') : [];
-    if (existingCards.length === 0) {
-        generateNewIdeas({ showLoading: false });
-    }
-    
-    trackPageView('homepage');
-    window.scrollTo(0, 0);
-}
 // ============================================
 // AUTH TOGGLE (Sign In / Sign Up)
 // ============================================
@@ -1441,23 +1385,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const authToggle = document.getElementById('auth-toggle');
     const signInForm = document.getElementById('sign-in-form');
     const signUpForm = document.getElementById('sign-up-form');
-    const signInEmail = document.getElementById('signin-email');
-    const signInPassword = document.getElementById('signin-password');
-    const signInButton = document.getElementById('sign-in-btn');
-    
-    // DOORKNOB MODE: disable native validation so empty fields are allowed
-    if (signInForm) {
-        signInForm.setAttribute('novalidate', 'novalidate');
-    }
-    if (signUpForm) {
-        signUpForm.setAttribute('novalidate', 'novalidate');
-    }
-    if (signInEmail) {
-        signInEmail.removeAttribute('required');
-    }
-    if (signInPassword) {
-        signInPassword.removeAttribute('required');
-    }
     
     console.log('Auth toggle setup:', { authToggle, signInForm, signUpForm });
     
@@ -1490,14 +1417,66 @@ document.addEventListener('DOMContentLoaded', () => {
     // FORM HANDLERS
     // ============================================
 
-    // Sign In Button (no actual auth)
-    if (signInButton) {
-        signInButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            console.log('🚪 DOORKNOB BUTTON: Entering homepage (force)');
-            forceEnterWorkspace();
-        });
-    }
+    // Sign In Form
+    signInForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('signin-email').value;
+        const password = document.getElementById('signin-password').value;
+        
+        // DEV MODE: Accept ANY input as valid login (gibberish is fine)
+        if (isDevBypassEnabled()) {
+            console.log('🔧 DEV BYPASS: Accepting any credentials -', email);
+            navigateTo('homepage');
+            return;
+        }
+        
+        const submitBtn = signInForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing in...';
+        
+        try {
+            const result = await handleSignIn(email, password);
+            
+            if (result.success) {
+                console.log('✅ Sign in successful');
+                
+                const devBypass = result.user && result.user.id && result.user.id.startsWith('dev-bypass-user');
+                if (devBypass) {
+                    console.log('🔧 Dev bypass user detected - entering workspace');
+                    setTimeout(() => navigateTo('homepage'), 50);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    return;
+                }
+                
+                const onboardingComplete = await hasCompletedOnboarding(result.user.id);
+                
+                if (onboardingComplete) {
+                    const trialExpired = await isTrialExpired(result.user.id);
+                    const hasSubscription = await hasActiveSubscription(result.user.id);
+                    
+                    if (trialExpired && !hasSubscription) {
+                        navigateTo('paywall-page');
+                    } else {
+                        navigateTo('homepage');
+                    }
+                } else {
+                    await startTrial(result.user.id);
+                    navigateTo('onboarding-1-page');
+                }
+            } else {
+                showAlertModal('Sign In Failed', result.error || 'Invalid email or password');
+            }
+        } catch (error) {
+            console.error('Sign in error:', error);
+            showAlertModal('Error', 'An error occurred. Please try again.');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
+    });
 
     // Sign Up Form
     signUpForm.addEventListener('submit', async (e) => {
@@ -4002,6 +3981,9 @@ function getTrialTimeRemaining() {
 // isTrialExpired and hasActiveSubscription are now imported from auth-integration.js
 
 async function hasAccessToPaidContent() {
+    if (isDevBypassEnabled()) {
+        return true;
+    }
     const user = getUser();
     if (user) {
         const hasSubscription = await hasActiveSubscription(user.id);
@@ -4687,9 +4669,64 @@ window.handleUserSignOut = handleUserSignOutLocal;
  * Initialize app on load
  */
 async function initializeApp() {
-    // TEMPORARY: Skip ALL auth, go straight to homepage
-    console.log('🚪 DOORKNOB MODE: Forcing homepage on init');
-    forceEnterWorkspace();
+    try {
+        console.log('🚀 initializeApp() called');
+        
+        // CHECK DEV BYPASS FIRST - skip all auth if enabled
+        if (isDevBypassEnabled()) {
+            console.log('🔧 DEV BYPASS ENABLED: Skipping auth, going straight to homepage');
+            navigateTo('homepage');
+            return;
+        }
+        
+        const user = await initAuth();
+        console.log('🚀 initAuth() returned:', user ? `User: ${user.email} (ID: ${user.id})` : 'null');
+        
+        if (!user) {
+            console.log('❌ No user, navigating to sign-in-page');
+            navigateTo('sign-in-page');
+            return;
+        }
+        
+        const devBypassUser = user.id && user.id.startsWith('dev-bypass-user');
+        if (devBypassUser) {
+            console.log('🔧 DEV BYPASS USER: Auto-navigating to homepage');
+            navigateTo('homepage');
+            return;
+        }
+        
+        console.log('✅ User authenticated:', user.email);
+        console.log('🔍 Checking onboarding for user ID:', user.id);
+        
+        const onboardingComplete = await hasCompletedOnboarding(user.id);
+        console.log('🔍 Onboarding complete?', onboardingComplete);
+        
+        if (!onboardingComplete) {
+            console.log('❌ Onboarding not complete, navigating to onboarding-1-page');
+            navigateTo('onboarding-1-page');
+            return;
+        }
+        
+        console.log('🔍 Checking trial/subscription for user ID:', user.id);
+        const trialExpired = await isTrialExpired(user.id);
+        const hasSubscription = await hasActiveSubscription(user.id);
+        console.log('🔍 Trial expired?', trialExpired);
+        console.log('🔍 Has subscription?', hasSubscription);
+        
+        if (trialExpired && !hasSubscription) {
+            console.log('❌ Trial expired and no subscription, navigating to paywall-page');
+            navigateTo('paywall-page');
+            return;
+        }
+        
+        console.log('✅ All checks passed, navigating to homepage');
+        navigateTo('homepage');
+        // Note: loadIdeasFromSupabase is triggered via navigateTo('homepage')
+    } catch (error) {
+        console.error('❌ Error initializing app:', error);
+        console.error('❌ Error stack:', error.stack);
+        navigateTo('sign-in-page');
+    }
 }
 
 // completeOnboarding function is defined earlier in the file
@@ -4763,8 +4800,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Initialize app with auth check
     await initializeApp();
-    // DOORKNOB MODE: ensure homepage renders even if init is skipped
-    forceEnterWorkspace();
     
     // Only track page views if user is authenticated (to avoid RLS errors)
     const user = getUser();
@@ -4780,16 +4815,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 /**
  * Check subscription status and enforce hard paywall if trial expired
- * DISABLED - DOORKNOB MODE
  */
 async function checkAndEnforceSubscription() {
-    // DOORKNOB MODE: No subscription checks
-    return;
+    const user = getUser();
+    if (!user) return;
+    
+    if (isDevBypassEnabled()) {
+        removeSubscriptionPaywall();
+        return;
+    }
+    
+    const homePage = document.getElementById('homepage');
+    if (!homePage || !homePage.classList.contains('active')) return;
+    
+    const trialExpired = await isTrialExpired(user.id);
+    const hasSubscription = await hasActiveSubscription(user.id);
+    
+    if (trialExpired && !hasSubscription) {
+        enforceSubscriptionPaywall();
+    } else {
+        removeSubscriptionPaywall();
+    }
 }
 
 /**
  * Show unmovable subscription card and block all features
- * DISABLED - DOORKNOB MODE
  */
 function enforceSubscriptionPaywall() {
     const expiredCard = document.getElementById('subscription-expired-card');
@@ -4798,28 +4848,31 @@ function enforceSubscriptionPaywall() {
     const scheduleSection = document.querySelector('.schedule-component');
     const ideaCards = document.querySelectorAll('.idea-card:not(.subscription-expired-card)');
     
-    // Show expired card (unmovable)
     if (expiredCard) {
         expiredCard.classList.add('visible');
         expiredCard.style.display = 'flex';
     }
     
-    // Hide generator card
     if (generatorCard) {
         generatorCard.classList.remove('visible');
         generatorCard.style.display = 'none';
     }
     
-    // Hide all idea cards
     ideaCards.forEach(card => {
-        card.style.display = 'none';
+        card.style.filter = 'blur(8px)';
+        card.style.pointerEvents = 'none';
     });
     
-    // Hide pinned and scheduled sections
-    if (pinnedSection) pinnedSection.style.display = 'none';
-    if (scheduleSection) scheduleSection.style.display = 'none';
+    if (pinnedSection) {
+        pinnedSection.style.pointerEvents = 'none';
+        pinnedSection.style.opacity = '0.4';
+    }
     
-    // Disable swipe functionality
+    if (scheduleSection) {
+        scheduleSection.style.pointerEvents = 'none';
+        scheduleSection.style.opacity = '0.4';
+    }
+    
     window.swipeHandlersDisabled = true;
 }
 
@@ -4828,26 +4881,36 @@ function enforceSubscriptionPaywall() {
  */
 function removeSubscriptionPaywall() {
     const expiredCard = document.getElementById('subscription-expired-card');
+    const generatorCard = document.getElementById('idea-generator-card');
     const pinnedSection = document.querySelector('.pinned-ideas');
     const scheduleSection = document.querySelector('.schedule-component');
     const ideaCards = document.querySelectorAll('.idea-card:not(.subscription-expired-card)');
     
-    // Hide expired card
     if (expiredCard) {
         expiredCard.classList.remove('visible');
         expiredCard.style.display = 'none';
     }
     
-    // Show all idea cards again
+    if (generatorCard) {
+        generatorCard.classList.add('visible');
+        generatorCard.style.display = 'flex';
+    }
+    
     ideaCards.forEach(card => {
-        card.style.display = '';  // Remove inline display:none
+        card.style.filter = '';
+        card.style.pointerEvents = '';
     });
     
-    // Show pinned and scheduled sections
-    if (pinnedSection) pinnedSection.style.display = 'block';
-    if (scheduleSection) scheduleSection.style.display = 'block';
+    if (pinnedSection) {
+        pinnedSection.style.pointerEvents = '';
+        pinnedSection.style.opacity = '1';
+    }
     
-    // Re-enable swipe functionality
+    if (scheduleSection) {
+        scheduleSection.style.pointerEvents = '';
+        scheduleSection.style.opacity = '1';
+    }
+    
     window.swipeHandlersDisabled = false;
 }
 

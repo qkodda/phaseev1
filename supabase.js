@@ -6,6 +6,7 @@
  * - Vercel: Project Settings > Environment Variables
  * - Local: .env.local file
  */
+// NOTE: PHASEE AUTH AUDIT - defines Supabase client + helper wrappers
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 

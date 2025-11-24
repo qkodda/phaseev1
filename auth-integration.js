@@ -4,25 +4,14 @@
  * This file contains all the authentication logic for Phasee.
  * Import this into app.js and replace the localStorage-only auth.
  */
-
-console.log('🔥🔥🔥 AUTH-INTEGRATION.JS LOADED - VERSION 999 🔥🔥🔥');
+// NOTE: PHASEE AUTH AUDIT - wires Supabase auth + dev bypass flow control
 
 import { supabase, signUp, signIn, signOut, getCurrentUser, resetPassword } from './supabase.js';
+import { isDevBypassEnabled } from './auth-config.js';
 
 // ============================================
 // DEV BYPASS CONFIGURATION (DEV ONLY - REMOVE BEFORE MERGE TO MAIN)
 // ============================================
-
-/**
- * DEV BYPASS FLAG
- * 
- * Set to true to enable dev bypass (skips auth/paywall, creates fake user).
- * Only works on localhost or when explicitly enabled.
- * 
- * TO DISABLE: Set to false or remove this entire section.
- * TO ENABLE: Set to true (only works on localhost by default).
- */
-const DEV_BYPASS_ENABLED = true; // Change to true to enable dev bypass
 
 /**
  * Check if dev bypass should be active
@@ -30,21 +19,20 @@ const DEV_BYPASS_ENABLED = true; // Change to true to enable dev bypass
  * NOTE: When enabled, works on any hostname (dev only - disable before production)
  */
 function isDevBypassActive() {
-    // When DEV_BYPASS_ENABLED is true, always return true (works on any hostname)
-    // This allows testing on any dev environment (localhost, IP address, etc.)
-    return DEV_BYPASS_ENABLED === true;
+    return isDevBypassEnabled();
 }
 
 /**
  * Create a fake dev user for testing (in-memory only, no DB writes)
  * This user has all the properties needed for the app to function
  */
-function createDevBypassUser() {
-    const fakeUserId = 'dev-bypass-user-' + Date.now();
+const DEV_BYPASS_USER_ID = 'dev-bypass-user';
+
+function createDevBypassUser(overrides = {}) {
     const fakeEmail = 'dev@phasee.local';
     
     return {
-        id: fakeUserId,
+        id: DEV_BYPASS_USER_ID,
         email: fakeEmail,
         email_confirmed_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
@@ -57,7 +45,8 @@ function createDevBypassUser() {
             display_name: 'Dev User'
         },
         aud: 'authenticated',
-        role: 'authenticated'
+        role: 'authenticated',
+        ...overrides
     };
 }
 
@@ -75,6 +64,18 @@ function createDevBypassSession(fakeUser) {
     };
 }
 
+function activateDevBypassSession(overrides = {}) {
+    const fakeUser = createDevBypassUser(overrides);
+    const fakeSession = createDevBypassSession(fakeUser);
+    
+    currentUser = fakeUser;
+    currentSession = fakeSession;
+    
+    return { fakeUser, fakeSession };
+}
+
+const isDevBypassUserId = (value) => typeof value === 'string' && value.startsWith('dev-bypass-user');
+
 // ============================================
 // AUTHENTICATION STATE
 // ============================================
@@ -87,20 +88,11 @@ let currentSession = null;
  * DEV BYPASS: If enabled and on localhost, creates fake user/session
  */
 export async function initAuth() {
-    // DEV BYPASS CHECK - HIGHEST PRIORITY - ALWAYS CHECK FIRST
-    console.log('🔍 initAuth called, DEV_BYPASS_ENABLED =', DEV_BYPASS_ENABLED);
-    console.log('🔍 isDevBypassActive() =', isDevBypassActive());
-    
     if (isDevBypassActive()) {
-        console.warn('🔧 DEV BYPASS ACTIVE - Creating fake user session (DEV ONLY)');
-        const fakeUser = createDevBypassUser();
-        const fakeSession = createDevBypassSession(fakeUser);
-        
-        currentUser = fakeUser;
-        currentSession = fakeSession;
-        
-        console.log('✅ Dev bypass user created:', fakeUser.email);
-        console.log('✅ Dev bypass user ID:', fakeUser.id);
+        if (!currentUser) {
+            console.warn('🔧 DEV BYPASS ACTIVE - Initializing mock session');
+            activateDevBypassSession();
+        }
         return currentUser;
     }
     
@@ -132,6 +124,9 @@ export async function initAuth() {
  * Check if user is authenticated
  */
 export function isAuthenticated() {
+    if (isDevBypassActive()) {
+        return true;
+    }
     return currentUser !== null && currentSession !== null;
 }
 
@@ -139,6 +134,9 @@ export function isAuthenticated() {
  * Get current user
  */
 export function getUser() {
+    if (isDevBypassActive() && !currentUser) {
+        activateDevBypassSession();
+    }
     return currentUser;
 }
 
@@ -146,6 +144,9 @@ export function getUser() {
  * Get current session
  */
 export function getSession() {
+    if (isDevBypassActive() && !currentSession) {
+        activateDevBypassSession();
+    }
     return currentSession;
 }
 
@@ -160,14 +161,13 @@ export async function handleSignUp(name, email, password) {
     // DEV BYPASS CHECK
     if (isDevBypassActive()) {
         console.warn('🔧 DEV BYPASS ACTIVE - Simulating sign up (DEV ONLY)');
-        
-        const fakeUser = createDevBypassUser();
-        fakeUser.email = email;
-        fakeUser.user_metadata.full_name = name;
-        const fakeSession = createDevBypassSession(fakeUser);
-        
-        currentUser = fakeUser;
-        currentSession = fakeSession;
+        const { fakeUser } = activateDevBypassSession({
+            email,
+            user_metadata: {
+                full_name: name,
+                display_name: name
+            }
+        });
         
         return {
             success: true,
@@ -244,17 +244,7 @@ export async function handleSignIn(email, password) {
     // DEV BYPASS CHECK - HIGHEST PRIORITY
     if (isDevBypassActive()) {
         console.warn('🔧 DEV BYPASS ACTIVE - Simulating sign in (DEV ONLY)');
-        
-        // Create fake user if not exists (or reuse existing dev user logic)
-        if (!currentUser) {
-            const fakeUser = createDevBypassUser();
-            fakeUser.email = email; // Use entered email for realism
-            const fakeSession = createDevBypassSession(fakeUser);
-            
-            currentUser = fakeUser;
-            currentSession = fakeSession;
-        }
-        
+        activateDevBypassSession({ email });
         console.log('✅ DEV BYPASS: Returning fake success');
         return {
             success: true,
@@ -434,8 +424,8 @@ export async function getUserProfile(userId) {
     // Check if userId is provided and matches current dev user OR if dev bypass is simply active
     // This ensures getProfile works even if called with ID directly
     if (isDevBypassActive() && (
-        (currentUser && currentUser.id.startsWith('dev-bypass-user-')) || 
-        (typeof userId === 'string' && userId.startsWith('dev-bypass-user-'))
+        isDevBypassUserId(currentUser?.id) || 
+        isDevBypassUserId(userId)
     )) {
         console.log('🔧 DEV BYPASS: Returning fake profile for dev bypass user');
         return {
@@ -528,6 +518,14 @@ export async function updateUserProfile(userId, profileData) {
  * Listen for auth state changes
  */
 export function onAuthStateChange(callback) {
+    if (isDevBypassActive()) {
+        activateDevBypassSession();
+        if (callback) {
+            callback('DEV_BYPASS', { user: currentUser, session: currentSession });
+        }
+        return { unsubscribe: () => {} };
+    }
+    
     return supabase.auth.onAuthStateChange((event, session) => {
         console.log('🔄 Auth state changed:', event);
         
@@ -560,8 +558,8 @@ export async function hasCompletedOnboarding(userId) {
     
     // DEV BYPASS: Always return true for dev bypass users (skip onboarding)
     if (isDevBypassActive() && (
-        (currentUser && currentUser.id.startsWith('dev-bypass-user-')) ||
-        (typeof userId === 'string' && userId.startsWith('dev-bypass-user-'))
+        isDevBypassUserId(currentUser?.id) ||
+        isDevBypassUserId(userId)
     )) {
         console.log('🔧 DEV BYPASS: Returning true for onboarding check');
         return true;
@@ -625,8 +623,8 @@ export async function startTrial(userId) {
 export async function isTrialExpired(userId) {
     // DEV BYPASS: Always return false for dev bypass users (trial never expires)
     if (isDevBypassActive() && (
-        (currentUser && currentUser.id.startsWith('dev-bypass-user-')) ||
-        (typeof userId === 'string' && userId.startsWith('dev-bypass-user-'))
+        isDevBypassUserId(currentUser?.id) ||
+        isDevBypassUserId(userId)
     )) {
         console.log('🔧 DEV BYPASS: Returning false for trial expiration check');
         return false;
@@ -658,8 +656,8 @@ export async function isTrialExpired(userId) {
 export async function hasActiveSubscription(userId) {
     // DEV BYPASS: Always return true for dev bypass users (allows full access)
     if (isDevBypassActive() && (
-        (currentUser && currentUser.id.startsWith('dev-bypass-user-')) ||
-        (typeof userId === 'string' && userId.startsWith('dev-bypass-user-'))
+        isDevBypassUserId(currentUser?.id) ||
+        isDevBypassUserId(userId)
     )) {
         console.log('🔧 DEV BYPASS: Returning true for subscription check');
         return true;
