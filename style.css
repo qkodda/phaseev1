@@ -218,6 +218,12 @@ body {
     top: 0 !important;
 }
 
+#profile-page.page,
+#settings-page.page {
+    top: 0 !important;
+    margin-top: -10.5px !important;
+}
+
 body:has(#homepage.page.active) {
     align-items: flex-start;
 }
@@ -1120,7 +1126,7 @@ body {
    HOMEPAGE
    ============================================ */
 .app-header {
-    position: sticky;
+    position: relative;
     top: 0 !important;
     left: 0;
     transform: none;
@@ -1135,12 +1141,6 @@ body {
     z-index: 1000;
     visibility: visible !important;
     opacity: 1 !important;
-}
-
-/* Fix misalignment on Profile/Settings pages */
-#profile-header,
-#settings-header {
-    margin-top: -10.5px !important;
 }
 
 .logo-btn {
