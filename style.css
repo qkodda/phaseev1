@@ -1143,6 +1143,10 @@ body {
     opacity: 1 !important;
 }
 
+#profile-header {
+    top: 0 !important;
+}
+
 .logo-btn {
     background: none;
     border: none;
