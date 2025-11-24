@@ -186,7 +186,7 @@ phazeeV1/
 - **Gradient Background**: Light blue (#a8d8ff) → Purple (#8b7fc7)
 - **Primary Action**: White with purple text
 - **Skip Action**: Red (#ef4444)
-- **Generate Action**: Blue (#3b82f6)
+- **Generate Action**: Darker Blue (#1d4ed8)
 - **Pin Action**: Green (#22c556)
 
 ### Typography

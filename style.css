@@ -2,10 +2,10 @@
    GLOBAL STYLES & BRAND GRADIENT
    ============================================ */
 :root {
-    --gradient-tiffany: linear-gradient(135deg, #4fd1c5 0%, #3182ce 100%);
-    --gradient-tiffany-hover: linear-gradient(135deg, #5ee1d5 0%, #4192de 100%);
-    --color-tiffany-light: #4fd1c5;
-    --color-tiffany-dark: #3182ce;
+    --gradient-tiffany: linear-gradient(135deg, #14b8a6 0%, #0369a1 100%);
+    --gradient-tiffany-hover: linear-gradient(135deg, #2dd4bf 0%, #0284c7 100%);
+    --color-tiffany-light: #14b8a6;
+    --color-tiffany-dark: #0369a1;
 }
 
 /* Gradient Shine Animation */
@@ -294,7 +294,7 @@ body {
 .btn-primary {
     width: 100%;
     padding: 16px;
-    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%); /* Revital Gradient */
+    background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%); /* Revital Gradient */
     color: white;
     border: none;
     border-radius: 12px;
@@ -344,7 +344,7 @@ body {
 
 .btn-text:hover {
     color: #333333;
-    text-decoration-color: #3b82f6;
+    text-decoration-color: #1d4ed8;
 }
 
 .btn-danger {
@@ -516,7 +516,7 @@ body {
 
 .pill-btn.selected {
     background: var(--gradient-tiffany);
-    border-color: #2563eb;
+    border-color: #1e3a8a;
     color: #ffffff;
 }
 
@@ -604,7 +604,7 @@ body {
 
 /* Use mask + gradient background for auth logo to match hero theme */
 .auth-logo {
-    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%);
+    background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%);
     -webkit-mask-image: url('PHasse-Logo.png');
     mask-image: url('PHasse-Logo.png');
     -webkit-mask-repeat: no-repeat;
@@ -660,7 +660,7 @@ body {
 
 .app-tagline {
     font-size: 15px;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #f093fb 100%);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 50%, #c084fc 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -709,7 +709,7 @@ body {
 .form-title {
     font-size: 24px;
     font-weight: 700;
-    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%);
+    background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -740,7 +740,7 @@ body {
     width: 100%;
     margin-top: 24px;
     padding: 16px;
-    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%); /* Revital Gradient */
+    background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%); /* Revital Gradient */
     color: white;
     border: none;
     border-radius: 12px;
@@ -855,7 +855,7 @@ body {
 }
 
 .dot.active {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
     width: 20px;
     border-radius: 4px;
     box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
@@ -864,7 +864,7 @@ body {
 .onboarding-title {
     font-size: 22px;
     font-weight: 800;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -907,7 +907,7 @@ body {
 .paywall-title {
     font-size: 24px;
     font-weight: 800;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -969,7 +969,7 @@ body {
 .price-amount {
     font-size: 36px;
     font-weight: 800;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -978,7 +978,7 @@ body {
 
 .price-period {
     font-size: 16px;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -1339,7 +1339,7 @@ body {
     height: 65px; /* Reduced height */
     
     /* Full Gradient Background */
-    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%);
+    background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%);
     background-size: 200% 200%; /* Enable animation */
     animation: gradientShineBackground 4s ease infinite; /* Shine animation */
     
@@ -1359,7 +1359,7 @@ body {
 
 /* Platform-specific hero container colors - Keep same gradient for uniformity as per request, or minimal adjustments */
 .platform--tiktok .hero-section {
-    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%);
+    background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%);
     background-size: 200% 200%;
     animation: gradientShineBackground 4s ease infinite;
 }
@@ -2141,7 +2141,7 @@ body {
 .hero-title {
     font-size: 22px;
     font-weight: 800;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #f093fb 100%);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 50%, #c084fc 100%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -2295,14 +2295,14 @@ body {
 /* Build more card - Gradient Background (UNDER the cards) */
 /* LAYERED POSITIONING: This card is always present, layered underneath all idea cards (z-index: 0) */
 .platform--tiktok .idea-swiper .build-more-card {
-    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%) !important;
+    background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%) !important;
     color: #ffffff !important;
     z-index: 0 !important;
     box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3) !important;
 }
 
 .platform--youtube .idea-swiper .build-more-card {
-    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%) !important;
+    background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%) !important;
     color: #ffffff !important;
     z-index: 0 !important;
     box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3) !important;
@@ -2335,13 +2335,13 @@ body {
 
 /* Loading placeholder - Gradient background */
 .platform--tiktok .idea-swiper .loading-placeholder {
-    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%) !important;
+    background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%) !important;
     color: #ffffff !important;
     box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3) !important;
 }
 
 .platform--youtube .idea-swiper .loading-placeholder {
-    background: linear-gradient(135deg, #4fd1c5 0%, #3182ce 50%, #a78bfa 100%) !important;
+    background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%) !important;
     color: #ffffff !important;
     box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3) !important;
 }
@@ -2789,7 +2789,7 @@ body {
 .build-idea-btn {
     flex: 1;
     background: white;
-    color: #3b82f6;
+    color: #1d4ed8;
     border: none;
     border-radius: 8px;
     padding: 10px 16px;
@@ -2941,7 +2941,7 @@ END GENERATOR STYLES */
 .section-label {
     font-size: 9px;
     font-weight: 700;
-    color: #3b82f6;
+    color: #1d4ed8;
     text-transform: uppercase;
     letter-spacing: 0.3px;
 }
@@ -3112,7 +3112,7 @@ END GENERATOR STYLES */
 
 
 .idea-card-collapsed.highlight {
-    border: 2px solid #3b82f6;
+    border: 2px solid #1d4ed8;
     background: rgba(59, 130, 246, 0.05);
     animation: highlightPulse 1s ease;
 }
@@ -3681,12 +3681,12 @@ END GENERATOR STYLES */
 }
 
 .platform-select-icon:hover {
-    border-color: #3b82f6;
+    border-color: #1d4ed8;
     transform: scale(1.1);
 }
 
 .platform-select-icon.selected {
-    border-color: #3b82f6;
+    border-color: #1d4ed8;
     background: rgba(59, 130, 246, 0.1);
 }
 
@@ -3988,7 +3988,7 @@ END GENERATOR STYLES */
     background: none;
     border: none;
     font-size: 32px;
-    color: #3b82f6;
+    color: #1d4ed8;
     cursor: pointer;
     line-height: 1;
     padding: 0;
@@ -4008,7 +4008,7 @@ END GENERATOR STYLES */
 .modal-title {
     font-size: 22px;
     font-weight: 800;
-    color: #3b82f6;
+    color: #1d4ed8;
     margin-bottom: 20px;
     padding-right: 32px;
 }
@@ -4029,7 +4029,7 @@ END GENERATOR STYLES */
     width: 32px;
     height: 32px;
     border-radius: 6px;
-    background: #3b82f6;
+    background: #1d4ed8;
     color: white;
     display: flex;
     align-items: center;
@@ -4103,7 +4103,7 @@ END GENERATOR STYLES */
 
 .date-picker-input:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: #1d4ed8;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -4249,7 +4249,7 @@ END GENERATOR STYLES */
 .card-title.editable:focus,
 .section-text.editable:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: #1d4ed8;
     background: rgba(59, 130, 246, 0.08);
 }
 
@@ -4447,7 +4447,7 @@ END GENERATOR STYLES */
 .expanded-idea-card .card-title.editable:focus,
 .expanded-idea-card .section-text.editable:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: #1d4ed8;
     background: rgba(59, 130, 246, 0.08);
 }
 
@@ -4669,7 +4669,7 @@ select.custom-dropdown {
 
 .feedback-textarea:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: #1d4ed8;
     background: white;
 }
 
@@ -4685,7 +4685,7 @@ select.custom-dropdown {
 }
 
 .feedback-submit-btn {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
     color: white;
     border: none;
     border-radius: 16px;
@@ -4928,7 +4928,7 @@ select.custom-dropdown {
     width: 100%;
     padding: 12px 20px;
     margin-top: 16px;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
     color: white;
     border: none;
     border-radius: 12px;
@@ -4978,9 +4978,9 @@ select.custom-dropdown {
     --color-revital-surface: #ffffff;
     --color-revital-text-primary: #1e293b;
     --color-revital-text-secondary: #64748b;
-    --color-revital-accent: #3b82f6;
-    --gradient-revital-hero: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
-    --gradient-revital-pill: linear-gradient(90deg, #a78bfa 0%, #3b82f6 100%);
+    --color-revital-accent: #1d4ed8;
+    --gradient-revital-hero: linear-gradient(135deg, #60a5fa 0%, #1d4ed8 100%);
+    --gradient-revital-pill: linear-gradient(90deg, #7c3aed 0%, #1d4ed8 100%);
 }
 
 /* Main Layout */
@@ -5313,7 +5313,7 @@ body {
 /* Gradient Icon Support */
 .gradient-icon {
     /* Fallback for non-supporting browsers */
-    color: #a78bfa;
+    color: #7c3aed;
     /* Defensive: ensure no background/mask interferes */
     background: none !important;
     mask: none !important;
