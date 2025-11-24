@@ -1136,6 +1136,12 @@ body {
     opacity: 1 !important;
 }
 
+/* Homepage header - reduced top padding */
+#app-header {
+    padding: 20px 12px 10px 12px;
+    height: 65px;
+}
+
 .logo-btn {
     background: none;
     border: none;
@@ -1151,7 +1157,7 @@ body {
     object-fit: contain;
     transition: opacity 0.2s;
     position: relative;
-    filter: brightness(0) saturate(100%) invert(46%) sepia(96%) saturate(2527%) hue-rotate(201deg) brightness(102%) contrast(93%);
+    filter: brightness(0);
 }
 
 .logo-btn {
@@ -1300,7 +1306,7 @@ body {
 /* Hero Greeting Section (Homepage Only - Below Header) */
 .hero-greeting-section {
     width: 100%;
-    padding: 20px 16px;
+    padding: 16px 16px 10px 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2160,7 +2166,7 @@ body {
 
 /* Swipe Module Section Positioning - Adjusted for swap */
 .swipe-module-section {
-    margin-top: 20px; /* Changed from -65px to 20px to push down from header */
+    margin-top: 30px; /* 10px (hero bottom) + 30px = 40px total gap */
 }
 
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
