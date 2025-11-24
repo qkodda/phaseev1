@@ -465,14 +465,12 @@ function navigateTo(pageId) {
     ]);
 
     // Skip subscription check for dev bypass users
-    const currentUser = getUser();
-    const isDevBypass = currentUser && currentUser.id && currentUser.id.startsWith('dev-bypass-user-');
-    
-    if (isDevBypass) {
+    // NOTE: Use centralized isDevBypassEnabled() - single source of truth for bypass logic
+    if (isDevBypassEnabled()) {
         console.log('🔧 DEV BYPASS: Access granted to page:', pageId);
     }
     
-    if (!isDevBypass && restrictedPages.has(pageId) && !hasAccessToPaidContent()) {
+    if (!isDevBypassEnabled() && restrictedPages.has(pageId) && !hasAccessToPaidContent()) {
         const message = isTrialStarted()
             ? 'Your free trial has ended. Subscribe to continue.'
             : 'Start your free trial to unlock the full experience.';
@@ -1442,9 +1440,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.success) {
                 console.log('✅ Sign in successful');
                 
-                const devBypass = result.user && result.user.id && result.user.id.startsWith('dev-bypass-user');
-                if (devBypass) {
-                    console.log('🔧 Dev bypass user detected - entering workspace');
+                // NOTE: Use centralized isDevBypassEnabled() check
+                if (isDevBypassEnabled()) {
+                    console.log('🔧 Dev bypass active - entering workspace');
                     setTimeout(() => navigateTo('homepage'), 50);
                     submitBtn.disabled = false;
                     submitBtn.textContent = originalText;
@@ -4688,9 +4686,9 @@ async function initializeApp() {
             return;
         }
         
-        const devBypassUser = user.id && user.id.startsWith('dev-bypass-user');
-        if (devBypassUser) {
-            console.log('🔧 DEV BYPASS USER: Auto-navigating to homepage');
+        // NOTE: Use centralized isDevBypassEnabled() check
+        if (isDevBypassEnabled()) {
+            console.log('🔧 DEV BYPASS: Auto-navigating to homepage');
             navigateTo('homepage');
             return;
         }

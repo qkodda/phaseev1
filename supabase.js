@@ -1,12 +1,15 @@
 /**
  * Supabase Client Configuration
  * 
- * This file uses environment variables for security.
- * Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in:
- * - Vercel: Project Settings > Environment Variables
- * - Local: .env.local file
+ * PHASEE HEALTH CHECK: Supabase client setup and authentication wrappers.
+ * Gracefully handles missing credentials (allows dev bypass to work without backend).
+ * 
+ * This file uses environment variables for security:
+ * - VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+ * - Set in Vercel dashboard or .env.local
+ * 
+ * Exports: supabase client, signUp, signIn, signOut, getCurrentUser, resetPassword
  */
-// NOTE: PHASEE AUTH AUDIT - defines Supabase client + helper wrappers
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 

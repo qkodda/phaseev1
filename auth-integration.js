@@ -1,10 +1,15 @@
 /**
  * AUTH INTEGRATION - Supabase Authentication
  * 
- * This file contains all the authentication logic for Phasee.
- * Import this into app.js and replace the localStorage-only auth.
+ * PHASEE HEALTH CHECK: This file contains all authentication logic for Phasee.
+ * Integrates Supabase auth with dev bypass for local development.
+ * 
+ * DEV BYPASS BEHAVIOR:
+ * - Development: Auto-login as "Dev User", any email/password works
+ * - Production: Dev bypass disabled, real Supabase auth required
+ * 
+ * This is the ONLY place where auth handlers (signIn, signUp, signOut) are defined.
  */
-// NOTE: PHASEE AUTH AUDIT - wires Supabase auth + dev bypass flow control
 
 import { supabase, signUp, signIn, signOut, getCurrentUser, resetPassword } from './supabase.js';
 import { isDevBypassEnabled } from './auth-config.js';

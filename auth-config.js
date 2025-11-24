@@ -1,4 +1,6 @@
-// NOTE: PHASEE AUTH AUDIT - centralizes dev bypass configuration logic
+// PHASEE HEALTH CHECK: Central auth config and dev bypass helpers.
+// This file determines if dev bypass is enabled (defaults to TRUE in development, FALSE in production).
+// No other file should implement separate bypass logic - this is the single source of truth.
 
 const readEnvValue = (key) => {
     try {
