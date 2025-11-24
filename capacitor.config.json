@@ -1,6 +1,6 @@
 {
-  "appId": "com.phasee.app",
-  "appName": "Phasee",
+  "appId": "com.phazee.app",
+  "appName": "Phazee",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "server": {

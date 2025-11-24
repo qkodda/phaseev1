@@ -1,5 +1,5 @@
 -- ============================================
--- PHASEE BACKEND FIXES - IDEMPOTENT MIGRATION
+-- PHAZEE BACKEND FIXES - IDEMPOTENT MIGRATION
 -- Date: 2024-12-19
 -- Branch: backend-org
 -- ============================================

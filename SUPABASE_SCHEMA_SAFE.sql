@@ -1,5 +1,5 @@
 -- ============================================
--- PHASEE DATABASE SCHEMA (SAFE VERSION)
+-- PHAZEE DATABASE SCHEMA (SAFE VERSION)
 -- Checks for existing objects before creating
 -- ============================================
 

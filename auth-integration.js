@@ -1,7 +1,7 @@
 /**
  * AUTH INTEGRATION - Supabase Authentication
  * 
- * PHASEE HEALTH CHECK: This file contains all authentication logic for Phasee.
+ * PHAZEE HEALTH CHECK: This file contains all authentication logic for Phazee.
  * Integrates Supabase auth with dev bypass for local development.
  * 
  * DEV BYPASS BEHAVIOR:
@@ -34,7 +34,7 @@ function isDevBypassActive() {
 const DEV_BYPASS_USER_ID = 'dev-bypass-user';
 
 function createDevBypassUser(overrides = {}) {
-    const fakeEmail = 'dev@phasee.local';
+    const fakeEmail = 'dev@phazee.local';
     
     return {
         id: DEV_BYPASS_USER_ID,
@@ -435,7 +435,7 @@ export async function getUserProfile(userId) {
         console.log('🔧 DEV BYPASS: Returning fake profile for dev bypass user');
         return {
             id: userId || currentUser?.id,
-            email: 'dev@phasee.local',
+            email: 'dev@phazee.local',
             full_name: 'Dev User',
             display_name: 'Dev User',
             onboarding_complete: true,

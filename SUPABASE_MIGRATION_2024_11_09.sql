@@ -1,5 +1,5 @@
 -- ============================================
--- PHASEE SCHEMA MIGRATION - November 9, 2024
+-- PHAZEE SCHEMA MIGRATION - November 9, 2024
 -- Adds missing fields to ideas table
 -- ============================================
 

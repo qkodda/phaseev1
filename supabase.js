@@ -1,7 +1,7 @@
 /**
  * Supabase Client Configuration
  * 
- * PHASEE HEALTH CHECK: Supabase client setup and authentication wrappers.
+ * PHAZEE HEALTH CHECK: Supabase client setup and authentication wrappers.
  * Gracefully handles missing credentials (allows dev bypass to work without backend).
  * 
  * This file uses environment variables for security:

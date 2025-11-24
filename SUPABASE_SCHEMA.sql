@@ -1,5 +1,5 @@
 -- ============================================
--- PHASEE DATABASE SCHEMA - COMPLETE
+-- PHAZEE DATABASE SCHEMA - COMPLETE
 -- Run this in your Supabase SQL Editor
 -- ============================================
 

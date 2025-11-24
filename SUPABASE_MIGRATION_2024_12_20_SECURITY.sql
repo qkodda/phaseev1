@@ -1,5 +1,5 @@
 -- ============================================
--- PHASEE BACKEND SECURITY & RLS MIGRATION
+-- PHAZEE BACKEND SECURITY & RLS MIGRATION
 -- Date: 2024-12-20
 -- Branch: backend-org
 -- ============================================

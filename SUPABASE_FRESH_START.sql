@@ -1,5 +1,5 @@
 -- ============================================
--- PHASEE - FRESH START
+-- PHAZEE - FRESH START
 -- Run this to completely reset and start clean
 -- ============================================
 

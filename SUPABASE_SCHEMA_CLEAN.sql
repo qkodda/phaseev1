@@ -1,5 +1,5 @@
 -- ============================================
--- PHASEE DATABASE SCHEMA (CLEAN VERSION)
+-- PHAZEE DATABASE SCHEMA (CLEAN VERSION)
 -- Creates everything fresh, safe for first-time run
 -- ============================================
 
@@ -289,7 +289,7 @@ DO $$
 BEGIN
     RAISE NOTICE '';
     RAISE NOTICE '========================================';
-    RAISE NOTICE '✅ PHASEE DATABASE SETUP COMPLETE!';
+    RAISE NOTICE '✅ PHAZEE DATABASE SETUP COMPLETE!';
     RAISE NOTICE '========================================';
     RAISE NOTICE '';
     RAISE NOTICE '📊 Tables Created:';

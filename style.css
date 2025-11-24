@@ -4969,7 +4969,7 @@ select.custom-dropdown {
 }
 
 /* ============================================
-   PHASEE REVITAL STYLES (phasee-revital branch)
+   PHAZEE REVITAL STYLES (phazee-revital branch)
    ============================================ */
 
 /* Variables */
@@ -4988,7 +4988,7 @@ body {
     background-color: var(--color-revital-bg) !important; /* Dark rails force */
 }
 
-.phasee-revital-layout {
+.phazee-revital-layout {
     background-color: var(--color-revital-bg);
     min-height: 100vh;
     display: flex;

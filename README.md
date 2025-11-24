@@ -1,4 +1,4 @@
-# Phasee - Experiential Storytelling Content Generator
+# Phazee - Experiential Storytelling Content Generator
 
 🎨 AI-Powered content idea generator with swipe functionality, pinning, and scheduling capabilities for content creators.
 
@@ -70,7 +70,7 @@ All pages accessible via `navigateTo(pageId)` function:
 
 ### Homepage (`#homepage`)
 **Header Component** (`#app-header`)
-- **Header Logo** (`.header-logo`) - Phasee brand logo
+- **Header Logo** (`.header-logo`) - Phazee brand logo
 - **Profile Pill Button** (`.profile-pill-btn`) - Purple rounded square with white profile icon
 
 **Four Main Components (Vertical Layout):**
@@ -171,7 +171,7 @@ All pages accessible via `navigateTo(pageId)` function:
 ## 🏗️ File Structure
 
 ```
-phaseeV1/
+phazeeV1/
 ├── index.html          # All pages in single HTML file
 ├── style.css           # Complete styling (organized by sections)
 ├── app.js              # Navigation & interaction logic

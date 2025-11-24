@@ -3,7 +3,7 @@
    Main JavaScript File
    ============================================ */
 
-// NOTE: PHASEE AUTH AUDIT - main UI orchestrator wiring auth + UX
+// NOTE: PHAZEE AUTH AUDIT - main UI orchestrator wiring auth + UX
 import {
     initAuth,
     isAuthenticated,
@@ -553,7 +553,7 @@ let ideasStack = []; // Stack of idea cards
 let cardsRemaining = 7; // Track remaining cards
 const TRIAL_DURATION_MS = 3 * 24 * 60 * 60 * 1000;
 let trialCountdownInterval = null;
-const PROFILE_STORAGE_KEY = 'phasee_profile';
+const PROFILE_STORAGE_KEY = 'phazee_profile';
 
 /**
  * Create and add build more card - Auto-loads on app open, positioned at bottom layer (lowest z-index)
@@ -1126,7 +1126,7 @@ window.copyIdeaToClipboard = function copyIdeaToClipboard() {
     copyText += `Hook: ${ideaData.hook}\n\n`;
     copyText += `Why: ${ideaData.why}\n\n`;
     copyText += `Platforms: ${ideaData.platforms.join(', ')}\n\n`;
-    copyText += `Generated with Phasee - Experiential Storytelling`;
+    copyText += `Generated with Phazee - Experiential Storytelling`;
 
     // Copy to clipboard - try multiple methods
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1760,7 +1760,7 @@ document.addEventListener('DOMContentLoaded', () => {
             placeholders.forEach(placeholder => {
                 const title = placeholder.querySelector('.loading-title');
                 if (title) {
-                    title.textContent = 'Phasee is Building!';
+                    title.textContent = 'Phazee is Building!';
                     title.style.color = 'rgba(255, 255, 255, 0.7)';
                 }
             });
@@ -1844,7 +1844,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="logo-loader" aria-hidden="true">
                     <img src="/PHasse-Logo.png" alt="" class="logo-fill-animated">
                 </div>
-                <h3 class="loading-title">Phasee is Building!</h3>
+                <h3 class="loading-title">Phazee is Building!</h3>
                 <div class="ai-thinking-window">
                     <div class="thinking-line">▸ Scouring the web...</div>
                     <div class="thinking-line">▸ Formulating viral concepts...</div>
@@ -3439,13 +3439,13 @@ async function shareSelectedIdeas() {
         shareText += '\n';
     });
 
-    shareText += '\nGenerated with Phasee - Experiential Storytelling';
+    shareText += '\nGenerated with Phazee - Experiential Storytelling';
 
     // Try to use Web Share API (native iOS share)
     if (navigator.share) {
         try {
             await navigator.share({
-                title: 'Content Ideas from Phasee',
+                title: 'Content Ideas from Phazee',
                 text: shareText
             });
             
@@ -4061,7 +4061,7 @@ async function updateTrialCountdownDisplay() {
     }
 
     if (!isTrialStarted()) {
-        countdownEl.textContent = 'Begin your 3-day free trial to unlock Phasee.';
+        countdownEl.textContent = 'Begin your 3-day free trial to unlock Phazee.';
         startBtn.textContent = 'Start Free Trial';
         startBtn.disabled = false;
         return;
@@ -4128,12 +4128,12 @@ async function submitFeedback() {
         } catch (supabaseError) {
             // If Supabase fails, store locally as fallback
             console.warn('Supabase not available, storing feedback locally:', supabaseError);
-            const localFeedback = JSON.parse(localStorage.getItem('phasee_feedback') || '[]');
+            const localFeedback = JSON.parse(localStorage.getItem('phazee_feedback') || '[]');
             localFeedback.push({
                 message,
                 timestamp: new Date().toISOString()
             });
-            localStorage.setItem('phasee_feedback', JSON.stringify(localFeedback));
+            localStorage.setItem('phazee_feedback', JSON.stringify(localFeedback));
         }
         
         // Show success message
@@ -4252,7 +4252,7 @@ function trackPageView(pageName) {
  * Local Storage for temporary swiper ideas
  */
 const LocalStorage = {
-    SWIPER_IDEAS_KEY: 'phasee_swiper_ideas',
+    SWIPER_IDEAS_KEY: 'phazee_swiper_ideas',
     
     // Save swiper ideas to local storage
     saveSwiperIdeas(ideas) {
