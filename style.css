@@ -2166,7 +2166,7 @@ body {
 
 /* Swipe Module Section Positioning - Adjusted for swap */
 .swipe-module-section {
-    margin-top: 30px; /* 10px (hero bottom) + 30px = 40px total gap */
+    margin-top: 5px; /* 10px (hero bottom) + 5px = 15px total gap */
 }
 
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
