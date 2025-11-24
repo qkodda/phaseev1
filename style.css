@@ -378,18 +378,32 @@ body {
 }
 
 .back-btn {
-    background: none;
+    background: transparent;
     border: none;
-    color: rgba(255, 255, 255, 0.95);
-    font-size: 28px;
-    font-weight: 300;
+    color: #000000; /* Black themed, not gradient */
+    font-size: 22px;
     cursor: pointer;
-    padding: 8px;
+    padding: 4px;
     width: 44px;
     height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+.back-btn:hover {
+    transform: scale(1.1);
+}
+
+.back-btn:active {
+    transform: scale(0.95);
+}
+
+.back-btn svg path {
+    fill: #000000;
+    transition: fill 0.3s ease;
 }
 
 /* ============================================
@@ -1284,25 +1298,56 @@ body {
     transform: scale(0.95);
 }
 
+/* Hero Greeting Section (Homepage Only - Below Header) */
+.hero-greeting-section {
+    width: 100%;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: white;
+}
+
+.hero-greeting-section .header-greeting {
+    text-align: center;
+    color: #000000;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+    transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-greeting-section .header-dynamic-prompt {
+    font-size: 13px;
+    color: rgba(26, 26, 26, 0.6);
+    margin: 8px 0 0 0;
+    font-weight: 500;
+    text-align: center;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Old header-center-group (kept for backward compat if used elsewhere) */
 .header-center-group {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    position: absolute; /* Absolute position to center independently */
-    left: 50%; /* Center horizontally */
-    transform: translateX(-50%); /* Adjust for own width */
-    width: 100%; /* Ensure it doesn't collapse */
-    pointer-events: none; /* Allow clicks to pass through */
-    top: 20px; /* Position text lower in the header (was centered, now pushed down) */
-    padding-top: 10px; /* Additional spacing if needed */
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    pointer-events: none;
+    top: 20px;
+    padding-top: 10px;
 }
 
 .header-greeting {
     text-align: center;
     color: #000000;
-    font-size: 16px; /* Increased size */
-    font-weight: 700; /* Bolder */
+    font-size: 16px;
+    font-weight: 700;
     margin: 0;
     line-height: 1.2;
     transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -1310,7 +1355,7 @@ body {
 
 .header-dynamic-prompt {
     font-size: 13px;
-    color: rgba(26, 26, 26, 0.6); /* Darker text for visibility against white/light bg */
+    color: rgba(26, 26, 26, 0.6);
     margin: 2px 0 0 0;
     font-weight: 500;
     text-align: center;
