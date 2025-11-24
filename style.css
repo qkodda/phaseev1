@@ -4513,13 +4513,6 @@ END GENERATOR STYLES */
         left: 0;
         transform: none;
     }
-    
-    #profile-header,
-    #settings-header {
-        width: 100vw;
-        max-width: 390px;
-        margin: 0 auto;
-    }
 }
 
 select.custom-dropdown {
