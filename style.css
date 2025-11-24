@@ -1125,13 +1125,12 @@ body {
     left: 0;
     transform: none;
     width: 390px;
-    height: 85px; /* Increased height for status bar clearance */
+    height: 85px;
     display: flex !important;
     align-items: center;
     justify-content: space-between;
-    padding: 40px 12px 10px 12px; /* Increased top padding further to push content down */
-    background: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 40px 12px 10px 12px;
+    background: transparent;
     z-index: 1000;
     visibility: visible !important;
     opacity: 1 !important;
