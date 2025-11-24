@@ -1125,21 +1125,15 @@ body {
     left: 0;
     transform: none;
     width: 390px;
-    height: 85px;
+    height: 65px;
     display: flex !important;
     align-items: center;
     justify-content: space-between;
-    padding: 40px 12px 10px 12px;
+    padding: 12px;
     background: transparent;
     z-index: 1000;
     visibility: visible !important;
     opacity: 1 !important;
-}
-
-/* Homepage header - reduced top padding */
-#app-header {
-    padding: 20px 12px 10px 12px;
-    height: 65px;
 }
 
 .logo-btn {
