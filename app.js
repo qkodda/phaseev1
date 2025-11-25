@@ -738,14 +738,18 @@ function createScheduledCard(idea) {
     
     const iconMap = {
         'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
-        'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">'
+        'instagram': '<img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="platform-icon">',
+        'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">',
+        'x': '<img src="https://cdn.simpleicons.org/x/000000" alt="X" class="platform-icon">',
+        'twitter': '<img src="https://cdn.simpleicons.org/x/000000" alt="Twitter" class="platform-icon">',
+        'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
     };
-    // Enforce single platform per idea
-    const scheduledPlatforms = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? [idea.platforms[0]] : ['tiktok'];
+    // Keep all selected platforms
+    const scheduledPlatforms = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? idea.platforms : ['tiktok'];
     const platformIconsHTML = scheduledPlatforms.map(p => iconMap[p] || '').filter(html => html).join('');
     const singlePlatform = scheduledPlatforms[0];
     
-    console.log('🎯 Creating scheduled card with platform:', singlePlatform);
+    console.log('🎯 Creating scheduled card with platforms:', scheduledPlatforms);
 
     const scheduledCard = document.createElement('div');
     scheduledCard.className = 'idea-card-collapsed';
@@ -756,6 +760,9 @@ function createScheduledCard(idea) {
                 <span class="title-text">"${idea.title}"</span>
             </div>
             <div class="collapsed-summary">${idea.summary || ''}</div>
+        </div>
+        <div class="collapsed-bottom-platforms">
+            ${platformIconsHTML}
         </div>
     `;
 
@@ -809,7 +816,11 @@ function expandIdeaCard(card) {
     // Create platform icons HTML
     const iconMap = {
         'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
-        'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">'
+        'instagram': '<img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="platform-icon">',
+        'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">',
+        'x': '<img src="https://cdn.simpleicons.org/x/000000" alt="X" class="platform-icon">',
+        'twitter': '<img src="https://cdn.simpleicons.org/x/000000" alt="Twitter" class="platform-icon">',
+        'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
     };
     const platformIconsHTML = ideaData.platforms.map(p => iconMap[p] || '').join('');
 
@@ -973,10 +984,13 @@ window.toggleEditMode = function toggleEditMode() {
             const ideaData = JSON.parse(expandedCard.dataset.originalCard);
             const currentPlatforms = ideaData.platforms || [];
             
-            const allPlatforms = ['tiktok', 'youtube'];
+            const allPlatforms = ['tiktok', 'instagram', 'youtube', 'x', 'facebook'];
             const iconMap = {
                 'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
-                'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">'
+                'instagram': '<img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="platform-icon">',
+                'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">',
+                'x': '<img src="https://cdn.simpleicons.org/x/000000" alt="X" class="platform-icon">',
+                'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
             };
             
             platformIconsContainer.innerHTML = '';
@@ -1029,7 +1043,10 @@ window.toggleEditMode = function toggleEditMode() {
             // Show only selected platforms
             const iconMap = {
                 'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
-                'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">'
+                'instagram': '<img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="platform-icon">',
+                'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">',
+                'x': '<img src="https://cdn.simpleicons.org/x/000000" alt="X" class="platform-icon">',
+                'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
             };
             
             platformIconsContainer.innerHTML = selectedPlatforms.map(p => iconMap[p] || '').join('');
@@ -1055,19 +1072,8 @@ window.toggleEditMode = function toggleEditMode() {
 }
 
 window.togglePlatformSelection = function togglePlatformSelection(wrapper) {
-    // Single selection only
-    const container = wrapper.closest('#expanded-platform-icons');
-    if (!container) return;
-    
-    // Deselect all others
-    container.querySelectorAll('.platform-icon-wrapper').forEach(w => {
-        if (w !== wrapper) {
-            w.classList.add('unselected');
-        }
-    });
-    
-    // Select this one
-    wrapper.classList.remove('unselected');
+    // Multiple selection allowed - toggle the clicked icon
+    wrapper.classList.toggle('unselected');
 }
 
 /**
@@ -2593,14 +2599,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create platform icons HTML
         const iconMap = {
             'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
-            'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">'
+            'instagram': '<img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="platform-icon">',
+            'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">',
+            'x': '<img src="https://cdn.simpleicons.org/x/000000" alt="X" class="platform-icon">',
+            'twitter': '<img src="https://cdn.simpleicons.org/x/000000" alt="Twitter" class="platform-icon">',
+            'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
         };
-        // Enforce single platform per idea
-        const platformsArray = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? [idea.platforms[0]] : ['tiktok'];
+        // Keep all selected platforms (don't enforce single platform)
+        const platformsArray = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? idea.platforms : ['tiktok'];
         const platformIconsHTML = platformsArray.map(p => iconMap[p] || '').filter(html => html).join('');
         const singlePlatform = platformsArray[0];
         
-        console.log('🎯 Creating collapsed card with platform:', singlePlatform);
+        console.log('🎯 Creating collapsed card with platforms:', platformsArray);
 
         // Create collapsed card
         const collapsedCard = document.createElement('div');
@@ -2612,6 +2622,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="title-text">"${idea.title}"</span>
                 </div>
                 <div class="collapsed-summary">${idea.summary || ''}</div>
+            </div>
+            <div class="collapsed-bottom-platforms">
+                ${platformIconsHTML}
             </div>
         `;
 
@@ -3394,6 +3407,26 @@ function createShareCollapsedCard(idea) {
 
     card.appendChild(content);
 
+    // Add platform icons at bottom
+    const iconMap = {
+        'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
+        'instagram': '<img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="platform-icon">',
+        'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">',
+        'x': '<img src="https://cdn.simpleicons.org/x/000000" alt="X" class="platform-icon">',
+        'twitter': '<img src="https://cdn.simpleicons.org/x/000000" alt="Twitter" class="platform-icon">',
+        'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
+    };
+    
+    const platformsArray = Array.isArray(idea.platforms) ? idea.platforms : idea.platforms.split(',').map(p => p.trim());
+    const platformIconsHTML = platformsArray.map(p => iconMap[p] || '').filter(html => html).join('');
+    
+    if (platformIconsHTML) {
+        const platformsContainer = document.createElement('div');
+        platformsContainer.className = 'collapsed-bottom-platforms';
+        platformsContainer.innerHTML = platformIconsHTML;
+        card.appendChild(platformsContainer);
+    }
+
     // Add click handler to toggle selection
     card.addEventListener('click', () => {
         card.classList.toggle('selected');
@@ -3512,6 +3545,22 @@ function syncCollapsedCards(updatedIdea) {
                     summaryEl.textContent = mergedData.summary || '';
                 }
 
+                // Update bottom platform icons
+                const bottomPlatformsEl = card.querySelector('.collapsed-bottom-platforms');
+                if (bottomPlatformsEl) {
+                    const iconMap = {
+                        'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
+                        'instagram': '<img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="platform-icon">',
+                        'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">',
+                        'x': '<img src="https://cdn.simpleicons.org/x/000000" alt="X" class="platform-icon">',
+                        'twitter': '<img src="https://cdn.simpleicons.org/x/000000" alt="Twitter" class="platform-icon">',
+                        'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
+                    };
+                    const platformsArray = Array.isArray(mergedData.platforms) ? mergedData.platforms : [];
+                    bottomPlatformsEl.innerHTML = platformsArray.map(p => iconMap[p] || '').filter(html => html).join('');
+                }
+                
+                // Legacy support for old collapsed-platforms element
                 const platformsEl = card.querySelector('.collapsed-platforms');
                 if (platformsEl) {
                     platformsEl.innerHTML = generatePlatformIcons(mergedData.platforms || []);
