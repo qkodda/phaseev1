@@ -1311,7 +1311,7 @@ body {
 /* Hero Greeting Section (Homepage Only - Below Header) */
 .hero-greeting-section {
     width: 100%;
-    padding: 2px 16px 10px 16px;
+    padding: 0px 16px 10px 16px; /* Eliminated top padding */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -2146,7 +2146,7 @@ body {
 
 /* Hero Section Container (Textbox) - Adjusted for inside content */
 .hero-section-container {
-    margin-top: 20px !important; /* Moved down 10px */
+    margin-top: 20px !important; /* Back to original position */
     margin-bottom: 24px !important; /* Space below before drawing board */
     display: block !important;
     position: relative !important;
@@ -2169,7 +2169,7 @@ body {
 
 /* Drawing Board Section and Below - Positioning */
 .drawing-board-section {
-    margin-top: 3px; /* Moved up 12px */
+    margin-top: 3px; /* Back to original position */
     transition: none !important; /* LOCKED - No movement */
 }
 
@@ -2239,7 +2239,7 @@ body {
     font-weight: 500;
     letter-spacing: 0.3px;
     position: relative;
-    margin: -14px auto 0; /* Moved down 6px */
+    margin: -44px auto 0; /* Moved up 30px more */
 }
 
 .swiper-info span {
@@ -2250,7 +2250,7 @@ body {
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 .idea-swiper {
     margin-bottom: 0 !important;
-    margin-top: 8px !important;
+    margin-top: 0px !important; /* Flush at top */
     margin-left: auto !important;
     margin-right: auto !important;
     display: flex !important;
@@ -2286,7 +2286,7 @@ body {
     height: 320px;
     touch-action: manipulation;
     z-index: 10;
-    margin: -15px auto 0;
+    margin: 0 auto 0; /* Flush at top */
 }
 
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
@@ -2304,7 +2304,7 @@ body {
     align-items: stretch !important;
     text-align: left !important;
     position: absolute !important;
-    top: 25px !important;
+    top: 0px !important; /* Flush at top */
     left: 0 !important;
     box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3) !important;
     overflow: hidden !important;
@@ -2652,7 +2652,7 @@ body {
     width: 350px !important; /* LOCKED */
     height: 240px !important; /* Increased by 20px */
     position: absolute !important;
-    top: 25px !important; /* Centered vertically with card-stack */
+    top: 15px !important; /* Vertically centered with idea cards */
     left: 50% !important;
     transform: translateX(-50%) !important;
     pointer-events: none !important;
@@ -3566,9 +3566,9 @@ END GENERATOR STYLES */
     align-items: center;
     margin: -2px auto 20px;
     gap: 12px;
-    width: 370px;
-    max-width: 370px;
-    padding: 0 15px;
+    width: 340px;
+    max-width: 340px;
+    padding: 0;
     box-sizing: border-box;
 }
 
@@ -5231,6 +5231,105 @@ body {
 
 .revital-section:first-of-type {
     border-top: none;
+}
+
+/* Streak Squares Section */
+.streak-squares-section {
+    padding: 20px 0;
+    background-color: var(--color-revital-surface);
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+.streak-squares-grid {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    width: max-content;
+    padding: 0 24px;
+    align-items: center;
+}
+
+.streak-square {
+    width: 84px;
+    height: 84px;
+    background: #000000;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px;
+    box-sizing: border-box;
+    transition: transform 0.3s ease-out, box-shadow 0.2s ease;
+}
+
+.streak-square-number {
+    font-size: 22px;
+    font-weight: 700;
+    background: var(--gradient-tiffany);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    text-align: center;
+}
+
+.streak-square-label {
+    font-size: 9px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    line-height: 1.2;
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+/* Animation for value increase */
+@keyframes streakBump {
+    0% {
+        transform: scale(0.95);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.streak-square.animate {
+    animation: streakBump 400ms ease-out;
+}
+
+/* Hide scrollbar but keep functionality */
+.streak-squares-section::-webkit-scrollbar {
+    display: none;
+}
+
+.streak-squares-section {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Responsive: maintain horizontal scroll */
+@media (max-width: 380px) {
+    .streak-square {
+        width: 79px;
+        height: 79px;
+    }
+    
+    .streak-square-number {
+        font-size: 21px;
+    }
+    
+    .streak-square-label {
+        font-size: 8px;
+    }
 }
 
 .section-header {

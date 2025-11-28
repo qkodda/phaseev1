@@ -51,6 +51,251 @@ function initCultureValueCarousels() {
 }
 
 // ============================================
+// STREAK SQUARES SYSTEM
+// ============================================
+
+/**
+ * Streak Squares Storage Key
+ */
+const STREAK_DATA_KEY = 'phazee_streak_data';
+
+/**
+ * Get today's date in YYYY-MM-DD format
+ */
+function getTodayDateString() {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+}
+
+/**
+ * Load streak data from localStorage
+ */
+function loadStreakData() {
+    try {
+        const stored = localStorage.getItem(STREAK_DATA_KEY);
+        if (!stored) {
+            return {
+                lifetimeIdeasScheduled: 0,
+                lifetimeIdeasGenerated: 0,
+                schedulingStreak: { count: 0, lastDate: null },
+                sessionStreak: { count: 0, lastDate: null }
+            };
+        }
+        return JSON.parse(stored);
+    } catch (err) {
+        console.error('Failed to load streak data:', err);
+        return {
+            lifetimeIdeasScheduled: 0,
+            lifetimeIdeasGenerated: 0,
+            schedulingStreak: { count: 0, lastDate: null },
+            sessionStreak: { count: 0, lastDate: null }
+        };
+    }
+}
+
+/**
+ * Save streak data to localStorage
+ */
+function saveStreakData(data) {
+    try {
+        localStorage.setItem(STREAK_DATA_KEY, JSON.stringify(data));
+    } catch (err) {
+        console.error('Failed to save streak data:', err);
+    }
+}
+
+/**
+ * Calculate if dates are consecutive days
+ */
+function isConsecutiveDay(lastDate, currentDate) {
+    if (!lastDate) return false;
+    
+    const last = new Date(lastDate);
+    const current = new Date(currentDate);
+    
+    // Get dates without time
+    const lastDay = new Date(last.getFullYear(), last.getMonth(), last.getDate());
+    const currentDay = new Date(current.getFullYear(), current.getMonth(), current.getDate());
+    
+    // Check if current is exactly 1 day after last
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    const diffMs = currentDay - lastDay;
+    
+    return diffMs === oneDayMs;
+}
+
+/**
+ * Update session streak (called on app load/homepage navigation)
+ */
+function updateSessionStreak() {
+    const data = loadStreakData();
+    const today = getTodayDateString();
+    
+    // If same day, don't update
+    if (data.sessionStreak.lastDate === today) {
+        return;
+    }
+    
+    // If consecutive day, increment
+    if (isConsecutiveDay(data.sessionStreak.lastDate, today)) {
+        data.sessionStreak.count += 1;
+        data.sessionStreak.lastDate = today;
+    } else {
+        // Reset streak
+        data.sessionStreak.count = 1;
+        data.sessionStreak.lastDate = today;
+    }
+    
+    saveStreakData(data);
+    renderStreakSquares();
+}
+
+/**
+ * Increment ideas generated counter
+ */
+function incrementIdeasGenerated() {
+    const data = loadStreakData();
+    const oldValue = data.lifetimeIdeasGenerated;
+    data.lifetimeIdeasGenerated += 1;
+    saveStreakData(data);
+    
+    // Render with animation
+    renderStreakSquares(oldValue !== data.lifetimeIdeasGenerated ? 'generated' : null);
+}
+
+/**
+ * Increment ideas scheduled counter and update scheduling streak
+ */
+function incrementIdeasScheduled() {
+    const data = loadStreakData();
+    const today = getTodayDateString();
+    const oldScheduledValue = data.lifetimeIdeasScheduled;
+    
+    // Increment lifetime counter
+    data.lifetimeIdeasScheduled += 1;
+    
+    // Update scheduling streak
+    let streakUpdated = false;
+    if (data.schedulingStreak.lastDate === today) {
+        // Same day, don't update streak count
+    } else if (isConsecutiveDay(data.schedulingStreak.lastDate, today)) {
+        // Consecutive day, increment
+        data.schedulingStreak.count += 1;
+        data.schedulingStreak.lastDate = today;
+        streakUpdated = true;
+    } else {
+        // Reset streak
+        data.schedulingStreak.count = 1;
+        data.schedulingStreak.lastDate = today;
+        streakUpdated = true;
+    }
+    
+    saveStreakData(data);
+    
+    // Render with animation
+    const animateSquares = [];
+    if (oldScheduledValue !== data.lifetimeIdeasScheduled) {
+        animateSquares.push('scheduled');
+    }
+    if (streakUpdated) {
+        animateSquares.push('scheduling');
+    }
+    
+    renderStreakSquares(animateSquares.length > 0 ? animateSquares : null);
+}
+
+/**
+ * Render streak squares with current data
+ * @param {string|string[]|null} animateSquare - Which square(s) to animate ('scheduled', 'generated', 'scheduling', 'session')
+ */
+function renderStreakSquares(animateSquare = null) {
+    const data = loadStreakData();
+    
+    // Convert animateSquare to array
+    const animateList = animateSquare ? (Array.isArray(animateSquare) ? animateSquare : [animateSquare]) : [];
+    
+    // Ideas Scheduled
+    const scheduledNumber = document.getElementById('streak-number-scheduled');
+    const scheduledLabel = document.getElementById('streak-label-scheduled');
+    if (scheduledNumber) {
+        scheduledNumber.textContent = data.lifetimeIdeasScheduled;
+        if (animateList.includes('scheduled')) {
+            triggerStreakAnimation('streak-square-scheduled');
+        }
+    }
+    if (scheduledLabel) {
+        scheduledLabel.textContent = 'Ideas Scheduled';
+    }
+    
+    // Ideas Generated
+    const generatedNumber = document.getElementById('streak-number-generated');
+    const generatedLabel = document.getElementById('streak-label-generated');
+    if (generatedNumber) {
+        generatedNumber.textContent = data.lifetimeIdeasGenerated;
+        if (animateList.includes('generated')) {
+            triggerStreakAnimation('streak-square-generated');
+        }
+    }
+    if (generatedLabel) {
+        generatedLabel.textContent = 'Ideas Generated';
+    }
+    
+    // Scheduling Streak
+    const schedulingNumber = document.getElementById('streak-number-scheduling');
+    const schedulingLabel = document.getElementById('streak-label-scheduling');
+    if (schedulingNumber) {
+        const count = data.schedulingStreak.count;
+        const dayText = count === 1 ? 'Day' : 'Days';
+        schedulingNumber.textContent = `${count} ${dayText}`;
+        if (animateList.includes('scheduling')) {
+            triggerStreakAnimation('streak-square-scheduling');
+        }
+    }
+    if (schedulingLabel) {
+        const count = data.schedulingStreak.count;
+        schedulingLabel.textContent = count > 0 ? 'Scheduling Streak' : 'Get to scheduling!';
+    }
+    
+    // Session Streak
+    const sessionNumber = document.getElementById('streak-number-session');
+    const sessionLabel = document.getElementById('streak-label-session');
+    if (sessionNumber) {
+        const count = data.sessionStreak.count;
+        const dayText = count === 1 ? 'Day' : 'Days';
+        sessionNumber.textContent = `${count} ${dayText}`;
+        if (animateList.includes('session')) {
+            triggerStreakAnimation('streak-square-session');
+        }
+    }
+    if (sessionLabel) {
+        const count = data.sessionStreak.count;
+        sessionLabel.textContent = count > 0 ? 'App Streak' : 'Start your streak';
+    }
+}
+
+/**
+ * Trigger scale bump animation on a streak square
+ */
+function triggerStreakAnimation(squareId) {
+    const square = document.getElementById(squareId);
+    if (!square) return;
+    
+    // Remove animation class if it exists
+    square.classList.remove('animate');
+    
+    // Trigger reflow to restart animation
+    void square.offsetWidth;
+    
+    // Add animation class
+    square.classList.add('animate');
+    
+    // Remove class after animation completes
+    setTimeout(() => {
+        square.classList.remove('animate');
+    }, 400);
+}
+
+// ============================================
 // PAGE NAVIGATION SYSTEM
 // ============================================
 
@@ -504,6 +749,10 @@ function navigateTo(pageId) {
         // Personalize hero section
         personalizeHeroSection();
         
+        // Update session streak and render streak squares
+        updateSessionStreak();
+        renderStreakSquares();
+        
         // Reload saved ideas from Supabase (pinned/scheduled)
         loadIdeasFromSupabase().catch(err => {
             console.error('Failed to reload ideas:', err);
@@ -683,6 +932,9 @@ function confirmScheduleDate(selectedDateStr) {
     }
     
     console.log('✅ Scheduled card added to schedule list. Total scheduled:', scheduleList.querySelectorAll('.idea-card-collapsed').length);
+
+    // Increment ideas scheduled counter and update scheduling streak
+    incrementIdeasScheduled();
 
     // Remove from pinned
     if (pendingScheduleCard && pendingScheduleCard.parentNode) {
@@ -1738,6 +1990,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     card.dataset.platform = currentPlatform;
                     cardStack.insertBefore(card, generatorCard);
                     ideasStack.push(ideaInstance);
+                    
+                    // Increment ideas generated counter for streak squares
+                    incrementIdeasGenerated();
                 });
 
                 initSwipeHandlers();
