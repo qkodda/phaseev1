@@ -5255,8 +5255,8 @@ body {
 }
 
 .streak-square {
-    width: 84px;
-    height: 84px;
+    width: 100px;
+    height: 60px;
     background: #000000;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -5319,8 +5319,8 @@ body {
     }
     
     .streak-square {
-        width: 78px;
-        height: 78px;
+        width: 90px;
+        height: 54px;
     }
     
     .streak-square-number {
