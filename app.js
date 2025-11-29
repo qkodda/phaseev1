@@ -159,6 +159,8 @@ function incrementIdeasGenerated() {
     data.lifetimeIdeasGenerated += 1;
     saveStreakData(data);
     
+    console.log('📊 Ideas Generated incremented:', oldValue, '→', data.lifetimeIdeasGenerated);
+    
     // Render with animation
     renderStreakSquares(oldValue !== data.lifetimeIdeasGenerated ? 'generated' : null);
 }
@@ -5102,6 +5104,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Initialize app with auth check
     await initializeApp();
+    
+    // Initialize streak squares on load
+    setTimeout(() => {
+        renderStreakSquares();
+    }, 100);
+    
+    // Make calendar cards clickable/expandable
+    document.addEventListener('click', (e) => {
+        const calendarCard = e.target.closest('.calendar-card');
+        if (calendarCard) {
+            // Treat calendar cards like collapsed idea cards
+            if (calendarCard.dataset.idea) {
+                expandIdeaCard(calendarCard);
+            }
+        }
+    });
     
     // Only track page views if user is authenticated (to avoid RLS errors)
     const user = getUser();

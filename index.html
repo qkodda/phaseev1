@@ -430,9 +430,8 @@
                                     
                                     <!-- Lightbulb Generation Button (New, Right Side) -->
                                     <button class="header-generate-btn" id="header-generate-btn" aria-label="Generate Ideas">
-                                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M9 21h6"></path>
-                                            <path d="M12 3a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-1.26C6.19 14.47 5 12.38 5 10a7 7 0 0 1 7-7z"></path>
+                                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                            <path d="M12 2C9.24 2 7 4.24 7 7c0 1.86 1.03 3.47 2.55 4.31C9.2 11.89 9 12.43 9 13v3c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-3c0-.57-.2-1.11-.55-1.69C15.97 10.47 17 8.86 17 7c0-2.76-2.24-5-5-5zm1 14h-2v-1h2v1zm0-2h-2v-1c0-.37.21-.7.52-.88C13.82 11.15 15 9.21 15 7c0-1.65-1.35-3-3-3S9 5.35 9 7c0 2.21 1.18 4.15 2.48 5.12.31.18.52.51.52.88v1z"/>
                                         </svg>
                                     </button>
                                     
@@ -556,28 +555,7 @@
                             </div>
                             
                             <div class="revital-card-list" id="calendar-list">
-                                <!-- Dynamic Content -->
-                                <div class="revital-card calendar-card">
-                                    <div class="card-main">
-                                        <h4 class="card-title uppercase">"EXTENSION JUMP CORD"</h4>
-                                        <p class="card-desc uppercase">SHOW FITNESS EXERCISES BEING DONE WITH ITEMS NOT USUALLY USED.</p>
-                                    </div>
-                                    <div class="card-date">Oct 26th</div>
-                                </div>
-                                <div class="revital-card calendar-card">
-                                    <div class="card-main">
-                                        <h4 class="card-title uppercase">"TEAM LUNCH REVIEW"</h4>
-                                        <p class="card-desc uppercase">RATING THE LOCAL SANDWICH SHOP ORDERS.</p>
-                                    </div>
-                                    <div class="card-date">Oct 28th</div>
-                                </div>
-                                <div class="revital-card calendar-card">
-                                    <div class="card-main">
-                                        <h4 class="card-title uppercase">"PRODUCT DEMO"</h4>
-                                        <p class="card-desc uppercase">WALKTHROUGH OF THE NEW FEATURE SET.</p>
-                                    </div>
-                                    <div class="card-date">Oct 30th</div>
-                                </div>
+                                <!-- Dynamic Content - Calendar cards are now expandable when they have data-idea attribute -->
                             </div>
                         </section>
 
