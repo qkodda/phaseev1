@@ -222,7 +222,7 @@ body {
 #settings-page.page {
     top: 0 !important;
     margin-top: 0 !important;
-    padding-top: 0 !important;
+    padding-top: 12px !important;
 }
 
 #profile-page .app-header,
@@ -235,6 +235,10 @@ body {
     margin: 0 auto;
     padding: 12px;
     background: transparent;
+    height: 65px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 body:has(#homepage.page.active) {
@@ -274,7 +278,7 @@ body {
 
 .page-content {
     flex: 1;
-    padding: 20px 24px 24px;
+    padding: 8px 16px 16px;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: none;
@@ -2299,9 +2303,7 @@ body {
     height: 320px;
     touch-action: manipulation;
     z-index: 10;
-    margin: 0 auto 0; /* Flush at top */
-    left: 50%;
-    transform: translateX(-50%);
+    margin: 0 auto 0; /* Flush at top, centered */
 }
 
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
@@ -3665,12 +3667,12 @@ END GENERATOR STYLES */
    PROFILE PAGE
    ============================================ */
 .page-section-title {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 700;
     color: rgba(40, 40, 40, 0.95);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin-top: 0;
-    margin-bottom: 32px;
+    margin-bottom: 12px;
     text-align: center;
 }
 
@@ -3689,22 +3691,22 @@ END GENERATOR STYLES */
 .settings-content {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
 }
 
 .settings-group {
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    padding: 12px;
+    border-radius: 12px;
+    padding: 8px;
 }
 
 .settings-group-title {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 700;
     color: rgba(40, 40, 40, 0.8);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
     padding: 0 8px;
 }
 
@@ -3713,14 +3715,14 @@ END GENERATOR STYLES */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px;
+    padding: 10px 12px;
     background: rgba(255, 255, 255, 0.05);
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     color: rgba(40, 40, 40, 0.9);
-    font-size: 16px;
+    font-size: 14px;
     cursor: pointer;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     transition: all 0.2s;
 }
 
@@ -3886,8 +3888,8 @@ END GENERATOR STYLES */
 
 /* Settings Footer */
 .settings-footer {
-    margin-top: 32px;
-    padding-top: 24px;
+    margin-top: 12px;
+    padding-top: 12px;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     text-align: center;
 }
