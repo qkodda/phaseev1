@@ -998,8 +998,8 @@ function createScheduledCard(idea) {
         'twitter': '<img src="https://cdn.simpleicons.org/x/000000" alt="Twitter" class="platform-icon">',
         'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
     };
-    // Keep all selected platforms
-    const scheduledPlatforms = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? idea.platforms : ['tiktok'];
+    // Keep all selected platforms (no default)
+    const scheduledPlatforms = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? idea.platforms : [];
     const platformIconsHTML = scheduledPlatforms.map(p => iconMap[p] || '').filter(html => html).join('');
     const singlePlatform = scheduledPlatforms[0];
     
@@ -1067,7 +1067,8 @@ function expandIdeaCard(card) {
     
     if (!expandedModal || !expandedCard) return;
 
-    // Create platform icons HTML
+    // Create platform icons HTML - show ALL platforms, highlight selected ones
+    const allPlatforms = ['tiktok', 'instagram', 'youtube', 'x', 'facebook'];
     const iconMap = {
         'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
         'instagram': '<img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="platform-icon">',
@@ -1076,7 +1077,11 @@ function expandIdeaCard(card) {
         'twitter': '<img src="https://cdn.simpleicons.org/x/000000" alt="Twitter" class="platform-icon">',
         'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
     };
-    const platformIconsHTML = ideaData.platforms.map(p => iconMap[p] || '').join('');
+    const currentPlatforms = ideaData.platforms || [];
+    const platformIconsHTML = allPlatforms.map(p => {
+        const isSelected = currentPlatforms.includes(p);
+        return `<div class="platform-icon-wrapper${isSelected ? '' : ' unselected'}" data-platform="${p}">${iconMap[p]}</div>`;
+    }).join('');
 
     // Build action buttons based on card type
     let topActionsHTML = '';
@@ -2385,7 +2390,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <button class="card-action-btn pin-btn" onclick="pinCard(this)" aria-label="Pin">
                     <svg viewBox="0 0 24 24" width="18" height="18">
-                        <path fill="currentColor" d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                        <path fill="#22c55e" d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
                     </svg>
                 </button>
             </div>
@@ -2862,8 +2867,8 @@ document.addEventListener('DOMContentLoaded', () => {
             'twitter': '<img src="https://cdn.simpleicons.org/x/000000" alt="Twitter" class="platform-icon">',
             'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
         };
-        // Keep all selected platforms (don't enforce single platform)
-        const platformsArray = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? idea.platforms : ['tiktok'];
+        // Keep all selected platforms (don't enforce single platform or default to tiktok)
+        const platformsArray = Array.isArray(idea.platforms) && idea.platforms.length > 0 ? idea.platforms : [];
         const platformIconsHTML = platformsArray.map(p => iconMap[p] || '').filter(html => html).join('');
         const singlePlatform = platformsArray[0];
         
