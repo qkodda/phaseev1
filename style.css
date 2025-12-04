@@ -257,7 +257,9 @@ body {
     min-height: 0;
 }
 
-body:has(#homepage.page.active) {
+body:has(#homepage.page.active),
+body:has(#profile-page.page.active),
+body:has(#settings-page.page.active) {
     align-items: flex-start;
 }
 
