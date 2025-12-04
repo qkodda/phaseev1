@@ -1324,7 +1324,7 @@ body {
 .hero-greeting-section .header-greeting {
     text-align: center;
     color: #000000;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 700;
     margin: 0;
     line-height: 1.2;
@@ -1332,7 +1332,7 @@ body {
 }
 
 .hero-greeting-section .header-dynamic-prompt {
-    font-size: 13px;
+    font-size: 15px;
     color: rgba(26, 26, 26, 0.6);
     margin: 8px 0 0 0;
     font-weight: 500;
@@ -1395,8 +1395,8 @@ body {
     max-width: 90%; /* Responsive */
     height: 65px; /* Reduced height */
     
-    /* Full Gradient Background */
-    background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%);
+    /* Full Gradient Background - matches swipe card shadows */
+    background: var(--gradient-tiffany);
     background-size: 200% 200%; /* Enable animation */
     animation: gradientShineBackground 4s ease infinite; /* Shine animation */
     
@@ -1416,7 +1416,7 @@ body {
 
 /* Platform-specific hero container colors - Keep same gradient for uniformity as per request, or minimal adjustments */
 .platform--tiktok .hero-section {
-    background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%);
+    background: var(--gradient-tiffany);
     background-size: 200% 200%;
     animation: gradientShineBackground 4s ease infinite;
 }
@@ -5255,8 +5255,8 @@ body {
 
 .streak-square {
     width: 100%;
-    height: 80px;
-    border-radius: 10px;
+    height: 95px;
+    border-radius: 12px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     border: none;
     display: flex;
@@ -5271,19 +5271,19 @@ body {
 
 /* Unique gradient for each streak square */
 #streak-square-scheduled {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
 }
 
 #streak-square-generated {
-    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+    background: linear-gradient(135deg, #8e7cc3 0%, #5b4a9e 100%);
 }
 
 #streak-square-scheduling {
-    background: linear-gradient(135deg, #00cec9 0%, #0984e3 100%);
+    background: linear-gradient(135deg, #00a8a8 0%, #0667b2 100%);
 }
 
 #streak-square-session {
-    background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+    background: linear-gradient(135deg, #e5a84b 0%, #c05d42 100%);
 }
 
 .streak-square-number {
@@ -5333,7 +5333,7 @@ body {
     }
     
     .streak-square {
-        height: 70px;
+        height: 85px;
     }
     
     .streak-square-number {
