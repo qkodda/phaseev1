@@ -212,7 +212,7 @@ body {
 }
 
 #homepage.page {
-    background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 50%, #f1f5f9 100%) !important;
+    background: linear-gradient(180deg, #e8f4f8 0%, #d1e8f0 30%, #c8dce8 60%, #dbe9f0 100%) !important;
     margin-top: 0;
     padding-top: 0;
     top: 0 !important;
@@ -223,6 +223,18 @@ body {
     top: 0 !important;
     margin-top: 0 !important;
     padding-top: 0 !important;
+}
+
+#profile-page .app-header,
+#settings-page .app-header {
+    position: relative;
+    top: 0 !important;
+    left: 0;
+    width: 100%;
+    max-width: 390px;
+    margin: 0 auto;
+    padding: 12px;
+    background: transparent;
 }
 
 body:has(#homepage.page.active) {
@@ -2288,6 +2300,8 @@ body {
     touch-action: manipulation;
     z-index: 10;
     margin: 0 auto 0; /* Flush at top */
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
