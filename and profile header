@@ -1,0 +1,49 @@
+[33mcommit e09c6dda474d64abb7ddf5388114eb78e156f73f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mphazee-global-rename[m[33m)[m
+Author: Q Kodda <qkodda@gmail.com>
+Date:   Thu Nov 27 22:21:21 2025 -0500
+
+    Add Streak Squares feature with metrics tracking and UI polish
+    
+    Streak Squares Feature (Client-side v1):
+    - Added 2x2 grid (now horizontal scroll) of metric squares below Calendar section
+    - Tracks 4 metrics: Ideas Generated, Ideas Scheduled, Scheduling Streak, Session Streak
+    - Client-side persistence using localStorage (phazee_streak_data)
+    - Consecutive day streak logic with YYYY-MM-DD date normalization
+    - Scale bump animation (400ms ease-out) on value increase
+    - ARIA accessible with role=status and aria-live=polite
+    
+    Visual Design:
+    - Black containers (84x84px) with gradient text (var(--gradient-tiffany))
+    - Horizontal scrollable row aligned to left edge of collapsed cards
+    - Hidden scrollbar with smooth touch scrolling
+    - Number font: 22px, Label font: 9px
+    - 12px gap between squares, 8px border-radius
+    
+    Integration Points:
+    - Ideas Generated: wired to generateNewIdeas() batch reveal loop
+    - Ideas Scheduled: wired to confirmScheduleDate() success handler
+    - Session Streak: updates on navigateTo('homepage')
+    - Scheduling Streak: tracks consecutive scheduling days
+    
+    Text Improvements:
+    - Singular/plural handling: '1 Day' vs '2 Days'
+    - Shows '0 Days' instead of just '0'
+    - Dynamic labels based on streak state
+    
+    Additional Fixes:
+    - Aligned settings/help buttons with collapsed card right edge (340px width)
+    - Reduced hero greeting top padding to 0px
+    - Moved swipe cards flush to top (removed 25px offset)
+    - Centered background shadow cards vertically with idea cards
+    - Moved swiper-info up 30px for tighter spacing
+    
+    Non-destructive Implementation:
+    - Zero backend/auth/database changes
+    - No dev-bypass modifications
+    - All existing features preserved
+    - Works in current phazee-global-rename branch
+
+ app.js     | 255 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++[m
+ index.html |  29 [32m+++++++[m
+ style.css  | 121 [32m++++++++++++++++++++++++++[m[31m---[m
+ 3 files changed, 394 insertions(+), 11 deletions(-)
