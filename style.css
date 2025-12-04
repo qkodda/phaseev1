@@ -3690,7 +3690,7 @@ END GENERATOR STYLES */
 }
 
 .profile-content {
-    margin-top: -30px; /* Bring content UP 30px as requested */
+    margin-top: 0; /* Reset to normal position */
     width: 100%;
     max-width: 340px;
     display: flex;
