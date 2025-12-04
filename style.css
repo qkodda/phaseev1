@@ -212,7 +212,7 @@ body {
 }
 
 #homepage.page {
-    background: linear-gradient(180deg, #e8f4f8 0%, #d1e8f0 30%, #c8dce8 60%, #dbe9f0 100%) !important;
+    background: linear-gradient(180deg, #d0e8f5 0%, #b8d4e8 30%, #a8c8dd 60%, #c0dde8 100%) !important;
     margin-top: 0;
     padding-top: 0;
     top: 0 !important;
@@ -389,15 +389,15 @@ body {
 
 .btn-danger {
     width: 100%;
-    padding: 16px;
-    background: rgba(239, 68, 68, 0.9);
+    padding: 14px;
+    background: #dc2626;
     color: white;
     border: none;
     border-radius: 12px;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    margin-top: 32px;
+    margin-top: 16px;
 }
 
 .icon-btn {
@@ -2426,13 +2426,13 @@ body {
 
 /* Loading placeholder - Gradient background */
 .platform--tiktok .idea-swiper .loading-placeholder {
-    background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%) !important;
+    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3a7ca5 100%) !important;
     color: #ffffff !important;
     box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3) !important;
 }
 
 .platform--youtube .idea-swiper .loading-placeholder {
-    background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%) !important;
+    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3a7ca5 100%) !important;
     color: #ffffff !important;
     box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3) !important;
 }
@@ -3010,6 +3010,16 @@ END GENERATOR STYLES */
     padding: 14px;
 }
 
+.idea-card .summary-text {
+    text-align: center;
+    width: 100%;
+    font-size: 10px;
+    color: #4a4a4a;
+    line-height: 1.4;
+    margin: 0 0 8px 0;
+    padding: 0 8px;
+}
+
 .idea-card .card-section {
     text-align: left;
     width: 100%;
@@ -3021,7 +3031,11 @@ END GENERATOR STYLES */
     margin: 0 0 8px 0;
     padding: 0 10px;
     font-size: 13px !important;
+    font-weight: 700;
     line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .card-section {
@@ -3037,6 +3051,7 @@ END GENERATOR STYLES */
     color: #1d4ed8;
     text-transform: uppercase;
     letter-spacing: 0.3px;
+    margin-left: 4px;
 }
 
 .section-text {
@@ -3684,7 +3699,7 @@ END GENERATOR STYLES */
     font-weight: 700;
     color: rgba(40, 40, 40, 0.95);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-top: 0;
+    margin-top: -5px;
     margin-bottom: 12px;
     text-align: center;
 }
@@ -3704,23 +3719,24 @@ END GENERATOR STYLES */
 .settings-content {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
 }
 
 .settings-group {
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 8px;
+    border-radius: 10px;
+    padding: 6px;
 }
 
 .settings-group-title {
     font-size: 12px;
-    font-weight: 700;
-    color: rgba(40, 40, 40, 0.8);
+    font-weight: 800;
+    color: rgba(40, 40, 40, 0.9);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 6px;
-    padding: 0 8px;
+    padding: 0;
+    text-align: left;
 }
 
 .settings-item {
@@ -3901,8 +3917,8 @@ END GENERATOR STYLES */
 
 /* Settings Footer */
 .settings-footer {
-    margin-top: 12px;
-    padding-top: 12px;
+    margin-top: 8px;
+    padding-top: 8px;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     text-align: center;
 }
@@ -4268,19 +4284,19 @@ END GENERATOR STYLES */
 /* Content order: Title → Summary → Hook → Why → Actions */
 .expanded-idea-card {
     width: 300px !important;
-    height: 450px !important;
+    height: 400px !important;
     margin: 0 auto !important;
     position: relative !important;
-    background: #ffffff !important; /* White background, no black showing */
+    background: #ffffff !important;
     background-image: url('exp-idea-card-bg.png') !important;
-    background-size: contain !important;
+    background-size: cover !important;
     background-repeat: no-repeat !important;
     background-position: center !important;
     border: none !important;
     border-radius: 16px !important;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.15) !important;
     display: grid !important;
-    grid-template-rows: 50px 1fr 50px !important;
+    grid-template-rows: 40px 1fr 45px !important;
     overflow: visible !important;
 }
 
@@ -4302,55 +4318,51 @@ END GENERATOR STYLES */
     text-overflow: ellipsis !important;
 }
 
-/* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
-/* Middle Section - Content: Summary → Hook → Why */
+/* Middle Section - Content */
 .expanded-idea-card .card-content {
-    grid-row: 2 !important; /* LOCKED */
-    padding: 16px !important;
-    overflow: hidden !important;
+    grid-row: 2 !important;
+    padding: 8px 14px !important;
+    overflow-y: auto !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 8px !important;
+    gap: 6px !important;
 }
 
-/* Bottom Section - Action Bar (Edit + Icons + Schedule) */
+/* Bottom Section - Action Bar (Edit + Icons + Schedule - ALL ON ONE LINE) */
 .expanded-idea-card .card-actions-bottom {
     grid-row: 3 !important;
-    display: grid !important;
-    grid-template-columns: 40px 1fr 40px !important;
+    display: flex !important;
+    justify-content: space-between !important;
     align-items: center !important;
-    padding: 0 9px 9px 9px !important;
+    padding: 0 12px 10px 12px !important;
     border-top: none !important;
-    height: 50px !important;
+    height: 45px !important;
+    gap: 8px;
 }
 
-/* Right: Schedule Button - Far Right */
-.expanded-idea-card .card-actions-bottom .schedule-btn {
-    grid-column: 3;
-    justify-self: end;
-    align-self: center;
-}
-
-/* Left: Edit/Save Button */
+/* Edit/Save Button */
 .expanded-idea-card .card-actions-bottom .edit-btn,
 .expanded-idea-card .card-actions-bottom .save-btn {
-    grid-column: 1;
-    justify-self: start;
-    align-self: center;
+    flex-shrink: 0;
 }
 
 /* Center: Platform Icons */
 .expanded-idea-card .platform-icons {
-    grid-column: 2;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 6px;
+    flex: 1;
 }
 
 .expanded-idea-card .platform-icons .platform-icon {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
+}
+
+/* Schedule Button - Far Right */
+.expanded-idea-card .card-actions-bottom .schedule-btn {
+    flex-shrink: 0;
 }
 
 /* Right: Schedule/Checkmark Button */
@@ -4364,16 +4376,30 @@ END GENERATOR STYLES */
 }
 
 /* Content Sections */
+.expanded-idea-card .summary-text {
+    text-align: center;
+    font-size: 10px;
+    color: #4a4a4a;
+    line-height: 1.4;
+    margin: 0 0 6px 0;
+    padding: 0 8px;
+}
+
 .expanded-idea-card .card-section {
     text-align: left;
     width: 100%;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
+}
+
+.expanded-idea-card .card-section .section-label {
+    font-size: 8px;
+    margin-left: 2px;
 }
 
 .expanded-idea-card .card-section .section-text {
-    font-size: 11px;
+    font-size: 10px;
     color: #4a4a4a;
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
 /* Editable States */

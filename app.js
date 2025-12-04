@@ -1149,15 +1149,22 @@ function expandIdeaCard(card) {
         <h3 class="card-title" contenteditable="false">${ideaData.title}</h3>
         
         <div class="card-content">
-            <div class="card-section">
-                <span class="section-label">Summary:</span>
-                <p class="section-text" contenteditable="false">${ideaData.summary}</p>
-            </div>
+            <p class="summary-text" contenteditable="false">${ideaData.summary}</p>
 
             <div class="card-section">
                 <span class="section-label">Hook:</span>
-                <p class="section-text" contenteditable="false">${ideaData.hook}</p>
+                <p class="section-text" contenteditable="false">"${ideaData.hook}"</p>
             </div>
+
+            ${ideaData.action ? `<div class="card-section">
+                <span class="section-label">Action:</span>
+                <p class="section-text" contenteditable="false">${ideaData.action}</p>
+            </div>` : ''}
+
+            ${ideaData.setup ? `<div class="card-section">
+                <span class="section-label">Setup:</span>
+                <p class="section-text" contenteditable="false">${ideaData.setup}</p>
+            </div>` : ''}
 
             <div class="card-section">
                 <span class="section-label">Why:</span>
@@ -2358,14 +2365,11 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-content">
                 <h3 class="card-title">${idea.title}</h3>
                 
-                <div class="card-section">
-                    <span class="section-label">Summary:</span>
-                    <p class="section-text">${idea.summary}</p>
-                </div>
+                <p class="summary-text">${idea.summary}</p>
                 
                 <div class="card-section">
                     <span class="section-label">Hook:</span>
-                    <p class="section-text">${idea.hook || 'Grab attention with the first 3 seconds!'}</p>
+                    <p class="section-text">"${idea.hook || 'Grab attention with the first 3 seconds!'}"</p>
                 </div>
 
                 <div class="card-section">
