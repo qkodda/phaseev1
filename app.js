@@ -887,9 +887,12 @@ function confirmScheduleDate(selectedDateStr) {
     ideaData.scheduledMonth = month;
     ideaData.scheduledDay = day;
 
-    // Move to schedule section
-    const scheduleList = document.querySelector('.schedule-list');
-    if (!scheduleList) return;
+    // Move to schedule section (Calendar section)
+    const scheduleList = document.querySelector('#calendar-list') || document.querySelector('.revital-card-list');
+    if (!scheduleList) {
+        console.error('❌ Could not find calendar list element');
+        return;
+    }
 
     // Check schedule limit before scheduling (max 30 scheduled ideas)
     const existingScheduledCards = scheduleList.querySelectorAll('.idea-card-collapsed');
@@ -1059,7 +1062,7 @@ function expandIdea(button) {
 function expandIdeaCard(card) {
     const ideaData = JSON.parse(card.dataset.idea);
     const isPinned = card.closest('.pinned-ideas') !== null;
-    const isScheduled = card.closest('.schedule-list') !== null;
+    const isScheduled = card.closest('#calendar-list') !== null || card.closest('.revital-card-list') !== null;
     
     // Get the expanded modal and card element
     const expandedModal = document.getElementById('expanded-idea-modal');
@@ -1503,7 +1506,7 @@ async function removeCollapsedCard(card) {
 
     const ideaData = JSON.parse(card.dataset.idea || '{}');
     const isPinned = card.closest('.pinned-ideas');
-    const scheduleList = document.querySelector('.schedule-list');
+    const scheduleList = document.querySelector('#calendar-list');
 
     // 🔴 CRITICAL FIX: Delete from database if it has an ID
     if (ideaData.id) {
@@ -3419,7 +3422,7 @@ function selectScheduleDate(dateStr) {
 
 function getScheduledDates() {
     // Get all scheduled ideas and extract their dates
-    const scheduleList = document.querySelector('#schedule-component .schedule-list');
+    const scheduleList = document.querySelector('#calendar-list');
     if (!scheduleList) return [];
 
     const scheduledCards = scheduleList.querySelectorAll('.idea-card-collapsed');
@@ -3437,7 +3440,7 @@ function getScheduledDates() {
 
 function showScheduledIdeasForDate(dateStr) {
     // Find scheduled ideas for this date and highlight them
-    const scheduleList = document.querySelector('#schedule-component .schedule-list');
+    const scheduleList = document.querySelector('#calendar-list');
     if (!scheduleList) return;
 
     const scheduledCards = scheduleList.querySelectorAll('.idea-card-collapsed');
@@ -3593,7 +3596,7 @@ function getAllPinnedIdeas() {
 }
 
 function getAllScheduledIdeas() {
-    const scheduleList = document.querySelector('#schedule-component .schedule-list');
+    const scheduleList = document.querySelector('#calendar-list');
     if (!scheduleList) return [];
 
     const scheduledCards = scheduleList.querySelectorAll('.idea-card-collapsed');
@@ -4779,7 +4782,7 @@ async function loadIdeasFromSupabase() {
         }
         
         // Clear existing scheduled ideas
-        const scheduleList = document.querySelector('.schedule-list');
+        const scheduleList = document.querySelector('#calendar-list');
         if (scheduleList) {
             scheduleList.innerHTML = '';
         }
@@ -5344,7 +5347,7 @@ window.deleteAllMyIdeas = async function() {
                 pinnedGrid.innerHTML = '<div class="empty-state"><p>No pinned ideas yet. Start swiping!</p></div>';
             }
             
-            const scheduleList = document.querySelector('.schedule-list');
+            const scheduleList = document.querySelector('#calendar-list');
             if (scheduleList) {
                 scheduleList.innerHTML = '<div class="empty-state"><p>No scheduled content. Pin ideas and schedule them here!</p></div>';
             }
