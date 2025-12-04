@@ -235,12 +235,11 @@ body {
     left: 0 !important;
     transform: none !important;
     width: 390px;
-    min-height: 65px;
-    height: auto;
+    height: 65px !important;
     display: flex !important;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 12px;
+    padding: 12px;
     margin: 0 !important;
     margin-top: 0 !important;
     background: transparent;
