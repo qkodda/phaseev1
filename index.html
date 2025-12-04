@@ -637,32 +637,41 @@
 
         <!-- How it Works Modal -->
         <div id="how-it-works-modal" class="modal">
-            <div class="modal-content">
+            <div class="modal-content how-it-works-content">
                 <button class="modal-close" id="close-how-it-works">&times;</button>
-                <h3 class="modal-title">How it Works</h3>
+                <h3 class="modal-title">How Phazee Works</h3>
+                <p class="modal-subtitle">Your AI-powered content ideation engine</p>
                 
                 <div class="modal-body">
                     <div class="step">
-                        <div class="step-number">1</div>
+                        <div class="step-icon">💡</div>
+                        <div class="step-text">
+                            <h4>Tell Us About You</h4>
+                            <p>Set up your profile with your brand, niche, and style preferences</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-icon">✨</div>
                         <div class="step-text">
                             <h4>Generate Ideas</h4>
-                            <p>AI creates personalized content ideas based on your profile</p>
+                            <p>Tap generate and watch AI create personalized content ideas just for you</p>
                         </div>
                     </div>
                     
                     <div class="step">
-                        <div class="step-number">2</div>
+                        <div class="step-icon">👆</div>
                         <div class="step-text">
-                            <h4>Swipe & Save</h4>
-                            <p>Skip ideas you don't like or pin the ones you love</p>
+                            <h4>Swipe to Curate</h4>
+                            <p>Skip what doesn't fit, pin what you love to your drawing board</p>
                         </div>
                     </div>
                     
                     <div class="step">
-                        <div class="step-number">3</div>
+                        <div class="step-icon">📅</div>
                         <div class="step-text">
-                            <h4>Create</h4>
-                            <p>Use the detailed breakdowns to create engaging content</p>
+                            <h4>Schedule & Create</h4>
+                            <p>Plan your content calendar and bring your ideas to life</p>
                         </div>
                     </div>
                 </div>
@@ -948,11 +957,11 @@
 
                 <!-- Platform preference removed as requested -->
 
-                <div style="margin-top: 40px; display: flex; flex-direction: column; gap: 12px;">
-                    <button class="btn-primary" onclick="navigateTo('change-password-page')">
+                <div style="margin-top: 40px; display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                    <button class="btn-primary" style="width: 100%;" onclick="navigateTo('change-password-page')">
                         Change Password
                     </button>
-                    <button class="btn-danger" onclick="navigateTo('delete-account-page')">
+                    <button class="btn-danger" style="width: 100%;" onclick="navigateTo('delete-account-page')">
                         Delete Account
                     </button>
                 </div>

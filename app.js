@@ -1118,32 +1118,26 @@ function expandIdeaCard(card) {
         </button>
     `;
 
-    if (isPinned) {
-        // Pinned card: schedule button on right
-        bottomActionsHTML = `
-            ${editButtonHTML}
-            <button class="expanded-action-btn schedule-btn" onclick="scheduleFromExpanded()" aria-label="Schedule" title="Schedule">
-                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                    <line x1="16" y1="2" x2="16" y2="6"></line>
-                    <line x1="8" y1="2" x2="8" y2="6"></line>
-                    <line x1="3" y1="10" x2="21" y2="10"></line>
-                </svg>
-            </button>
-        `;
-    } else {
-        // Scheduled card: green checkmark on right (closes modal)
-        bottomActionsHTML = `
-            ${editButtonHTML}
-            <button class="expanded-action-btn checkmark-btn" onclick="closeExpandedModal()" aria-label="Close" title="Close">
-                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-            </button>
-        `;
-    }
+    // Schedule/checkmark button HTML
+    const scheduleButtonHTML = isPinned ? `
+        <button class="expanded-action-btn schedule-btn" onclick="scheduleFromExpanded()" aria-label="Schedule" title="Schedule">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+        </button>
+    ` : `
+        <button class="expanded-action-btn checkmark-btn" onclick="closeExpandedModal()" aria-label="Close" title="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        </button>
+    `;
 
     // Populate the expanded card with full details
+    // Layout: EDIT | PLATFORM ICONS | SCHEDULE
     expandedCard.innerHTML = `
         ${topActionsHTML}
         <h3 class="card-title" contenteditable="false">${ideaData.title}</h3>
@@ -1173,10 +1167,11 @@ function expandIdeaCard(card) {
         </div>
 
         <div class="card-actions-bottom">
-            ${bottomActionsHTML}
+            ${editButtonHTML}
             <div class="platform-icons" id="expanded-platform-icons">
                 ${platformIconsHTML}
             </div>
+            ${scheduleButtonHTML}
         </div>
     `;
 
