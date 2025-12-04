@@ -2094,6 +2094,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Set platform data attribute for CSS theming
                     card.dataset.platform = currentPlatform;
                     cardStack.appendChild(card);
+                    
+                    // Increment ideas generated counter for fallback ideas too
+                    incrementIdeasGenerated();
                 }
                 
                 initSwipeHandlers();
@@ -4089,14 +4092,21 @@ async function saveProfileChanges() {
         const profileData = getProfileFormData('profile');
         console.log('📝 Profile data to save:', profileData);
         
-        // Save to Supabase
-        await updateUserProfile(user.id, profileData);
-        
-        // Also save to localStorage as backup
+        // Save to localStorage first (always works)
         saveProfileData(profileData);
         
-        // Reload profile data to confirm
-        await loadProfileData();
+        // Try to save to Supabase (may fail in dev mode or if DB is unavailable)
+        try {
+            await updateUserProfile(user.id, profileData);
+            console.log('✅ Profile saved to Supabase');
+        } catch (supabaseErr) {
+            // In dev bypass mode, local save is sufficient
+            if (isDevBypassEnabled()) {
+                console.log('🔧 DEV BYPASS: Supabase save skipped, using local storage');
+            } else {
+                console.warn('⚠️ Supabase save failed, using local storage only:', supabaseErr.message);
+            }
+        }
         
         showAlertModal('Profile Updated', 'Your profile details have been saved.');
         console.log('✅ Profile saved successfully');
