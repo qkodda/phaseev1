@@ -1142,7 +1142,7 @@ function expandIdeaCard(card) {
     // Populate the expanded card with full details
     expandedCard.innerHTML = `
         ${topActionsHTML}
-        <h3 class="card-title" contenteditable="false">"${ideaData.title}"</h3>
+        <h3 class="card-title" contenteditable="false">${ideaData.title}</h3>
         
         <div class="card-content">
             <div class="card-section">
@@ -2227,7 +2227,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Replace card content with expanded view
         const cardContent = card.querySelector('.card-content');
         cardContent.innerHTML = `
-            <h3 class="card-title">"${ideaData.title}"</h3>
+            <h3 class="card-title">${ideaData.title}</h3>
             
             <div class="card-section">
                 <span class="section-label">Summary:</span>
@@ -2268,7 +2268,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Replace card content with collapsed view
         const cardContent = card.querySelector('.card-content');
         cardContent.innerHTML = `
-            <h3 class="card-title">"${ideaData.title}"</h3>
+            <h3 class="card-title">${ideaData.title}</h3>
             
             <div class="card-section">
                 <span class="section-label">Summary:</span>
@@ -2354,7 +2354,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         card.innerHTML = `
             <div class="card-content">
-                <h3 class="card-title">"${idea.title}"</h3>
+                <h3 class="card-title">${idea.title}</h3>
                 
                 <div class="card-section">
                     <span class="section-label">Summary:</span>
@@ -2385,7 +2385,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <button class="card-action-btn pin-btn" onclick="pinCard(this)" aria-label="Pin">
                     <svg viewBox="0 0 24 24" width="18" height="18">
-                        <path fill="currentColor" d="M16 12V4h1c.55 0 1-.45 1-1s-.45-1-1-1H7c-.55 0-1 .45-1 1s.45 1 1 1h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+                        <path fill="currentColor" d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
                     </svg>
                 </button>
             </div>
@@ -3794,7 +3794,7 @@ function syncCollapsedCards(updatedIdea) {
 
                 const titleEl = card.querySelector('.title-text');
                 if (titleEl) {
-                    titleEl.textContent = `"${mergedData.title}"`;
+                    titleEl.textContent = mergedData.title;
                 }
 
                 const summaryEl = card.querySelector('.collapsed-summary');

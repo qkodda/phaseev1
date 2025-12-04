@@ -431,7 +431,7 @@
                                     <!-- Lightbulb Generation Button (New, Right Side) -->
                                     <button class="header-generate-btn" id="header-generate-btn" aria-label="Generate Ideas">
                                         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                                            <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
+                                            <path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66.19-.34.05-.08.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/>
                                         </svg>
                                     </button>
                                     
@@ -524,8 +524,8 @@
                             <div class="section-header">
                                 <div class="section-title-group">
                                     <svg class="section-icon gradient-icon" viewBox="0 0 24 24" width="24" height="24">
-                                        <path fill="url(#revital-gradient)" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM5.92 19H5v-.92l9.06-9.06.92.92L5.92 19zM20.71 5.63l-2.34-2.34c-.2-.2-.45-.29-.71-.29s-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83c.39-.39.39-1.02 0-1.41z"/>
-                                        <path fill="url(#revital-gradient)" d="M14 3H5c-1.1 0-2 .9-2 2v2h2V5h9V3z"/>
+                                        <path fill="url(#revital-gradient)" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
+                                        <path fill="url(#revital-gradient)" d="M14.06 7.94l-1.41 1.41 2.12 2.12 1.41-1.41-2.12-2.12zm-6.84 6.84l-.71.71 2.12 2.12.71-.71-2.12-2.12zm1.41-1.41l4.24-4.24.71.71-4.24 4.24-.71-.71z"/>
                                     </svg>
                                     <h3 class="section-title">Drawing Board <span class="count">(0)</span></h3>
                                 </div>
@@ -565,24 +565,28 @@
                             <div class="streak-squares-grid" id="streak-squares-grid">
                                 <!-- Ideas Scheduled Square -->
                                 <div class="streak-square" id="streak-square-scheduled" role="status" aria-live="polite">
+                                    <svg class="streak-bg-icon" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
                                     <div class="streak-square-number" id="streak-number-scheduled">0</div>
                                     <div class="streak-square-label" id="streak-label-scheduled">Ideas Scheduled</div>
                                 </div>
                                 
                                 <!-- Ideas Generated Square -->
                                 <div class="streak-square" id="streak-square-generated" role="status" aria-live="polite">
+                                    <svg class="streak-bg-icon" viewBox="0 0 24 24"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/></svg>
                                     <div class="streak-square-number" id="streak-number-generated">0</div>
                                     <div class="streak-square-label" id="streak-label-generated">Ideas Generated</div>
                                 </div>
                                 
                                 <!-- Scheduling Streak Square -->
                                 <div class="streak-square" id="streak-square-scheduling" role="status" aria-live="polite">
+                                    <svg class="streak-bg-icon" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
                                     <div class="streak-square-number" id="streak-number-scheduling">0</div>
                                     <div class="streak-square-label" id="streak-label-scheduling">Get to scheduling!</div>
                                 </div>
                                 
                                 <!-- Session Streak Square -->
                                 <div class="streak-square" id="streak-square-session" role="status" aria-live="polite">
+                                    <svg class="streak-bg-icon" viewBox="0 0 24 24"><path d="M11 21h-1l1-7H7.5c-.58 0-.57-.32-.38-.66l.07-.12C8.48 10.94 10.42 7.54 13 3h1l-1 7h3.5c.49 0 .56.33.47.51l-.07.15C12.96 17.55 11 21 11 21z"/></svg>
                                     <div class="streak-square-number" id="streak-number-session">0</div>
                                     <div class="streak-square-label" id="streak-label-session">Start your streak</div>
                                 </div>

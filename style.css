@@ -2,8 +2,8 @@
    GLOBAL STYLES & BRAND GRADIENT
    ============================================ */
 :root {
-    --gradient-tiffany: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --gradient-tiffany-hover: linear-gradient(135deg, #7c8ef5 0%, #8b5cb8 100%);
+    --gradient-tiffany: linear-gradient(135deg, #0066ff 0%, #00ccff 50%, #7c3aed 100%);
+    --gradient-tiffany-hover: linear-gradient(135deg, #1a75ff 0%, #33d6ff 50%, #8b4dff 100%);
     --color-tiffany-light: #14b8a6;
     --color-tiffany-dark: #0369a1;
 }
@@ -2990,7 +2990,9 @@ END GENERATOR STYLES */
     text-align: center;
     width: 100%;
     margin: 0 0 8px 0;
-    padding: 0;
+    padding: 0 10px;
+    font-size: 13px !important;
+    line-height: 1.3;
 }
 
 .card-section {
@@ -5246,19 +5248,22 @@ body {
 .streak-squares-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    width: 340px;
-    max-width: 340px;
+    gap: 16px;
+    width: 100%;
+    max-width: 360px;
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 0 16px;
+    box-sizing: border-box;
 }
 
 .streak-square {
     width: 100%;
-    height: 95px;
+    aspect-ratio: 1 / 1;
     border-radius: 12px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
     border: none;
+    position: relative;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -5271,39 +5276,55 @@ body {
 
 /* Unique gradient for each streak square */
 #streak-square-scheduled {
-    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    background: linear-gradient(135deg, #b83227 0%, #8e1f16 100%);
 }
 
 #streak-square-generated {
-    background: linear-gradient(135deg, #8e7cc3 0%, #5b4a9e 100%);
+    background: linear-gradient(135deg, #6b5b95 0%, #453a6b 100%);
 }
 
 #streak-square-scheduling {
-    background: linear-gradient(135deg, #00a8a8 0%, #0667b2 100%);
+    background: linear-gradient(135deg, #008080 0%, #045078 100%);
 }
 
 #streak-square-session {
-    background: linear-gradient(135deg, #e5a84b 0%, #c05d42 100%);
+    background: linear-gradient(135deg, #c4892e 0%, #963c28 100%);
+}
+
+/* Decorative background icons for streak squares */
+.streak-bg-icon {
+    position: absolute;
+    width: 70%;
+    height: 70%;
+    bottom: -10%;
+    right: -10%;
+    fill: rgba(255, 255, 255, 0.15);
+    pointer-events: none;
+    z-index: 0;
 }
 
 .streak-square-number {
-    font-size: 22px;
+    font-size: 28px;
     font-weight: 800;
     color: #ffffff;
     line-height: 1.1;
     text-align: center;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     white-space: nowrap;
+    position: relative;
+    z-index: 1;
 }
 
 .streak-square-label {
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.95);
     text-align: center;
     line-height: 1.2;
     max-width: 100%;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1;
 }
 
 /* Animation for value increase */
@@ -5333,7 +5354,7 @@ body {
     }
     
     .streak-square {
-        height: 85px;
+        aspect-ratio: 1 / 1;
     }
     
     .streak-square-number {
