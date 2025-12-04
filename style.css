@@ -4254,34 +4254,39 @@ END GENERATOR STYLES */
 /* The PNG (exp-idea-card-bg.png) IS the container - all content overlays on top */
 /* Content order: Title → Summary → Hook → Why → Actions */
 .expanded-idea-card {
-    width: 300px !important; /* LOCKED */
-    height: 450px !important; /* LOCKED */
+    width: 300px !important;
+    height: 450px !important;
     margin: 0 auto !important;
     position: relative !important;
-    background-image: url('exp-idea-card-bg.png') !important; /* LOCKED - PNG is the primary container */
+    background: #ffffff !important; /* White background, no black showing */
+    background-image: url('exp-idea-card-bg.png') !important;
     background-size: contain !important;
     background-repeat: no-repeat !important;
     background-position: center !important;
-    border: none !important; /* LOCKED - No border, PNG has its own styling */
+    border: none !important;
+    border-radius: 16px !important;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15) !important;
     display: grid !important;
-    grid-template-rows: 50px 1fr 50px !important; /* LOCKED - Title / Content / Actions */
+    grid-template-rows: 50px 1fr 50px !important;
     overflow: visible !important;
 }
 
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 /* Top Section - Delete Button + Title */
 .expanded-idea-card .card-title {
-    grid-row: 1 !important; /* LOCKED */
+    grid-row: 1 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 0 50px !important;
-    font-size: 13px !important;
+    padding: 0 30px !important;
+    font-size: 12px !important;
     font-weight: 800 !important;
     color: #1a1a1a !important;
     text-align: center !important;
     border-bottom: none !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }
 
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
@@ -4295,16 +4300,22 @@ END GENERATOR STYLES */
     gap: 8px !important;
 }
 
-/* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 /* Bottom Section - Action Bar (Edit + Icons + Schedule) */
 .expanded-idea-card .card-actions-bottom {
-    grid-row: 3 !important; /* LOCKED */
+    grid-row: 3 !important;
     display: grid !important;
     grid-template-columns: 40px 1fr 40px !important;
     align-items: center !important;
     padding: 0 9px 9px 9px !important;
     border-top: none !important;
     height: 50px !important;
+}
+
+/* Right: Schedule Button - Far Right */
+.expanded-idea-card .card-actions-bottom .schedule-btn {
+    grid-column: 3;
+    justify-self: end;
+    align-self: center;
 }
 
 /* Left: Edit/Save Button */
@@ -4347,9 +4358,9 @@ END GENERATOR STYLES */
 }
 
 .expanded-idea-card .card-section .section-text {
-    font-size: 10px;
+    font-size: 11px;
     color: #4a4a4a;
-    line-height: 1.4;
+    line-height: 1.5;
 }
 
 /* Editable States */
