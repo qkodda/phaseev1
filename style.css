@@ -212,7 +212,7 @@ body {
 }
 
 #homepage.page {
-    background: linear-gradient(180deg, #d0e8f5 0%, #b8d4e8 30%, #a8c8dd 60%, #c0dde8 100%) !important;
+    background: linear-gradient(180deg, #87ceeb 0%, #7ec8e3 25%, #5fb8d9 50%, #4aa8c9 75%, #6dbdd4 100%) !important;
     margin-top: 0;
     padding-top: 0;
     top: 0 !important;
@@ -223,6 +223,11 @@ body {
     top: 0 !important;
     margin-top: 0 !important;
     padding-top: 0 !important;
+    overflow: hidden !important;
+}
+
+#settings-page {
+    overflow: hidden !important;
 }
 
 /* Profile/Settings headers - EXACT MATCH to #app-header */
@@ -677,7 +682,7 @@ body {
    SIGN IN PAGE
    ============================================ */
 #sign-in-page {
-    background: linear-gradient(180deg, #d0e8f5 0%, #b8d4e8 30%, #a8c8dd 60%, #c0dde8 100%);
+    background: linear-gradient(180deg, #87ceeb 0%, #7ec8e3 25%, #5fb8d9 50%, #4aa8c9 75%, #6dbdd4 100%);
 }
 
 #sign-in-page .page-content {
@@ -1233,27 +1238,12 @@ body {
 
 .logo-btn {
     position: relative;
-    overflow: visible; /* Changed from hidden to prevent shine overflow */
-}
-
-/* Apply shine to all logos including homepage and profile/settings */
-.logo-btn::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
-    transform: translateX(-100%);
-    animation: buttonShine 3s ease infinite;
-    pointer-events: none;
-}
-
-/* Hero header logo - no shine on container, just on logo itself */
-.hero-header .logo-btn {
     overflow: visible;
-    position: relative;
+}
+
+/* Remove shine effect from logos */
+.logo-btn::after {
+    display: none;
 }
 
 .logo-btn:hover .header-logo {
@@ -1377,13 +1367,13 @@ body {
 /* Hero Greeting Section (Homepage Only - Below Header) */
 .hero-greeting-section {
     width: 100%;
-    padding: 0px 16px 10px 16px; /* Eliminated top padding */
+    padding: 0px 16px 10px 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: white;
-    transition: none !important; /* LOCKED - No movement */
+    background: transparent;
+    transition: none !important;
 }
 
 .hero-greeting-section .header-greeting {
@@ -3136,17 +3126,17 @@ END GENERATOR STYLES */
 }
 
 .card-action-btn.skip-btn {
-    color: #ef4444; /* Default red for TikTok */
+    color: #b91c1c; /* Darker red */
 }
 
-/* TikTok state: thumbs down icon is red */
+/* TikTok state: thumbs down icon is darker red */
 .platform--tiktok .idea-swiper .card-action-btn.skip-btn {
-    color: #ef4444 !important;
+    color: #b91c1c !important;
 }
 
 .platform--tiktok .idea-swiper .card-action-btn.skip-btn svg {
-    color: #ef4444 !important;
-    fill: #ef4444 !important;
+    color: #b91c1c !important;
+    fill: #b91c1c !important;
 }
 
 /* YouTube state: thumbs down icon is black */
@@ -3155,7 +3145,7 @@ END GENERATOR STYLES */
 }
 
 .card-action-btn.pin-btn {
-    color: #22c55e;
+    color: #15803d; /* Darker green */
 }
 
 /* Platform-specific pin icon colors - TikTok red (same as thumbs down), YouTube black */
@@ -3394,9 +3384,9 @@ END GENERATOR STYLES */
     align-items: center;
     row-gap: 8px;
     width: 100%;
-    padding: 12px 0;
+    padding: 8px 0;
     margin: 0 auto;
-    max-height: 250px;
+    max-height: 215px; /* Exactly 3 cards: 65*3 + 8*2 + 16 padding */
     overflow-y: auto;
     overflow-x: visible;
 }
@@ -4255,14 +4245,8 @@ END GENERATOR STYLES */
 .calendar-modal-content {
     width: 300px;
     height: auto;
-    padding: 32px 24px;
-}
-
-.calendar-modal-content {
-    width: 320px;
-    height: auto;
-    max-height: 90vh;
-    padding: 24px 16px;
+    max-height: 85vh;
+    padding: 20px 16px;
     overflow-y: auto;
     background: white;
     border-radius: 16px;
@@ -4501,10 +4485,11 @@ END GENERATOR STYLES */
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    padding: 0 16px 12px 16px !important;
+    padding: 0 12px 8px 12px !important;
     border-top: none !important;
     height: 50px !important;
     gap: 12px;
+    margin-top: 10px;
 }
 
 /* Edit/Save Button - Left */
@@ -4527,8 +4512,8 @@ END GENERATOR STYLES */
 }
 
 .expanded-idea-card .platform-icons .platform-icon {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
 }
 
 /* Schedule/Checkmark Button - Right */
@@ -4674,6 +4659,26 @@ END GENERATOR STYLES */
 /* Scheduled Date Display on Collapsed Cards */
 .collapsed-scheduled-date {
     display: none;
+}
+
+/* Date badge for calendar scheduled cards */
+.scheduled-date-badge {
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(30, 58, 95, 0.3);
+    z-index: 5;
+}
+
+.calendar-scheduled-card {
+    position: relative;
+    margin-top: 8px;
 }
 
 /* Make collapsed cards clickable */
@@ -5528,6 +5533,36 @@ body {
     background: linear-gradient(135deg, #008080 0%, #045078 100%);
 }
 
+/* Decorative icons for streak squares */
+.streak-square::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    font-size: 44px;
+    opacity: 0.15;
+    color: white;
+    z-index: 0;
+    pointer-events: none;
+    transform: rotate(-10deg);
+}
+
+#streak-square-scheduled::before { content: '📅'; }
+#streak-square-generated::before { content: '💡'; }
+#streak-square-scheduling::before { content: '🔥'; }
+#streak-square-session::before { content: '⚡'; }
+
+/* Pulse animation for streak count up */
+@keyframes streakPulse {
+    0% { transform: rotate(-10deg) scale(1); }
+    50% { transform: rotate(-10deg) scale(1.2); }
+    100% { transform: rotate(-10deg) scale(1); }
+}
+
+.streak-square.counting::before {
+    animation: streakPulse 0.5s ease-out;
+}
+
 #streak-square-session {
     background: linear-gradient(135deg, #c4892e 0%, #963c28 100%);
 }
@@ -5574,7 +5609,7 @@ body {
         transform: scale(0.95);
     }
     50% {
-        transform: scale(1.05);
+        transform: scale(1.08);
     }
     100% {
         transform: scale(1);
@@ -5583,6 +5618,10 @@ body {
 
 .streak-square.animate {
     animation: streakBump 400ms ease-out;
+}
+
+.streak-square.animate::before {
+    animation: streakPulse 0.5s ease-out !important;
 }
 
 
@@ -5697,10 +5736,10 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    max-height: 250px;
+    max-height: 215px; /* Exactly 3 cards */
     overflow-y: auto;
     overflow-x: visible;
-    padding: 12px 0;
+    padding: 8px 0;
 }
 
 .revital-card-list::-webkit-scrollbar {
@@ -5795,9 +5834,79 @@ body {
     z-index: 10;
 }
 
-/* Trend Card Specifics */
+/* Trend Card Specifics - Legacy */
 .trend-card {
     background: linear-gradient(to right, #ffffff, #f8fafc);
+}
+
+/* Content Trends Carousel */
+.trends-carousel-wrapper {
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;
+    height: 80px;
+    overflow: hidden;
+    position: relative;
+}
+
+.trends-carousel {
+    display: flex;
+    flex-direction: column;
+    animation: trendsScroll 15s linear infinite;
+}
+
+@keyframes trendsScroll {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+}
+
+.trends-carousel:hover {
+    animation-play-state: paused;
+}
+
+.trend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    flex-shrink: 0;
+}
+
+.trend-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.trend-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.trend-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a1a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.trend-platform {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.trend-platform-icon {
+    width: 14px;
+    height: 14px;
+    opacity: 0.7;
 }
 
 /* Bottom Actions */

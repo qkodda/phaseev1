@@ -1008,10 +1008,21 @@ function createScheduledCard(idea) {
     
     console.log('🎯 Creating scheduled card with platforms:', scheduledPlatforms);
 
+    // Format date badge
+    const dateStr = idea.scheduledDate || '';
+    let dateBadgeHTML = '';
+    if (dateStr) {
+        const date = new Date(dateStr + 'T00:00:00');
+        const month = date.toLocaleDateString('en-US', { month: 'short' });
+        const day = date.getDate();
+        dateBadgeHTML = `<div class="scheduled-date-badge">${month} ${day}</div>`;
+    }
+
     const scheduledCard = document.createElement('div');
-    scheduledCard.className = 'idea-card-collapsed';
+    scheduledCard.className = 'idea-card-collapsed calendar-scheduled-card';
     scheduledCard.dataset.platform = singlePlatform;
     scheduledCard.innerHTML = `
+        ${dateBadgeHTML}
         <div class="collapsed-content">
             <div class="collapsed-title">
                 <span class="title-text">${idea.title}</span>
@@ -2389,7 +2400,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <button class="card-action-btn pin-btn" onclick="pinCard(this)" aria-label="Pin">
                     <svg viewBox="0 0 24 24" width="18" height="18">
-                        <path fill="#22c55e" d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                        <path fill="#15803d" d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
                     </svg>
                 </button>
             </div>
