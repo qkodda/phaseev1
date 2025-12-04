@@ -154,15 +154,24 @@ function updateSessionStreak() {
  * Increment ideas generated counter
  */
 function incrementIdeasGenerated() {
-    const data = loadStreakData();
-    const oldValue = data.lifetimeIdeasGenerated;
-    data.lifetimeIdeasGenerated += 1;
-    saveStreakData(data);
-    
-    console.log('📊 Ideas Generated incremented:', oldValue, '→', data.lifetimeIdeasGenerated);
-    
-    // Render with animation
-    renderStreakSquares(oldValue !== data.lifetimeIdeasGenerated ? 'generated' : null);
+    try {
+        const data = loadStreakData();
+        const oldValue = data.lifetimeIdeasGenerated || 0;
+        data.lifetimeIdeasGenerated = (data.lifetimeIdeasGenerated || 0) + 1;
+        saveStreakData(data);
+        
+        console.log('📊 Ideas Generated incremented:', oldValue, '→', data.lifetimeIdeasGenerated);
+        
+        // Render with animation
+        renderStreakSquares('generated');
+    } catch (err) {
+        console.error('❌ Failed to increment ideas generated:', err);
+    }
+}
+
+// Make incrementIdeasGenerated available globally for debugging
+if (typeof window !== 'undefined') {
+    window.incrementIdeasGenerated = incrementIdeasGenerated;
 }
 
 /**
