@@ -227,11 +227,13 @@ body {
 
 /* Profile/Settings headers - EXACT MATCH to #app-header */
 #profile-page .app-header,
-#settings-page .app-header {
-    position: relative;
+#settings-page .app-header,
+#profile-header,
+#settings-header {
+    position: relative !important;
     top: 0 !important;
-    left: 0;
-    transform: none;
+    left: 0 !important;
+    transform: none !important;
     width: 390px;
     min-height: 65px;
     height: auto;
@@ -240,6 +242,7 @@ body {
     justify-content: space-between;
     padding: 16px 12px;
     margin: 0 !important;
+    margin-top: 0 !important;
     background: transparent;
     z-index: 1000;
     visibility: visible !important;
