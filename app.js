@@ -1011,7 +1011,7 @@ function createScheduledCard(idea) {
     scheduledCard.innerHTML = `
         <div class="collapsed-content">
             <div class="collapsed-title">
-                <span class="title-text">"${idea.title}"</span>
+                <span class="title-text">${idea.title}</span>
             </div>
             <div class="collapsed-summary">${idea.summary || ''}</div>
         </div>
@@ -2885,7 +2885,7 @@ document.addEventListener('DOMContentLoaded', () => {
         collapsedCard.innerHTML = `
             <div class="collapsed-content">
                 <div class="collapsed-title">
-                    <span class="title-text">"${idea.title}"</span>
+                    <span class="title-text">${idea.title}</span>
                 </div>
                 <div class="collapsed-summary">${idea.summary || ''}</div>
             </div>

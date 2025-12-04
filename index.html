@@ -524,10 +524,10 @@
                             <div class="section-header">
                                 <div class="section-title-group">
                                     <svg class="section-icon gradient-icon" viewBox="0 0 24 24" width="24" height="24">
-                                        <path fill="url(#revital-gradient)" d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h6v6h6v10H6z"/>
-                                        <path fill="url(#revital-gradient)" d="M9.5 11.5l1.5 1.5-4.5 4.5H5v-1.5l4.5-4.5zm5.5-2.5c.28 0 .53.11.71.29l1 1c.39.39.39 1.02 0 1.41l-1 1L13 10l1-1c.18-.18.43-.29.71-.29z"/>
+                                        <path fill="url(#revital-gradient)" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                        <path fill="url(#revital-gradient)" d="M5 19h14v2H5z"/>
                                     </svg>
-                                    <h3 class="section-title">Drawing Board <span class="count">(0)</span></h3>
+                                    <h3 class="section-title">Drawing Board <span class="count grey-count">(0)</span></h3>
                                 </div>
                             </div>
                             <section class="pinned-ideas" id="pinned-ideas">
@@ -721,6 +721,18 @@
             </div>
         </div>
 
+        <!-- Calendar Modal for Scheduling -->
+        <div id="calendar-modal" class="modal">
+            <div class="modal-content calendar-modal-content">
+                <button class="modal-close" onclick="document.getElementById('calendar-modal').classList.remove('active')">&times;</button>
+                <h3 class="calendar-modal-title">Schedule This Idea</h3>
+                <p class="calendar-modal-subtitle">Select a date to post</p>
+                <div id="calendar-picker-container" class="calendar-picker-container">
+                    <!-- Calendar picker will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+
         <!-- PROFILE PAGE -->
         <div id="profile-page" class="page">
             <header class="app-header" id="profile-header">
@@ -860,9 +872,6 @@
                             <button class="platform-select-btn" data-platform="facebook">
                                 <img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook">
                             </button>
-                            <button class="platform-select-btn" data-platform="linkedin">
-                                <img src="https://cdn.simpleicons.org/linkedin/0A66C2" alt="LinkedIn">
-                            </button>
                             <button class="platform-select-btn" data-platform="x">
                                 <img src="https://cdn.simpleicons.org/x/000000" alt="X">
                             </button>
@@ -893,12 +902,11 @@
 
                     <div class="input-group">
                         <label for="profile-additional-context">Additional Context (Optional)</label>
-                        <p class="input-helper-text">Share anything that helps us understand your brand better! The more details, the more personalized your ideas will be.</p>
                         <textarea 
                             id="profile-additional-context" 
                             class="custom-textarea" 
                             rows="4" 
-                            placeholder="Tell us about your unique style, past content that worked well, specific topics you love, your audience's interests, or anything else that makes your brand special..."
+                            placeholder="Share anything that helps us understand your brand better! The more details, the more personalized your ideas will be."
                         ></textarea>
                     </div>
 
