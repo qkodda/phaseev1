@@ -233,16 +233,25 @@ body {
     left: 0;
     transform: none;
     width: 390px;
-    height: 65px;
+    min-height: 65px;
+    height: auto;
     display: flex !important;
     align-items: center;
     justify-content: space-between;
-    padding: 12px;
+    padding: 16px 12px;
     margin: 0 !important;
     background: transparent;
     z-index: 1000;
     visibility: visible !important;
     opacity: 1 !important;
+    flex-shrink: 0;
+}
+
+/* Ensure page-content doesn't push header up */
+#profile-page .page-content,
+#settings-page .page-content {
+    flex: 1;
+    min-height: 0;
 }
 
 body:has(#homepage.page.active) {
