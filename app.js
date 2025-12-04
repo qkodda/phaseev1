@@ -2832,12 +2832,18 @@ document.addEventListener('DOMContentLoaded', () => {
      * Update pinned ideas count
      */
     function refreshPinnedCount() {
-        const countElement = document.querySelector('.pinned-ideas .count');
+        // Look for count in both places - inside pinned-ideas and in drawing-board section header
+        const countElement = document.querySelector('.drawing-board-section .count') || 
+                            document.querySelector('.pinned-ideas .count');
         const grid = document.querySelector('.pinned-ideas .ideas-grid');
-        if (!countElement || !grid) return;
+        if (!grid) return;
 
         const total = grid.querySelectorAll('.idea-card-collapsed').length;
-        countElement.textContent = `(${total})`;
+        
+        // Update count display
+        if (countElement) {
+            countElement.textContent = `(${total})`;
+        }
 
         const existingEmptyState = grid.querySelector('.empty-state');
         if (total === 0) {
