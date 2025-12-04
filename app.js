@@ -615,14 +615,13 @@ function rotatePlaceholder() {
     currentPlaceholderIndex = (currentPlaceholderIndex + 1) % textboxPlaceholders.length;
     const newPlaceholder = textboxPlaceholders[currentPlaceholderIndex];
     
-    // Create a smooth fade for placeholder text via opacity
-    headerInput.style.transition = 'opacity 0.8s ease';
-    headerInput.style.opacity = '0.5';
+    // Fade only the placeholder text using CSS class (not the whole input)
+    headerInput.classList.add('placeholder-fading');
     
     setTimeout(() => {
         headerInput.placeholder = newPlaceholder;
-        headerInput.style.opacity = '1';
-    }, 800); // Smooth fade timing
+        headerInput.classList.remove('placeholder-fading');
+    }, 400);
 }
 
 function startRotatingText() {
@@ -755,6 +754,9 @@ function navigateTo(pageId) {
     
     // Check subscription status and personalize when navigating to homepage
     if (pageId === 'homepage') {
+        // Ensure swipe handlers are enabled when returning to homepage
+        window.swipeHandlersDisabled = false;
+        
         setTimeout(() => checkAndEnforceSubscription(), 100);
         
         // Personalize hero section
@@ -779,6 +781,18 @@ function navigateTo(pageId) {
         if (existingCards.length === 0) {
             generateNewIdeas({ showLoading: false });
         }
+        
+        // Always re-initialize swipe handlers when returning to homepage
+        // This fixes the issue where swipe modal becomes inaccessible after navigation
+        setTimeout(() => {
+            // Force re-initialization by clearing the attached flag
+            const cards = cardStack?.querySelectorAll('.idea-card');
+            cards?.forEach(card => {
+                card.dataset.swipeHandlersAttached = 'false';
+            });
+            initSwipeHandlers();
+            console.log('🔄 Re-initialized swipe handlers after navigation');
+        }, 150);
         
         // Update header button based on page
         const homeProfileBtn = document.querySelector('#homepage .profile-pill-btn');
