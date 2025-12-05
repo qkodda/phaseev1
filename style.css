@@ -2667,7 +2667,7 @@ body {
 
 .idea-swiper .card-stack .idea-card:nth-child(2 of .idea-card):not(.swiping) {
     z-index: 9;
-    transform: scale(0.97) scaleY(0.917); /* 220px height (240 * 0.917 ≈ 220), centered vertically */
+    transform: scale(0.97) scaleY(0.917) translateY(10px); /* 220px height, centered with 10px offset */
     opacity: 1 !important;
     pointer-events: none;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -2675,7 +2675,7 @@ body {
 
 .idea-swiper .card-stack .idea-card:nth-child(3 of .idea-card):not(.swiping) {
     z-index: 8;
-    transform: scale(0.94) scaleY(0.917); /* 220px height, centered vertically */
+    transform: scale(0.94) scaleY(0.917) translateY(10px); /* 220px height, centered with 10px offset */
     opacity: 1 !important;
     pointer-events: none;
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18);
