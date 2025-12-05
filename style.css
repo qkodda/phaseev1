@@ -2482,7 +2482,7 @@ body {
     position: absolute !important;
     top: 0px !important; /* Flush at top */
     left: 0 !important;
-    box-shadow: 8px 8px 0px rgba(10, 30, 60, 0.85) !important; /* Hard offset shadow */
+    box-shadow: 0 8px 4px rgba(10, 30, 60, 0.35) !important; /* Soft shadow straight down */
     overflow: hidden !important;
     cursor: grab !important;
     transition: none !important;
@@ -2571,13 +2571,13 @@ body {
 .platform--tiktok .idea-swiper .loading-placeholder {
     background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3a7ca5 100%) !important;
     color: #ffffff !important;
-    box-shadow: 8px 8px 0px rgba(10, 30, 60, 0.85) !important; /* Hard offset shadow */
+    box-shadow: 0 8px 4px rgba(10, 30, 60, 0.35) !important; /* Soft shadow straight down */
 }
 
 .platform--youtube .idea-swiper .loading-placeholder {
     background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3a7ca5 100%) !important;
     color: #ffffff !important;
-    box-shadow: 8px 8px 0px rgba(10, 30, 60, 0.85) !important; /* Hard offset shadow */
+    box-shadow: 0 8px 4px rgba(10, 30, 60, 0.35) !important; /* Soft shadow straight down */
 }
 
 /* Subtle breathing effect on platform switch */
@@ -2672,7 +2672,7 @@ body {
     top: 10px !important; /* Centered: (240-220)/2 = 10px from top */
     opacity: 1 !important;
     pointer-events: none;
-    box-shadow: 7px 7px 0px rgba(10, 30, 60, 0.75) !important; /* Hard offset shadow - slightly smaller */
+    box-shadow: 0 6px 3px rgba(10, 30, 60, 0.3) !important; /* Soft shadow straight down */
 }
 
 .idea-swiper .card-stack .idea-card:nth-child(3 of .idea-card):not(.swiping) {
@@ -2682,7 +2682,7 @@ body {
     top: 10px !important; /* Centered: (240-220)/2 = 10px from top */
     opacity: 1 !important;
     pointer-events: none;
-    box-shadow: 6px 6px 0px rgba(10, 30, 60, 0.65) !important; /* Hard offset shadow - even smaller */
+    box-shadow: 0 5px 3px rgba(10, 30, 60, 0.25) !important; /* Soft shadow straight down */
 }
 
 .idea-swiper .card-stack .idea-card:nth-child(n+4 of .idea-card):not(.swiping) {
@@ -2850,7 +2850,7 @@ body {
     background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3a7ca5 100%) !important;
     border: none !important;
     border-radius: 16px !important;
-    box-shadow: 6px 6px 0px rgba(10, 30, 60, 0.5) !important; /* Hard offset shadow */
+    box-shadow: 0 6px 3px rgba(10, 30, 60, 0.25) !important; /* Soft shadow straight down */
     transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
@@ -5313,7 +5313,7 @@ select.custom-dropdown {
     background: #2a2a2a; /* Solid dark grey - cleaner than gradient */
     pointer-events: none;
     animation: pulseGlow 2s ease-in-out infinite;
-    box-shadow: 8px 8px 0px rgba(10, 30, 60, 0.85) !important; /* Hard offset shadow */
+    box-shadow: 0 8px 4px rgba(10, 30, 60, 0.35) !important; /* Soft shadow straight down */
 }
 
 .loading-content {
