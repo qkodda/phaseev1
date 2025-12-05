@@ -587,8 +587,9 @@ body {
     display: flex;
     gap: 10px;
     flex-wrap: nowrap;
-    animation: scrollRow var(--scroll-duration, 30s) linear infinite;
+    animation: pillScrollInfinite var(--scroll-duration, 25s) linear infinite;
     flex: 0 0 auto;
+    will-change: transform;
 }
 
 .pill-row[data-direction="reverse"] {
@@ -597,6 +598,15 @@ body {
 
 .pill-selection:hover .pill-row {
     animation-play-state: paused;
+}
+
+@keyframes pillScrollInfinite {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
 }
 
 .pill-btn {
@@ -624,14 +634,7 @@ body {
     color: #ffffff;
 }
 
-@keyframes scrollRow {
-    from {
-        transform: translateX(0);
-    }
-    to {
-        transform: translateX(-50%);
-    }
-}
+/* Removed old scrollRow - now using pillScrollInfinite */
 
 /* Platform Selection */
 .platform-selection {
@@ -1004,12 +1007,26 @@ body {
 
 .onboarding-content {
     margin-bottom: 16px;
+    width: 100%;
+}
+
+/* Onboarding Continue/Complete Button */
+.onboarding-btn {
+    width: 100%;
+    max-width: 340px;
+    margin: 24px auto 40px auto;
+    display: block;
 }
 
 .required-asterisk {
     color: #ef4444;
     font-weight: 700;
     margin-left: 2px;
+}
+
+/* Platform selection centered */
+.platform-selection.centered {
+    justify-content: center;
 }
 
 /* ============================================
@@ -4896,13 +4913,29 @@ END GENERATOR STYLES */
     }
 }
 
-/* Hide native select when custom dropdown wrapper exists */
+/* Hide native select completely when custom dropdown wrapper exists */
 select.custom-dropdown {
-    position: absolute;
-    opacity: 0;
+    position: absolute !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+    margin: -1px !important;
+    padding: 0 !important;
+}
+
+/* Prevent label from triggering native select on mobile */
+.input-group label {
     pointer-events: none;
-    width: 100%;
-    height: 100%;
+}
+
+.input-group label,
+.input-group .custom-dropdown-wrapper {
+    pointer-events: auto;
 }
 
 .custom-dropdown-wrapper {
