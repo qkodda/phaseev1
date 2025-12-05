@@ -3581,10 +3581,10 @@ END GENERATOR STYLES */
 .trend-card {
     background: white;
     border-radius: 8px;
-    padding: 14px;
+    padding: 12px 14px; /* Reduced top/bottom by 2px each */
     border: 1px solid #f1f5f9;
     width: 340px;
-    height: 65px;
+    height: 61px; /* Reduced by 4px */
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -6203,9 +6203,9 @@ body {
     height: 220px;
     overflow: hidden;
     position: relative;
-    background: rgba(255, 255, 255, 0.6);
+    background: transparent; /* Made transparent */
     border-radius: 16px;
-    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.15), 0 16px 32px -8px rgba(0, 0, 0, 0.1);
+    box-shadow: none; /* Removed shadow for transparent container */
     padding: 12px;
     /* Fade effect at top and bottom */
     -webkit-mask-image: linear-gradient(
