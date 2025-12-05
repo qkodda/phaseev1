@@ -309,9 +309,10 @@ body {
     box-sizing: border-box;
 }
 
-/* Settings page - no scroll needed */
+/* Settings page - allow scroll if needed */
 #settings-page .page-content {
-    overflow: hidden !important;
+    overflow-y: auto !important;
+    padding-bottom: 60px;
 }
 
 body:has(#homepage.page.active),
