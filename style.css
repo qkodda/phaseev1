@@ -2345,7 +2345,7 @@ body {
 
 /* Drawing Board Section and Below - Positioning */
 .drawing-board-section {
-    margin-top: 3px; /* Back to original position */
+    margin-top: -12px; /* Moved up 15px (was 3px) */
     transition: none !important; /* LOCKED - No movement */
 }
 
