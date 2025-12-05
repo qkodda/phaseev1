@@ -1012,8 +1012,12 @@ body {
 
 /* Onboarding Continue/Complete Button */
 .onboarding-btn {
-    width: 100%;
-    max-width: 340px;
+    width: 100% !important;
+    max-width: 340px !important;
+    min-height: 52px !important;
+    padding: 16px 24px !important;
+    display: block !important;
+    box-sizing: border-box !important;
     margin: 24px auto 40px auto;
     display: block;
 }

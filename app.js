@@ -793,15 +793,27 @@ function navigateTo(pageId) {
         
         // Always re-initialize swipe handlers when returning to homepage
         // This fixes the issue where swipe modal becomes inaccessible after navigation
-        setTimeout(() => {
-            // Force re-initialization by clearing the attached flag
-            const cards = cardStack?.querySelectorAll('.idea-card');
-            cards?.forEach(card => {
+        const reinitSwipe = () => {
+            const cardStack = document.getElementById('card-stack');
+            if (!cardStack) return;
+            
+            // Force re-initialization by clearing the attached flag on ALL cards
+            const cards = cardStack.querySelectorAll('.idea-card');
+            cards.forEach(card => {
                 card.dataset.swipeHandlersAttached = 'false';
+                // Also reset any stale transform states
+                card.style.transform = '';
+                card.style.transition = '';
+                card.classList.remove('swiping');
             });
             initSwipeHandlers();
             console.log('🔄 Re-initialized swipe handlers after navigation');
-        }, 150);
+        };
+        
+        // Run immediately and again after a delay for safety
+        reinitSwipe();
+        setTimeout(reinitSwipe, 200);
+        setTimeout(reinitSwipe, 500);
         
         // Update header button based on page
         const homeProfileBtn = document.querySelector('#homepage .profile-pill-btn');
@@ -2152,7 +2164,7 @@ document.addEventListener('DOMContentLoaded', () => {
         placeholder.innerHTML = `
             <div class="loading-content">
                 <div class="logo-loader" aria-hidden="true">
-                    <img src="/PHasse-Logo.png" alt="" class="logo-fill-animated">
+                    <img src="PHasse-Logo.png" alt="" class="logo-fill-animated">
                 </div>
                 <div class="thinking-text-container">
                     <span class="thinking-text"></span>
@@ -5099,6 +5111,19 @@ async function initializeApp() {
 // Initialize feedback character counter
 document.addEventListener('DOMContentLoaded', async () => {
     updateFeedbackCharCount();
+    
+    // Safety mechanism: Re-init swipe handlers when touching card stack area
+    const cardStack = document.getElementById('card-stack');
+    if (cardStack) {
+        cardStack.addEventListener('touchstart', (e) => {
+            // Check if the touched card has handlers
+            const card = e.target.closest('.idea-card');
+            if (card && card.dataset.swipeHandlersAttached !== 'true') {
+                console.log('⚠️ Card missing handlers, re-initializing...');
+                initSwipeHandlers();
+            }
+        }, { passive: true });
+    }
     
     // Initialize platform icon button click handlers for generator card
     const platformIconBtns = document.querySelectorAll('.platform-icon-btn');
