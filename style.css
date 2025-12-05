@@ -1578,7 +1578,7 @@ body {
     border: none;
     border-radius: 22px;
     padding: 10px;
-    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.3), 0 16px 32px -8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 9px 3px rgba(10, 30, 60, 0.35); /* Same shadow as cards */
     overflow: visible;
     transition: none; /* LOCKED - No movement */
     cursor: pointer; /* Indicate clickable for expansion */
@@ -2328,8 +2328,6 @@ body {
     position: relative !important;
     z-index: 20;
     transition: none !important; /* LOCKED - No movement */
-    box-shadow: 0 9px 3px rgba(10, 30, 60, 0.35); /* Same shadow as cards */
-    border-radius: 16px;
 }
 
 .hero-section-container .hero-section {
