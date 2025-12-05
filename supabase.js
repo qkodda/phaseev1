@@ -11,7 +11,15 @@
  * Exports: supabase client, signUp, signIn, signOut, getCurrentUser, resetPassword
  */
 
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+// Try to import Supabase, but don't crash if it fails
+let createClient = null;
+try {
+  const supabaseModule = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+  createClient = supabaseModule.createClient;
+} catch (err) {
+  console.warn('⚠️ Failed to load Supabase library:', err.message);
+  console.warn('   App will run in dev bypass mode only.');
+}
 
 // Supabase credentials from environment variables ONLY
 // These should be set in Vercel dashboard, NOT hardcoded here
@@ -33,8 +41,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
   // Do not throw error here, allow app to load for dev bypass
 }
 
-// Create client only if credentials exist, otherwise create a dummy object to prevent crashes
-export const supabase = (supabaseUrl && supabaseAnonKey) 
+// Create client only if credentials exist AND library loaded, otherwise create a dummy object
+export const supabase = (createClient && supabaseUrl && supabaseAnonKey) 
   ? createClient(supabaseUrl, supabaseAnonKey)
   : {
       auth: {
