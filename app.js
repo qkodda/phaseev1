@@ -767,9 +767,18 @@ function navigateTo(pageId) {
         renderStreakSquares();
         
         // Reload saved ideas from Supabase (pinned/scheduled)
-        loadIdeasFromSupabase().catch(err => {
-            console.error('Failed to reload ideas:', err);
-        });
+        loadIdeasFromSupabase()
+            .then(() => {
+                // After loading, refresh counts to show empty states if needed
+                refreshPinnedCount();
+                refreshCalendarEmptyState();
+            })
+            .catch(err => {
+                console.error('Failed to reload ideas:', err);
+                // Still refresh empty states on error
+                refreshPinnedCount();
+                refreshCalendarEmptyState();
+            });
         
         const cardStack = document.getElementById('card-stack');
         const existingCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.build-more-card)') : [];
@@ -2854,6 +2863,31 @@ document.addEventListener('DOMContentLoaded', () => {
             existingEmptyState.remove();
         }
     }
+
+    /**
+     * Update calendar empty state
+     */
+    function refreshCalendarEmptyState() {
+        const calendarList = document.getElementById('calendar-list');
+        if (!calendarList) return;
+
+        const scheduledCards = calendarList.querySelectorAll('.calendar-card, .revital-card');
+        const existingEmptyState = calendarList.querySelector('.empty-state');
+        
+        if (scheduledCards.length === 0) {
+            if (!existingEmptyState) {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-state calendar-empty';
+                emptyState.innerHTML = '<p>No scheduled ideas yet. Pin and schedule!</p>';
+                calendarList.appendChild(emptyState);
+            }
+        } else if (existingEmptyState) {
+            existingEmptyState.remove();
+        }
+    }
+
+    // Make refreshCalendarEmptyState globally accessible
+    window.refreshCalendarEmptyState = refreshCalendarEmptyState;
 
     /**
      * Add a pinned idea to the pinned ideas section

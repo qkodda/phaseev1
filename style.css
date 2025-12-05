@@ -3434,16 +3434,24 @@ END GENERATOR STYLES */
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px 16px;
+    padding: 40px 16px;
     width: 100%;
     text-align: center;
+    min-height: 80px;
 }
 
 .empty-state p {
-    color: #888;
-    font-size: 13px;
+    color: #666;
+    font-size: 14px;
     font-style: italic;
     margin: 0;
+}
+
+/* When empty state is present, disable fade effect */
+.ideas-grid:has(.empty-state),
+.revital-card-list:has(.empty-state) {
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
 }
 
 /* Collapsed Idea Card (for pinned/scheduled/trends) */
