@@ -2715,6 +2715,9 @@ window.handleForgotPassword = async function() {
             });
         });
     }
+    
+    // Make initSwipeHandlers globally accessible
+    window.initSwipeHandlers = initSwipeHandlers;
 
     /**
      * Swipe a card in the given direction

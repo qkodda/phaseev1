@@ -40,8 +40,20 @@ const isProductionEnv = () => {
     return false;
 };
 
+// Cache the result to avoid repeated logging and checks
+let _devBypassCached = null;
+
 export function isDevBypassEnabled() {
-    if (isProductionEnv()) return false;
+    // Return cached result if available
+    if (_devBypassCached !== null) {
+        return _devBypassCached;
+    }
+    
+    if (isProductionEnv()) {
+        console.log('🔒 Production mode - dev bypass disabled');
+        _devBypassCached = false;
+        return false;
+    }
     
     const possibleKeys = [
         'VITE_DEV_BYPASS_AUTH',
@@ -51,20 +63,30 @@ export function isDevBypassEnabled() {
     
     for (const key of possibleKeys) {
         const value = normalizeFlag(readEnvValue(key));
-        console.log(`🔍 Checking ${key}:`, value);
         if (value === 'true' || value === '1' || value === 'yes') {
             console.log('✅ DEV BYPASS ENABLED via', key);
+            _devBypassCached = true;
             return true;
         }
-        // Check if explicitly disabled
         if (value === 'false' || value === '0' || value === 'no') {
-            console.log('❌ DEV BYPASS EXPLICITLY DISABLED via', key);
+            console.log('❌ DEV BYPASS DISABLED via', key);
+            _devBypassCached = false;
             return false;
         }
     }
     
-    // Default to FALSE - require real authentication
+    // Default: enabled in dev mode for localhost
+    const isLocalhost = typeof window !== 'undefined' && 
+        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    
+    if (isLocalhost) {
+        console.log('✅ DEV BYPASS ENABLED (localhost default)');
+        _devBypassCached = true;
+        return true;
+    }
+    
     console.log('🔒 DEV BYPASS DISABLED - real auth required');
+    _devBypassCached = false;
     return false;
 }
 
