@@ -3525,11 +3525,12 @@ END GENERATOR STYLES */
     align-items: center;
     row-gap: 8px;
     width: 100%;
-    padding: 16px 12px; /* Added horizontal padding to prevent cutoff */
+    padding: 16px 0; /* Vertical padding only */
     margin: 0 auto;
     max-height: 215px;
     overflow-y: auto;
     overflow-x: visible;
+    box-sizing: border-box;
     /* Fade effect at top and bottom - reduced exposure */
     -webkit-mask-image: linear-gradient(
         to bottom,
@@ -6074,7 +6075,9 @@ body {
     max-height: 215px;
     overflow-y: auto;
     overflow-x: visible;
-    padding: 16px 12px; /* Match ideas-grid horizontal padding */
+    padding: 16px 0; /* Vertical padding only */
+    width: 100%;
+    box-sizing: border-box;
     /* Fade effect at top and bottom - reduced exposure */
     -webkit-mask-image: linear-gradient(
         to bottom,
