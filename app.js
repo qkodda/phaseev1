@@ -5033,6 +5033,17 @@ async function initializeApp() {
     try {
         console.log('🚀 initializeApp() called');
         
+        // FORCE DEV BYPASS IN DEVELOPMENT - always skip auth on localhost
+        const isLocalDev = window.location.hostname === 'localhost' || 
+                          window.location.hostname === '127.0.0.1' ||
+                          window.location.hostname.includes('192.168');
+        
+        if (isLocalDev) {
+            console.log('🔧 LOCALHOST DETECTED: Forcing dev bypass, going straight to homepage');
+            navigateTo('homepage');
+            return;
+        }
+        
         // CHECK DEV BYPASS FIRST - skip all auth if enabled
         if (isDevBypassEnabled()) {
             console.log('🔧 DEV BYPASS ENABLED: Skipping auth, going straight to homepage');
