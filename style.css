@@ -2667,7 +2667,9 @@ body {
 
 .idea-swiper .card-stack .idea-card:nth-child(2 of .idea-card):not(.swiping) {
     z-index: 9;
-    transform: scale(0.97) scaleY(0.917) translateY(10px); /* 220px height, centered with 10px offset */
+    transform: scaleX(0.97); /* Only scale width, not height */
+    height: 220px !important; /* Explicit 220px height */
+    top: 10px !important; /* Centered: (240-220)/2 = 10px from top */
     opacity: 1 !important;
     pointer-events: none;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -2675,7 +2677,9 @@ body {
 
 .idea-swiper .card-stack .idea-card:nth-child(3 of .idea-card):not(.swiping) {
     z-index: 8;
-    transform: scale(0.94) scaleY(0.917) translateY(10px); /* 220px height, centered with 10px offset */
+    transform: scaleX(0.94); /* Only scale width, not height */
+    height: 220px !important; /* Explicit 220px height */
+    top: 10px !important; /* Centered: (240-220)/2 = 10px from top */
     opacity: 1 !important;
     pointer-events: none;
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18);
@@ -2823,9 +2827,9 @@ body {
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 .card-shadow-container {
     width: 350px !important; /* LOCKED */
-    height: 240px !important; /* Increased by 20px */
+    height: 220px !important; /* 20px shorter than front card for stacked look */
     position: absolute !important;
-    top: 15px !important; /* Vertically centered with idea cards */
+    top: 10px !important; /* Centered: (240-220)/2 = 10px from top */
     left: 50% !important;
     transform: translateX(-50%) !important;
     pointer-events: none !important;
@@ -2842,7 +2846,7 @@ body {
 .card-shadow-container::after {
     content: '' !important;
     width: calc(50% - 4px) !important;
-    height: 100% !important;
+    height: 220px !important; /* Match container height */
     background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3a7ca5 100%) !important;
     border: none !important;
     border-radius: 16px !important;
