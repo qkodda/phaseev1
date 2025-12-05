@@ -63,8 +63,8 @@ export function isDevBypassEnabled() {
         }
     }
     
-    // Default to TRUE for now - dev bypass enabled
-    console.log('✅ DEV BYPASS ENABLED by default (development mode)');
-    return true;
+    // Default to FALSE - require real authentication
+    console.log('🔒 DEV BYPASS DISABLED - real auth required');
+    return false;
 }
 
