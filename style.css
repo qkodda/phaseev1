@@ -1527,7 +1527,7 @@ body {
     color: #1a1a1a;
     font-size: 15px;
     font-weight: 600;
-    margin: 0;
+    margin: 10px 0 0 0;
     line-height: 1.2;
     flex: 1;
     white-space: nowrap;
@@ -1578,7 +1578,7 @@ body {
     border: none;
     border-radius: 22px;
     padding: 10px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.3), 0 16px 32px -8px rgba(0, 0, 0, 0.2);
     overflow: visible;
     transition: none; /* LOCKED - No movement */
     cursor: pointer; /* Indicate clickable for expansion */
@@ -2415,7 +2415,7 @@ body {
     font-weight: 500;
     letter-spacing: 0.3px;
     position: relative;
-    margin: -38px auto 6px; /* Centered between swipe modal and hero */
+    margin: -18px auto 6px; /* Moved down 20px */
 }
 
 .swiper-info span {
@@ -2426,7 +2426,7 @@ body {
 /* ⚠️ LOCKED FOR BACKEND WORK - DO NOT MODIFY ⚠️ */
 .idea-swiper {
     margin-bottom: -10px !important;
-    margin-top: 0px !important; /* Flush at top */
+    margin-top: 15px !important; /* Moved down 15px */
     margin-left: auto !important;
     margin-right: auto !important;
     display: flex !important;
@@ -2459,7 +2459,7 @@ body {
 .card-stack {
     position: relative;
     width: 300px;
-    height: 320px;
+    height: 290px;
     touch-action: manipulation;
     z-index: 10;
     margin: 0 auto 0; /* Flush at top, centered */
@@ -2473,7 +2473,7 @@ body {
     position: relative;
     padding: 14px !important;
     width: 300px !important;
-    height: 270px !important;
+    height: 240px !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
@@ -2696,7 +2696,7 @@ body {
     border-radius: 16px;
     padding: 16px;
     width: 300px;
-    height: 270px;
+    height: 240px;
     display: flex;
     flex-direction: column;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -2741,7 +2741,7 @@ body {
     border-radius: 16px;
     padding: 24px;
     width: 300px;
-    height: 270px;
+    height: 240px;
     display: none;
     flex-direction: column;
     align-items: center;
@@ -3355,12 +3355,16 @@ END GENERATOR STYLES */
     width: 100%;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+/* Only show background/shadow when pinned-ideas has actual cards */
+.pinned-ideas:has(.idea-card-collapsed) {
     background: rgba(255, 255, 255, 0.6);
     border-radius: 16px;
     box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.15), 0 16px 32px -8px rgba(0, 0, 0, 0.1);
     padding: 12px;
-    align-items: center;
-    position: relative;
 }
 
 
@@ -3930,9 +3934,9 @@ END GENERATOR STYLES */
     flex-direction: column;
     gap: 16px;
     margin-top: 12px;
-    max-height: calc(100vh - 140px);
+    max-height: calc(100vh - 100px);
     overflow-y: auto;
-    padding-bottom: 20px;
+    padding-bottom: 40px;
 }
 
 .settings-group {
@@ -5305,6 +5309,7 @@ select.custom-dropdown {
     background: #2a2a2a; /* Solid dark grey - cleaner than gradient */
     pointer-events: none;
     animation: pulseGlow 2s ease-in-out infinite;
+    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.3), 0 16px 32px -8px rgba(0, 0, 0, 0.2) !important;
 }
 
 .loading-content {

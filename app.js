@@ -2689,7 +2689,8 @@ window.handleForgotPassword = async function() {
             card.addEventListener('touchstart', (e) => {
                 if (window.swipeHandlersDisabled) return;
                 
-                const topCard = cardStack.querySelector('.idea-card:not(.swipe-left):not(.swipe-right):not(.loading-placeholder)');
+                // Find the top swipeable card (exclude build-more, loading, and already-swiped cards)
+                const topCard = cardStack.querySelector('.idea-card:not(.swipe-left):not(.swipe-right):not(.loading-placeholder):not(.build-more-card)');
                 if (!topCard || card !== topCard) return;
                 if (e.target.closest('button')) return;
                 
@@ -2712,7 +2713,8 @@ window.handleForgotPassword = async function() {
             card.addEventListener('mousedown', (e) => {
                 if (window.swipeHandlersDisabled) return;
                 
-                const topCard = cardStack.querySelector('.idea-card:not(.swipe-left):not(.swipe-right):not(.loading-placeholder)');
+                // Find the top swipeable card (exclude build-more, loading, and already-swiped cards)
+                const topCard = cardStack.querySelector('.idea-card:not(.swipe-left):not(.swipe-right):not(.loading-placeholder):not(.build-more-card)');
                 if (!topCard || card !== topCard) return;
                 if (e.target.closest('button')) return;
                 
