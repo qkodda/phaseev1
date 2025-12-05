@@ -4536,7 +4536,7 @@ END GENERATOR STYLES */
     background-position: center !important;
     border: none !important;
     border-radius: 16px !important;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.25), 0 0 15px rgba(0, 0, 0, 0.15) !important;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.35), 0 0 25px rgba(0, 0, 0, 0.2), 0 10px 40px rgba(0, 0, 0, 0.3) !important;
     display: grid !important;
     grid-template-rows: 35px 30px 1fr 50px !important;
     overflow: visible !important;
@@ -4574,26 +4574,12 @@ END GENERATOR STYLES */
 .expanded-idea-card .card-actions-bottom {
     grid-row: 4 !important;
     display: grid !important;
-    grid-template-columns: 44px 1fr 44px !important; /* Fixed width for buttons, flex center */
+    grid-template-columns: 32px 1fr 32px !important;
     align-items: center !important;
-    padding: 12px !important; /* Match top: 12px from all edges */
+    padding: 12px !important;
     border-top: none !important;
     height: auto !important;
     gap: 8px;
-}
-
-/* Edit/Save Button - Left */
-.expanded-idea-card .card-actions-bottom .edit-btn,
-.expanded-idea-card .card-actions-bottom .save-btn {
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%) !important;
-    border-radius: 10px !important;
-    padding: 0 !important;
-    box-shadow: 0 2px 8px rgba(30, 58, 95, 0.3);
 }
 
 /* Center: Platform Icons */
@@ -4607,19 +4593,6 @@ END GENERATOR STYLES */
 .expanded-idea-card .platform-icons .platform-icon {
     width: 18px;
     height: 18px;
-}
-
-/* Schedule Button - Right */
-.expanded-idea-card .card-actions-bottom .schedule-btn {
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%) !important;
-    border-radius: 10px !important;
-    padding: 0 !important;
-    box-shadow: 0 2px 8px rgba(30, 58, 95, 0.3);
 }
 
 /* Right: Schedule/Checkmark Button */
@@ -4809,9 +4782,9 @@ END GENERATOR STYLES */
 .expanded-action-btn {
     background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
     border: none;
-    border-radius: 10px;
-    width: 44px;
-    height: 44px;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -4854,8 +4827,8 @@ END GENERATOR STYLES */
 }
 
 .expanded-action-btn svg {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     position: relative;
     z-index: 1;
 }
