@@ -264,7 +264,7 @@ function renderStreakSquares(animateSquare = null) {
     }
     if (schedulingLabel) {
         const count = data.schedulingStreak.count;
-        schedulingLabel.textContent = count > 0 ? 'Scheduling Streak' : 'Get to scheduling!';
+        schedulingLabel.textContent = count > 0 ? 'Days in a Row' : 'Schedule daily!';
     }
     
     // Session Streak
@@ -2207,16 +2207,16 @@ document.addEventListener('DOMContentLoaded', () => {
             
             textElement.textContent = currentText;
             
-            let typeSpeed = isDeleting ? 30 : 50;
+            let typeSpeed = isDeleting ? 20 : 35;
             
             if (!isDeleting && charIndex === currentThought.length) {
                 // Pause at end of word
-                typeSpeed = 1500;
+                typeSpeed = 800;
                 isDeleting = true;
             } else if (isDeleting && charIndex === 0) {
                 isDeleting = false;
                 thoughtIndex = (thoughtIndex + 1) % thoughts.length;
-                typeSpeed = 300;
+                typeSpeed = 150;
             }
             
             thinkingTimeout = setTimeout(type, typeSpeed);
