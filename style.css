@@ -212,7 +212,7 @@ body {
 }
 
 #homepage.page {
-    background: linear-gradient(180deg, #ffffff 0%, #e8f4fc 15%, #cce5f5 30%, #a8d4ef 50%, #7ec0e6 70%, #4fa8d9 85%, #2a8fc9 100%) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #e6f2fa 10%, #b8ddf5 25%, #7ac4ed 45%, #3eaadb 65%, #1a8fc2 80%, #0a6e9c 100%) !important;
     margin-top: 0;
     padding-top: 0;
     top: 0 !important;
@@ -232,7 +232,7 @@ body {
     top: 0 !important;
     margin-top: 0 !important;
     padding-top: 0 !important;
-    background: linear-gradient(180deg, #ffffff 0%, #e8f4fc 15%, #cce5f5 30%, #a8d4ef 50%, #7ec0e6 70%, #4fa8d9 85%, #2a8fc9 100%) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #e6f2fa 10%, #b8ddf5 25%, #7ac4ed 45%, #3eaadb 65%, #1a8fc2 80%, #0a6e9c 100%) !important;
 }
 
 #settings-page.page {
@@ -290,6 +290,23 @@ body {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
+}
+
+/* Account details and change password page buttons should match input widths */
+#account-details-page .page-content,
+#change-password-page .page-content,
+#delete-account-page .page-content {
+    max-width: 340px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+#account-details-page .btn-primary,
+#account-details-page .btn-danger,
+#change-password-page .btn-primary,
+#change-password-page .btn-secondary {
+    box-sizing: border-box;
 }
 
 /* Settings page - no scroll needed */
@@ -698,7 +715,7 @@ body {
    SIGN IN PAGE
    ============================================ */
 #sign-in-page {
-    background: linear-gradient(180deg, #ffffff 0%, #e8f4fc 15%, #cce5f5 30%, #a8d4ef 50%, #7ec0e6 70%, #4fa8d9 85%, #2a8fc9 100%) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #e6f2fa 10%, #b8ddf5 25%, #7ac4ed 45%, #3eaadb 65%, #1a8fc2 80%, #0a6e9c 100%) !important;
 }
 
 #sign-in-page .page-content {
@@ -1037,7 +1054,7 @@ body {
    PAYWALL PAGE - No Scroll, Compact Layout
    ============================================ */
 #paywall-page {
-    background: linear-gradient(180deg, #ffffff 0%, #e8f4fc 15%, #cce5f5 30%, #a8d4ef 50%, #7ec0e6 70%, #4fa8d9 85%, #2a8fc9 100%) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #e6f2fa 10%, #b8ddf5 25%, #7ac4ed 45%, #3eaadb 65%, #1a8fc2 80%, #0a6e9c 100%) !important;
 }
 
 #paywall-page .page-content {
@@ -1423,26 +1440,20 @@ body {
     transform: scale(0.95);
 }
 
-/* Hero Greeting Section (Homepage Only - Below Header) */
+/* Hero Greeting Section (Homepage Only - Below Header) - Dynamic prompt only */
 .hero-greeting-section {
     width: 100%;
-    padding: 0px 16px 10px 16px;
+    padding: 4px 16px 8px 16px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     background: transparent;
     transition: none !important;
 }
 
+/* Greeting moved to header - this selector kept for compatibility */
 .hero-greeting-section .header-greeting {
-    text-align: center;
-    color: #000000;
-    font-size: 18px;
-    font-weight: 700;
-    margin: 0;
-    line-height: 1.2;
-    transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    display: none; /* Greeting now in header */
 }
 
 .hero-greeting-section .header-dynamic-prompt {
@@ -1469,14 +1480,23 @@ body {
     padding-top: 10px;
 }
 
+/* Header greeting - centered between logo and profile */
 .header-greeting {
     text-align: center;
-    color: #000000;
-    font-size: 16px;
-    font-weight: 700;
+    color: #1a1a1a;
+    font-size: 15px;
+    font-weight: 600;
     margin: 0;
     line-height: 1.2;
-    transition: color 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#app-header .header-greeting {
+    position: static;
+    transform: none;
 }
 
 .header-dynamic-prompt {
@@ -2421,7 +2441,11 @@ body {
     position: absolute !important;
     top: 0px !important; /* Flush at top */
     left: 0 !important;
-    box-shadow: 0 6px 0 -1px rgba(0, 0, 0, 0.12), 0 12px 0 -2px rgba(0, 0, 0, 0.08), 0 20px 35px 0px rgba(0, 0, 0, 0.4) !important;
+    box-shadow: 
+        0 4px 0 0 rgba(30, 58, 95, 0.9),
+        0 8px 0 0 rgba(30, 58, 95, 0.7),
+        0 12px 0 0 rgba(30, 58, 95, 0.5),
+        0 20px 40px -5px rgba(0, 0, 0, 0.5) !important;
     overflow: hidden !important;
     cursor: grab !important;
     transition: none !important;
@@ -3865,8 +3889,9 @@ END GENERATOR STYLES */
     flex-direction: column;
     gap: 16px;
     margin-top: 12px;
-    max-height: calc(100vh - 160px);
-    overflow: hidden;
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+    padding-bottom: 20px;
 }
 
 .settings-group {
@@ -3992,11 +4017,13 @@ END GENERATOR STYLES */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
+    padding: 16px 20px;
+    min-height: 70px;
     background: rgba(255, 255, 255, 0.6);
     border-radius: 12px;
     border: 1px solid #e0e0e0;
     margin-bottom: 16px;
+    box-sizing: border-box;
 }
 
 .notification-info {
@@ -5096,9 +5123,10 @@ select.custom-dropdown {
 .feedback-page-content {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     padding: 24px;
+    padding-top: 40px;
     height: calc(100vh - 65px);
     overflow: hidden !important;
 }
@@ -6010,9 +6038,11 @@ body {
     );
 }
 
-/* Calendar list can show more scheduled ideas */
+/* Calendar list can show more scheduled ideas - holds up to 30 */
 #calendar-list {
-    max-height: 400px;
+    max-height: 215px; /* Same as drawing board - shows 3 at a time */
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .revital-card-list::-webkit-scrollbar {
