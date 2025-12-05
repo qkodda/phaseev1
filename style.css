@@ -5276,7 +5276,39 @@ select.custom-dropdown {
     }
 }
 
-/* AI Thinking Dots Animation */
+/* AI Thinking Text with Typewriter Effect */
+.thinking-text-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 24px;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+.thinking-text {
+    display: inline;
+}
+
+.thinking-cursor {
+    display: inline-block;
+    margin-left: 2px;
+    animation: cursorBlink 0.8s ease-in-out infinite;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+@keyframes cursorBlink {
+    0%, 50% {
+        opacity: 1;
+    }
+    51%, 100% {
+        opacity: 0;
+    }
+}
+
+/* Fallback Dots Animation (if needed) */
 .ai-thinking-dots {
     display: flex;
     justify-content: center;

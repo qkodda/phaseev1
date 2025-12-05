@@ -2154,11 +2154,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="logo-loader" aria-hidden="true">
                     <img src="/PHasse-Logo.png" alt="" class="logo-fill-animated">
                 </div>
-                <h3 class="loading-title">Phazee is thinking</h3>
-                <div class="ai-thinking-dots">
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                    <span class="dot"></span>
+                <div class="thinking-text-container">
+                    <span class="thinking-text"></span>
+                    <span class="thinking-cursor">|</span>
                 </div>
             </div>
         `;
@@ -2166,19 +2164,76 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Start thinking animation (now CSS-only with dots)
+     * Start thinking animation with typewriter effect
      */
     let thinkingInterval = null;
+    let thinkingTimeout = null;
     function startLiveThinking(userProfile = {}) {
-        // The new dots animation is CSS-only, no JS needed
-        // Just log that we're in thinking mode
-        console.log('✅ Thinking animation started (CSS dots)');
+        const thoughts = [
+            "analyzing trends...",
+            "finding viral angles...",
+            "crafting hooks...",
+            "generating ideas...",
+            "optimizing for engagement...",
+            "building something great...",
+            "almost there..."
+        ];
+        
+        let thoughtIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let currentText = '';
+        
+        const textElement = document.querySelector('.thinking-text');
+        if (!textElement) {
+            console.log('⚠️ Thinking text element not found');
+            return;
+        }
+        
+        // Clear any existing intervals
+        if (thinkingInterval) clearInterval(thinkingInterval);
+        if (thinkingTimeout) clearTimeout(thinkingTimeout);
+        
+        const type = () => {
+            const currentThought = thoughts[thoughtIndex];
+            
+            if (isDeleting) {
+                currentText = currentThought.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                currentText = currentThought.substring(0, charIndex + 1);
+                charIndex++;
+            }
+            
+            textElement.textContent = currentText;
+            
+            let typeSpeed = isDeleting ? 30 : 50;
+            
+            if (!isDeleting && charIndex === currentThought.length) {
+                // Pause at end of word
+                typeSpeed = 1500;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                thoughtIndex = (thoughtIndex + 1) % thoughts.length;
+                typeSpeed = 300;
+            }
+            
+            thinkingTimeout = setTimeout(type, typeSpeed);
+        };
+        
+        type();
+        console.log('✅ Thinking animation started (typewriter)');
     }
 
     function stopLiveThinking() {
         if (thinkingInterval) {
             clearInterval(thinkingInterval);
             thinkingInterval = null;
+        }
+        if (thinkingTimeout) {
+            clearTimeout(thinkingTimeout);
+            thinkingTimeout = null;
         }
     }
 
