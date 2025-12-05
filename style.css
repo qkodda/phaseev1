@@ -3434,10 +3434,9 @@ END GENERATOR STYLES */
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px 16px;
+    padding: 16px;
     width: 100%;
     text-align: center;
-    min-height: 80px;
 }
 
 .empty-state p {
