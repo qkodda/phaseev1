@@ -2415,7 +2415,7 @@ body {
     font-weight: 500;
     letter-spacing: 0.3px;
     position: relative;
-    margin: 20px auto 10px; /* Below swipe modal, above textbox */
+    margin: 30px auto 10px; /* Below swipe modal, above textbox */
 }
 
 .swiper-info span {
@@ -2667,7 +2667,7 @@ body {
 
 .idea-swiper .card-stack .idea-card:nth-child(2 of .idea-card):not(.swiping) {
     z-index: 9;
-    transform: scale(0.98) translateY(4px);
+    transform: scale(0.97) scaleY(0.93); /* Shorter height, centered vertically */
     opacity: 1 !important;
     pointer-events: none;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -2675,7 +2675,7 @@ body {
 
 .idea-swiper .card-stack .idea-card:nth-child(3 of .idea-card):not(.swiping) {
     z-index: 8;
-    transform: scale(0.96) translateY(8px);
+    transform: scale(0.94) scaleY(0.90); /* Even shorter height */
     opacity: 1 !important;
     pointer-events: none;
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18);
