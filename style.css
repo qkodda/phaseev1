@@ -4573,22 +4573,26 @@ END GENERATOR STYLES */
 /* Bottom Section - Action Bar (Edit | Icons | Schedule) */
 .expanded-idea-card .card-actions-bottom {
     grid-row: 4 !important;
-    display: flex !important;
-    justify-content: space-between !important;
+    display: grid !important;
+    grid-template-columns: 44px 1fr 44px !important; /* Fixed width for buttons, flex center */
     align-items: center !important;
-    padding: 8px 12px !important; /* Match top corners: 8px from edges */
+    padding: 12px !important; /* Match top: 12px from all edges */
     border-top: none !important;
     height: auto !important;
-    gap: 12px;
+    gap: 8px;
 }
 
 /* Edit/Save Button - Left */
 .expanded-idea-card .card-actions-bottom .edit-btn,
 .expanded-idea-card .card-actions-bottom .save-btn {
-    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%) !important;
     border-radius: 10px !important;
-    padding: 10px !important;
+    padding: 0 !important;
     box-shadow: 0 2px 8px rgba(30, 58, 95, 0.3);
 }
 
@@ -4598,7 +4602,6 @@ END GENERATOR STYLES */
     justify-content: center;
     align-items: center;
     gap: 8px;
-    flex: 1;
 }
 
 .expanded-idea-card .platform-icons .platform-icon {
@@ -4606,13 +4609,16 @@ END GENERATOR STYLES */
     height: 18px;
 }
 
-/* Schedule/Checkmark Button - Right */
-.expanded-idea-card .card-actions-bottom .schedule-btn,
-.expanded-idea-card .card-actions-bottom .checkmark-btn {
-    flex-shrink: 0;
+/* Schedule Button - Right */
+.expanded-idea-card .card-actions-bottom .schedule-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%) !important;
     border-radius: 10px !important;
-    padding: 10px !important;
+    padding: 0 !important;
     box-shadow: 0 2px 8px rgba(30, 58, 95, 0.3);
 }
 
@@ -4804,8 +4810,8 @@ END GENERATOR STYLES */
     background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
     border: none;
     border-radius: 10px;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -4848,8 +4854,8 @@ END GENERATOR STYLES */
 }
 
 .expanded-action-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     position: relative;
     z-index: 1;
 }
