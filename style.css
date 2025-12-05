@@ -3366,12 +3366,12 @@ END GENERATOR STYLES */
     position: relative;
 }
 
-/* Only show background/shadow when pinned-ideas has actual cards */
+/* Keep pinned-ideas transparent at all times */
 .pinned-ideas:has(.idea-card-collapsed) {
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 16px;
-    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.15), 0 16px 32px -8px rgba(0, 0, 0, 0.1);
-    padding: 12px;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
 }
 
 
@@ -3525,24 +3525,24 @@ END GENERATOR STYLES */
     align-items: center;
     row-gap: 8px;
     width: 100%;
-    padding: 16px 0;
+    padding: 16px 12px; /* Added horizontal padding to prevent cutoff */
     margin: 0 auto;
     max-height: 215px;
     overflow-y: auto;
     overflow-x: visible;
-    /* Fade effect at top and bottom */
+    /* Fade effect at top and bottom - reduced exposure */
     -webkit-mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        black 12%,
-        black 88%,
+        black 5%,
+        black 95%,
         transparent 100%
     );
     mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        black 12%,
-        black 88%,
+        black 5%,
+        black 95%,
         transparent 100%
     );
 }
@@ -6074,19 +6074,19 @@ body {
     overflow-y: auto;
     overflow-x: visible;
     padding: 16px 0;
-    /* Fade effect at top and bottom */
+    /* Fade effect at top and bottom - reduced exposure */
     -webkit-mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        black 12%,
-        black 88%,
+        black 5%,
+        black 95%,
         transparent 100%
     );
     mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        black 12%,
-        black 88%,
+        black 5%,
+        black 95%,
         transparent 100%
     );
 }
@@ -6207,19 +6207,19 @@ body {
     border-radius: 16px;
     box-shadow: none; /* Removed shadow for transparent container */
     padding: 12px;
-    /* Fade effect at top and bottom */
+    /* Fade effect at top and bottom - reduced exposure */
     -webkit-mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        black 10%,
-        black 90%,
+        black 5%,
+        black 95%,
         transparent 100%
     );
     mask-image: linear-gradient(
         to bottom,
         transparent 0%,
-        black 10%,
-        black 90%,
+        black 5%,
+        black 95%,
         transparent 100%
     );
 }
