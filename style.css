@@ -5787,7 +5787,7 @@ body {
 
 /* Sections (Drawing Board, Calendar, Trends) */
 .revital-section {
-    padding: 20px 24px;
+    padding: 10px 24px; /* Reduced vertical padding */
     background-color: transparent;
     border-top: none;
     transition: none !important;
