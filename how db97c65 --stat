@@ -1,0 +1,463 @@
+[33mcommit db97c654fb9d300dfe153a733704db54cf033960[m[33m ([m[1;32mbackend-org[m[33m)[m
+Author: Q Kodda <qkodda@gmail.com>
+Date:   Fri Nov 21 11:30:25 2025 -0500
+
+    Cleanup console logs and configure email confirmation flow
+
+[1mdiff --git a/app.js b/app.js[m
+[1mindex dbd09ee..0fe4e8a 100644[m
+[1m--- a/app.js[m
+[1m+++ b/app.js[m
+[36m@@ -678,7 +678,7 @@[m [mfunction confirmScheduleDate(selectedDateStr) {[m
+         scheduleList.appendChild(scheduledCard);[m
+     }[m
+     [m
+[31m-    console.log('✅ Scheduled card added to schedule list. Total scheduled:', scheduleList.querySelectorAll('.idea-card-collapsed').length);[m
+[32m+[m[32m    // Scheduled card added to schedule list[m
+ [m
+     // Remove from pinned[m
+     if (pendingScheduleCard && pendingScheduleCard.parentNode) {[m
+[36m@@ -712,7 +712,7 @@[m [mfunction confirmScheduleDate(selectedDateStr) {[m
+         });[m
+     [m
+     generateScheduleCalendar();[m
+[31m-    console.log('Scheduled idea for:', month, day);[m
+[32m+[m[32m    // Scheduled idea[m
+ }[m
+ [m
+ /**[m
+[36m@@ -741,7 +741,7 @@[m [mfunction createScheduledCard(idea) {[m
+     const platformIconsHTML = scheduledPlatforms.map(p => iconMap[p] || '').filter(html => html).join('');[m
+     const singlePlatform = scheduledPlatforms[0];[m
+     [m
+[31m-    console.log('🎯 Creating scheduled card with platform:', singlePlatform);[m
+[32m+[m[32m    // Creating scheduled card[m
+ [m
+     const scheduledCard = document.createElement('div');[m
+     scheduledCard.className = 'idea-card-collapsed';[m
+[36m@@ -907,7 +907,7 @@[m [mfunction expandIdeaCard(card) {[m
+ [m
+     // Show the modal[m
+     expandedModal.classList.add('active');[m
+[31m-    console.log('Expanded idea:', ideaData.title);[m
+[32m+[m[32m    // Expanded idea card shown[m
+ }[m
+ [m
+ /**[m
+[36m@@ -1240,10 +1240,10 @@[m [masync function removeCollapsedCard(card) {[m
+     // 🔴 CRITICAL FIX: Delete from database if it has an ID[m
+     if (ideaData.id) {[m
+         try {[m
+[31m-            console.log('🗑️ Deleting idea from database:', ideaData.id);[m
+[32m+[m[32m            // Deleting idea from database[m
+             const { deleteIdea } = await import('./supabase.js');[m
+             await deleteIdea(ideaData.id);[m
+[31m-            console.log('✅ Idea deleted from database');[m
+[32m+[m[32m            // Idea deleted from database[m
+         } catch (err) {[m
+             console.error('❌ Failed to delete idea from database:', err);[m
+             // Continue with UI removal even if DB delete fails[m
+[36m@@ -1274,7 +1274,7 @@[m [masync function removeCollapsedCard(card) {[m
+     }[m
+ [m
+     syncCollapsedCards(ideaData);[m
+[31m-    console.log('Deleted idea:', ideaData.title || '');[m
+[32m+[m[32m    // Idea deleted[m
+ }[m
+ [m
+ // ============================================[m
+[36m@@ -1371,7 +1371,7 @@[m [mdocument.addEventListener('DOMContentLoaded', () => {[m
+         btn.addEventListener('click', (e) => {[m
+             e.preventDefault();[m
+             btn.classList.toggle('selected');[m
+[31m-            console.log('Platform toggled:', btn.dataset.platform, btn.classList.contains('selected'));[m
+[32m+[m[32m            // Platform toggled[m
+         });[m
+     });[m
+ [m
+[36m@@ -1557,7 +1557,6 @@[m [mdocument.addEventListener('DOMContentLoaded', () => {[m
+ [m
+         // Get current platform state - CRITICAL for platform-specific content generation[m
+         const currentPlatform = localStorage.getItem('selectedPlatform') || 'tiktok';[m
+[31m-        console.log('🎯 Generating ideas for platform:', currentPlatform);[m
+ [m
+         const {[m
+             customDirection = '',[m
+[36m@@ -1616,12 +1615,7 @@[m [mdocument.addEventListener('DOMContentLoaded', () => {[m
+         updateSwiperInfo();[m
+         updateIdeaGeneratorVisibility();[m
+ [m
+[31m-        // Show loading state[m
+[31m-        console.log('🤖 Generating AI-powered ideas (progressive loading)...', {[m
+[31m-            customDirection,[m
+[31m-            isCampaign,[m
+[31m-            preferredPlatforms[m
+[31m-        });[m
+[32m+[m[32m        // Show loading state - generating AI-powered ideas[m
+         [m
+         try {[m
+             // Import the AI service[m
+[36m@@ -1674,7 +1668,7 @@[m [mdocument.addEventListener('DOMContentLoaded', () => {[m
+                 startLiveThinking(userProfile);[m
+             }, 50);[m
+ [m
+[31m-            console.log('⚡ Generating full idea set (7 ideas)...');[m
+[32m+[m[32m            // Generating full idea set (7 ideas)[m
+             const allIdeasRaw = await generateContentIdeas(userProfile, customDirection + vibeContext, isCampaign, preferredPlatforms, 7);[m
+             const allIdeas = Array.isArray(allIdeasRaw) ? allIdeasRaw.slice(0, 7) : [];[m
+ [m
+[36m@@ -1780,7 +1774,7 @@[m [mdocument.addEventListener('DOMContentLoaded', () => {[m
+                 updateSwiperInfo();[m
+                 updateIdeaGeneratorVisibility();[m
+                 [m
+[31m-                console.log('✅ Created 7 fallback idea cards');[m
+[32m+[m[32m                // Created 7 fallback idea cards[m
+                 [m
+                 // Reset generating flag[m
+                 cleanup();[m
+[36m@@ -1802,7 +1796,7 @@[m [mdocument.addEventListener('DOMContentLoaded', () => {[m
+         // Hide idea generator[m
+         updateIdeaGeneratorVisibility();[m
+ [m
+[31m-        console.log('✅ Created', ideasStack.length, 'AI-powered idea cards');[m
+[32m+[m[32m        // Created AI-powered idea cards[m
+ [m
+         cleanup();[m
+     }[m
+[36m@@ -2013,7 +2007,7 @@[m [mdocument.addEventListener('DOMContentLoaded', () => {[m
+      * Generate random ideas (dice button)[m
+      */[m
+     window.generateRandomIdeas = function() {[m
+[31m-        console.log('🎲 Generating random ideas');[m
+[32m+[m[32m        // Generating random ideas[m
+         generateNewIdeas({ showLoading: true });[m
+     };[m
+ [m
+[36m@@ -2121,7 +2115,7 @@[m [mdocument.addEventListener('DOMContentLoaded', () => {[m
+             return '';[m
+         }[m
+ [m
+[31m-        console.log('🎨 Generating platform icons for:', platforms);[m
+[32m+[m[32m        // Generating platform icons[m
+ [m
+         return platforms.map(platform => {[m
+             const platformLower = platform.toLowerCase();[m
+[1mdiff --git a/auth-integration.js b/auth-integration.js[m
+[1mindex c44f327..e45c17b 100644[m
+[1m--- a/auth-integration.js[m
+[1m+++ b/auth-integration.js[m
+[36m@@ -85,20 +85,12 @@[m [mlet currentSession = null;[m
+  * DEV BYPASS: If enabled and on localhost, creates fake user/session[m
+  */[m
+ export async function initAuth() {[m
+[31m-    // DEV BYPASS CHECK - Only active when DEV_BYPASS_ENABLED is true[m
+[31m-    console.log('🔍 initAuth called, DEV_BYPASS_ENABLED =', DEV_BYPASS_ENABLED);[m
+[31m-    console.log('🔍 isDevBypassActive() =', isDevBypassActive());[m
+[31m-    [m
+     if (isDevBypassActive()) {[m
+[31m-        console.warn('🔧 DEV BYPASS ACTIVE - Creating fake user session (DEV ONLY)');[m
+         const fakeUser = createDevBypassUser();[m
+         const fakeSession = createDevBypassSession(fakeUser);[m
+         [m
+         currentUser = fakeUser;[m
+         currentSession = fakeSession;[m
+[31m-        [m
+[31m-        console.log('✅ Dev bypass user created:', fakeUser.email);[m
+[31m-        console.log('✅ Dev bypass user ID:', fakeUser.id);[m
+         return currentUser;[m
+     }[m
+     [m
+[36m@@ -114,11 +106,9 @@[m [mexport async function initAuth() {[m
+         if (session) {[m
+             currentSession = session;[m
+             currentUser = session.user;[m
+[31m-            console.log('✅ User session found:', currentUser.email);[m
+             return currentUser;[m
+         }[m
+         [m
+[31m-        console.log('ℹ️ No active session');[m
+         return null;[m
+     } catch (error) {[m
+         console.error('Error initializing auth:', error);[m
+[36m@@ -156,8 +146,6 @@[m [mexport function getSession() {[m
+  */[m
+ export async function handleSignUp(name, email, password) {[m
+     try {[m
+[31m-        console.log('📝 Signing up user:', email);[m
+[31m-        [m
+         // Sign up with Supabase[m
+         const { data, error } = await signUp(email, password, {[m
+             data: {[m
+[36m@@ -171,8 +159,6 @@[m [mexport async function handleSignUp(name, email, password) {[m
+             throw new Error(error.message);[m
+         }[m
+         [m
+[31m-        console.log('✅ Sign up successful:', data);[m
+[31m-        [m
+         // Check if email confirmation is required[m
+         if (data.user && !data.session) {[m
+             // Email confirmation required[m
+[36m@@ -221,10 +207,7 @@[m [mexport async function handleSignUp(name, email, password) {[m
+  */[m
+ export async function handleSignIn(email, password) {[m
+     try {[m
+[31m-        console.log('🔐 Signing in user:', email);[m
+[31m-        [m
+         const result = await signIn(email, password);[m
+[31m-        console.log('📦 Sign in result:', result);[m
+         [m
+         if (!result) {[m
+             throw new Error('No response from sign in');[m
+[36m@@ -245,8 +228,6 @@[m [mexport async function handleSignIn(email, password) {[m
+             currentSession = data.session;[m
+             currentUser = data.user;[m
+             [m
+[31m-            console.log('✅ Sign in successful:', currentUser.email);[m
+[31m-            [m
+             return {[m
+                 success: true,[m
+                 user: data.user,[m
+[36m@@ -258,7 +239,6 @@[m [mexport async function handleSignIn(email, password) {[m
+         [m
+     } catch (error) {[m
+         console.error('❌ Sign in error:', error);[m
+[31m-        console.error('Error stack:', error.stack);[m
+         return {[m
+             success: false,[m
+             error: error.message || 'Sign in failed'[m
+[36m@@ -275,8 +255,6 @@[m [mexport async function handleSignIn(email, password) {[m
+  */[m
+ export async function handleSignOut() {[m
+     try {[m
+[31m-        console.log('👋 Signing out user');[m
+[31m-        [m
+         const { error } = await signOut();[m
+         [m
+         if (error) {[m
+[36m@@ -288,8 +266,6 @@[m [mexport async function handleSignOut() {[m
+         currentUser = null;[m
+         currentSession = null;[m
+         [m
+[31m-        console.log('✅ Sign out successful');[m
+[31m-        [m
+         return {[m
+             success: true[m
+         };[m
+[36m@@ -312,8 +288,6 @@[m [mexport async function handleSignOut() {[m
+  */[m
+ export async function handlePasswordReset(email) {[m
+     try {[m
+[31m-        console.log('📧 Requesting password reset for:', email);[m
+[31m-        [m
+         const { error } = await resetPassword(email);[m
+         [m
+         if (error) {[m
+[36m@@ -321,8 +295,6 @@[m [mexport async function handlePasswordReset(email) {[m
+             throw new Error(error.message);[m
+         }[m
+         [m
+[31m-        console.log('✅ Password reset email sent');[m
+[31m-        [m
+         return {[m
+             success: true,[m
+             message: 'Password reset email sent. Please check your inbox.'[m
+[36m@@ -380,7 +352,6 @@[m [masync function createUserProfile(userId, name, email) {[m
+ export async function getUserProfile(userId) {[m
+     // DEV BYPASS: Return fake profile for dev bypass users (no DB access)[m
+     if (isDevBypassActive() && currentUser && currentUser.id.startsWith('dev-bypass-user-')) {[m
+[31m-        console.log('🔧 DEV BYPASS: Returning fake profile for dev bypass user');[m
+         return {[m
+             id: currentUser.id,[m
+             email: 'dev@phasee.local',[m
+[36m@@ -419,9 +390,6 @@[m [mexport async function getUserProfile(userId) {[m
+  */[m
+ export async function updateUserProfile(userId, profileData) {[m
+     try {[m
+[31m-        console.log('📝 Updating profile for user:', userId);[m
+[31m-        console.log('📦 Profile data:', profileData);[m
+[31m-        [m
+         // Get current user to ensure we have email[m
+         const { data: { user } } = await supabase.auth.getUser();[m
+         [m
+[36m@@ -454,7 +422,6 @@[m [mexport async function updateUserProfile(userId, profileData) {[m
+             throw error;[m
+         }[m
+         [m
+[31m-        console.log('✅ Profile saved successfully:', data);[m
+         return data;[m
+         [m
+     } catch (error) {[m
+[36m@@ -472,7 +439,7 @@[m [mexport async function updateUserProfile(userId, profileData) {[m
+  */[m
+ export function onAuthStateChange(callback) {[m
+     return supabase.auth.onAuthStateChange((event, session) => {[m
+[31m-        console.log('🔄 Auth state changed:', event);[m
+[32m+[m[32m        // Auth state changed - handled by app[m
+         [m
+         if (session) {[m
+             currentSession = session;[m
+[36m@@ -525,7 +492,6 @@[m [mexport async function markOnboardingComplete(userId) {[m
+         await updateUserProfile(userId, {[m
+             onboarding_complete: true[m
+         });[m
+[31m-        console.log('✅ Onboarding marked complete');[m
+     } catch (error) {[m
+         console.error('Error marking onboarding complete:', error);[m
+     }[m
+[36m@@ -552,7 +518,6 @@[m [mexport async function startTrial(userId) {[m
+         await updateUserProfile(userId, {[m
+             trial_started_at: new Date().toISOString()[m
+         });[m
+[31m-        console.log('✅ Trial started');[m
+     } catch (error) {[m
+         console.error('Error starting trial:', error);[m
+     }[m
+[36m@@ -565,7 +530,6 @@[m [mexport async function startTrial(userId) {[m
+ export async function isTrialExpired(userId) {[m
+     // DEV BYPASS: Always return false for dev bypass users (trial never expires)[m
+     if (isDevBypassActive() && currentUser && currentUser.id.startsWith('dev-bypass-user-')) {[m
+[31m-        console.log('🔧 DEV BYPASS: Returning false for trial expiration check');[m
+         return false;[m
+     }[m
+     [m
+[36m@@ -595,7 +559,6 @@[m [mexport async function isTrialExpired(userId) {[m
+ export async function hasActiveSubscription(userId) {[m
+     // DEV BYPASS: Always return true for dev bypass users (allows full access)[m
+     if (isDevBypassActive() && currentUser && currentUser.id.startsWith('dev-bypass-user-')) {[m
+[31m-        console.log('🔧 DEV BYPASS: Returning true for subscription check');[m
+         return true;[m
+     }[m
+     [m
+[1mdiff --git a/supabase.js b/supabase.js[m
+[1mindex 7f9964d..7bcbc16 100644[m
+[1m--- a/supabase.js[m
+[1m+++ b/supabase.js[m
+[36m@@ -22,14 +22,7 @@[m [mif (!supabaseUrl || !supabaseAnonKey) {[m
+   throw new Error('Supabase configuration missing');[m
+ }[m
+ [m
+[31m-// Log configuration status on load (development only)[m
+[31m-if (import.meta.env.DEV) {[m
+[31m-  console.log('✅ Supabase configured:', {[m
+[31m-    url: supabaseUrl?.substring(0, 30) + '...',[m
+[31m-    keyPresent: !!supabaseAnonKey,[m
+[31m-    usingEnvVars: true[m
+[31m-  });[m
+[31m-}[m
+[32m+[m[32m// Configuration validated - no logging needed[m
+ [m
+ export const supabase = createClient(supabaseUrl, supabaseAnonKey)[m
+ [m
+[36m@@ -43,23 +36,27 @@[m [mexport const supabase = createClient(supabaseUrl, supabaseAnonKey)[m
+ export async function signUp(email, password, userMetadata = {}) {[m
+   try {[m
+     // Use production URL if set in environment, otherwise use current origin[m
+[31m-    // This ensures verification emails always point to production, even when testing locally[m
+     const siteUrl = import.meta.env.VITE_SITE_URL[m
+     const redirectTo = siteUrl ? `${siteUrl.replace(/\/$/, '')}/` : `${window.location.origin}/`[m
+     [m
+[31m-    console.log('🔗 Sign up redirect URL:', redirectTo)[m
+[31m-    [m
+[32m+[m[32m    // Sign up with email confirmation enabled[m
+[32m+[m[32m    // This prevents bot signups - users must verify email before accessing the app[m
+     const { data, error } = await supabase.auth.signUp({[m
+       email,[m
+       password,[m
+       options: {[m
+         data: userMetadata.data || userMetadata,[m
+[31m-        emailRedirectTo: redirectTo[m
+[32m+[m[32m        emailRedirectTo: redirectTo,[m
+[32m+[m[32m        // Ensure email confirmation is required (prevents bots)[m
+[32m+[m[32m        captchaToken: null // Supabase handles captcha automatically if configured[m
+       }[m
+     })[m
+ [m
+[31m-    if (error) throw error[m
+[31m-    console.log('✅ User signed up successfully:', data)[m
+[32m+[m[32m    if (error) {[m
+[32m+[m[32m      console.error('❌ Sign up error:', error)[m
+[32m+[m[32m      throw error[m
+[32m+[m[32m    }[m
+[32m+[m[41m    [m
+     return { data, error: null }[m
+   } catch (error) {[m
+     console.error('❌ Sign up error:', error)[m
+[36m@@ -78,7 +75,6 @@[m [mexport async function signIn(email, password) {[m
+     })[m
+ [m
+     if (error) throw error[m
+[31m-    console.log('✅ User signed in successfully:', data)[m
+     return { data, error: null }[m
+   } catch (error) {[m
+     console.error('❌ Sign in error:', error)[m
+[36m@@ -93,7 +89,6 @@[m [mexport async function signOut() {[m
+   try {[m
+     const { error } = await supabase.auth.signOut()[m
+     if (error) throw error[m
+[31m-    console.log('✅ User signed out successfully')[m
+     return { error: null }[m
+   } catch (error) {[m
+     console.error('❌ Sign out error:', error)[m
+[36m@@ -134,7 +129,7 @@[m [mexport async function getCurrentUser() {[m
+  */[m
+ export function onAuthStateChange(callback) {[m
+   return supabase.auth.onAuthStateChange((event, session) => {[m
+[31m-    console.log('🔐 Auth state changed:', event)[m
+[32m+[m[32m    // Auth state changed - handled by auth-integration.js[m
+     callback(event, session)[m
+   })[m
+ }[m
+[36m@@ -164,9 +159,9 @@[m [mexport async function resetPassword(email) {[m
+ export async function getUserProfile(userId) {[m
+   try {[m
+     const { data, error } = await supabase[m
+[31m-      .from('user_profiles')[m
+[32m+[m[32m      .from('profiles')[m
+       .select('*')[m
+[31m-      .eq('user_id', userId)[m
+[32m+[m[32m      .eq('id', userId)[m
+       .single()[m
+ [m
+     if (error) throw error[m
+[36m@@ -183,15 +178,14 @@[m [mexport async function getUserProfile(userId) {[m
+ export async function upsertUserProfile(profile) {[m
+   try {[m
+     const { data, error } = await supabase[m
+[31m-      .from('user_profiles')[m
+[32m+[m[32m      .from('profiles')[m
+       .upsert(profile, {[m
+[31m-        onConflict: 'user_id'[m
+[32m+[m[32m        onConflict: 'id'[m
+       })[m
+       .select()[m
+       .single()[m
+ [m
+     if (error) throw error[m
+[31m-    console.log('✅ Profile saved:', data)[m
+     return { data, error: null }[m
+   } catch (error) {[m
+     console.error('❌ Save profile error:', error)[m
+[36m@@ -248,7 +242,6 @@[m [mexport async function saveIdea(idea) {[m
+       .single()[m
+ [m
+     if (error) throw error[m
+[31m-    console.log('✅ Idea saved:', data)[m
+     return { data, error: null }[m
+   } catch (error) {[m
+     console.error('❌ Save idea error:', error)[m
+[36m@@ -270,7 +263,6 @@[m [mexport async function updateIdea(ideaId, updates) {[m
+       .single()[m
+ [m
+     if (error) throw error[m
+[31m-    console.log('✅ Idea updated:', data)[m
+     return { data, error: null }[m
+   } catch (error) {[m
+     console.error('❌ Update idea error:', error)[m
+[36m@@ -290,7 +282,6 @@[m [mexport async function deleteIdea(ideaId) {[m
+       .eq('id', ideaId)[m
+ [m
+     if (error) throw error[m
+[31m-    console.log('✅ Idea deleted')[m
+     return { error: null }[m
+   } catch (error) {[m
+     console.error('❌ Delete idea error:', error)[m
