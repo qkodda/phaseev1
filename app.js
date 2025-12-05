@@ -1155,7 +1155,7 @@ function expandIdeaCard(card) {
         </button>
     `;
 
-    // Schedule/checkmark button HTML
+    // Schedule button HTML (only show for pinned cards, not scheduled ones)
     const scheduleButtonHTML = isPinned ? `
         <button class="expanded-action-btn schedule-btn" onclick="scheduleFromExpanded()" aria-label="Schedule" title="Schedule">
             <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
@@ -1165,13 +1165,7 @@ function expandIdeaCard(card) {
                 <line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
         </button>
-    ` : `
-        <button class="expanded-action-btn checkmark-btn" onclick="closeExpandedModal()" aria-label="Close" title="Close">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-        </button>
-    `;
+    ` : '';
 
     // Populate the expanded card with full details
     // Layout: EDIT | PLATFORM ICONS | SCHEDULE
@@ -5033,20 +5027,10 @@ async function initializeApp() {
     try {
         console.log('🚀 initializeApp() called');
         
-        // FORCE DEV BYPASS IN DEVELOPMENT - always skip auth on localhost
-        const isLocalDev = window.location.hostname === 'localhost' || 
-                          window.location.hostname === '127.0.0.1' ||
-                          window.location.hostname.includes('192.168');
-        
-        if (isLocalDev) {
-            console.log('🔧 LOCALHOST DETECTED: Forcing dev bypass, going straight to homepage');
-            navigateTo('homepage');
-            return;
-        }
-        
-        // CHECK DEV BYPASS FIRST - skip all auth if enabled
+        // CHECK DEV BYPASS ONLY IF EXPLICITLY ENABLED via env var
+        // Set VITE_DEV_BYPASS_AUTH=true to skip auth (useful for testing UI)
         if (isDevBypassEnabled()) {
-            console.log('🔧 DEV BYPASS ENABLED: Skipping auth, going straight to homepage');
+            console.log('🔧 DEV BYPASS ENABLED via env var: Skipping auth, going straight to homepage');
             navigateTo('homepage');
             return;
         }

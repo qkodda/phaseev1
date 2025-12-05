@@ -3403,15 +3403,47 @@ END GENERATOR STYLES */
     align-items: center;
     row-gap: 8px;
     width: 100%;
-    padding: 8px 0;
+    padding: 16px 0;
     margin: 0 auto;
-    max-height: 215px; /* Exactly 3 cards: 65*3 + 8*2 + 16 padding */
+    max-height: 215px;
     overflow-y: auto;
     overflow-x: visible;
+    /* Fade effect at top and bottom */
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 12%,
+        black 88%,
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 12%,
+        black 88%,
+        transparent 100%
+    );
 }
 
 .ideas-grid::-webkit-scrollbar {
     display: none;
+}
+
+/* Empty state for Drawing Board and Calendar */
+.empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    width: 100%;
+    text-align: center;
+}
+
+.empty-state p {
+    color: #888;
+    font-size: 13px;
+    font-style: italic;
+    margin: 0;
 }
 
 /* Collapsed Idea Card (for pinned/scheduled/trends) */
@@ -3768,25 +3800,25 @@ END GENERATOR STYLES */
 .settings-content {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 6px;
     margin-top: 8px;
-    max-height: calc(100vh - 180px);
+    max-height: calc(100vh - 160px);
     overflow: hidden;
 }
 
 .settings-group {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    padding: 4px;
+    padding: 8px;
 }
 
 .settings-group-title {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     color: rgba(40, 40, 40, 0.9);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
     padding: 0;
     text-align: left;
 }
@@ -3796,12 +3828,12 @@ END GENERATOR STYLES */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 10px;
+    padding: 10px 12px;
     background: rgba(255, 255, 255, 0.05);
     border: none;
     border-radius: 8px;
     color: rgba(40, 40, 40, 0.9);
-    font-size: 13px;
+    font-size: 15px;
     cursor: pointer;
     margin-bottom: 2px;
     transition: all 0.2s;
@@ -4291,10 +4323,11 @@ END GENERATOR STYLES */
 
 /* Calendar Modal Styles */
 .calendar-modal-content {
-    width: 300px;
+    width: 280px;
+    max-width: 90vw;
     height: auto;
-    max-height: 85vh;
-    padding: 20px 16px;
+    max-height: 80vh;
+    padding: 16px 12px;
     overflow-y: auto;
     background: white;
     border-radius: 16px;
@@ -4360,16 +4393,19 @@ END GENERATOR STYLES */
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    border-radius: 8px;
+    font-size: 11px;
+    border-radius: 6px;
     cursor: pointer;
     transition: background 0.2s;
-    padding: 4px;
+    padding: 2px;
     color: #1a1a1a;
+    min-width: 30px;
+    max-width: 34px;
 }
 
 .calendar-date .date-number {
     font-weight: 600;
+    font-size: 11px;
     color: #1a1a1a;
 }
 
@@ -4533,11 +4569,10 @@ END GENERATOR STYLES */
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    padding: 0 12px 8px 12px !important;
+    padding: 8px 12px !important; /* Match top corners: 8px from edges */
     border-top: none !important;
-    height: 50px !important;
+    height: auto !important;
     gap: 12px;
-    margin-top: 10px;
 }
 
 /* Edit/Save Button - Left */
@@ -4579,8 +4614,9 @@ END GENERATOR STYLES */
 /* Delete Button - Top Left (Row 1) */
 .expanded-card-actions.top-actions {
     position: absolute;
-    top: 8px;
+    top: 12px;
     left: 12px;
+    right: 12px;
     z-index: 10;
 }
 
@@ -4743,9 +4779,9 @@ END GENERATOR STYLES */
 
 .expanded-card-actions.top-actions {
     position: absolute;
-    top: 9px;
-    left: 9px;
-    right: 16px;
+    top: 12px;
+    left: 12px;
+    right: 12px; /* Match left for symmetry */
     display: flex;
     justify-content: space-between;
     gap: 8px;
@@ -5787,15 +5823,30 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    max-height: 215px; /* Default: 3 cards */
+    max-height: 215px;
     overflow-y: auto;
     overflow-x: visible;
-    padding: 8px 0;
+    padding: 16px 0;
+    /* Fade effect at top and bottom */
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 12%,
+        black 88%,
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 12%,
+        black 88%,
+        transparent 100%
+    );
 }
 
 /* Calendar list can show more scheduled ideas */
 #calendar-list {
-    max-height: 400px; /* Allow many more scheduled cards */
+    max-height: 400px;
 }
 
 .revital-card-list::-webkit-scrollbar {
@@ -5900,9 +5951,24 @@ body {
     width: 100%;
     max-width: 360px;
     margin: 0 auto;
-    height: 220px; /* Show 3 cards */
+    height: 220px;
     overflow: hidden;
     position: relative;
+    /* Fade effect at top and bottom */
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 10%,
+        black 90%,
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 10%,
+        black 90%,
+        transparent 100%
+    );
 }
 
 .trends-carousel {

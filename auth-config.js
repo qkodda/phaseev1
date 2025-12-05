@@ -63,8 +63,9 @@ export function isDevBypassEnabled() {
         }
     }
     
-    // Default to TRUE in development mode if no env var is set
-    console.log('✅ DEV BYPASS ENABLED by default (development mode, no env var set)');
-    return true;
+    // Default to FALSE - require explicit opt-in for dev bypass
+    // Set VITE_DEV_BYPASS_AUTH=true to skip auth when needed
+    console.log('🔒 DEV BYPASS DISABLED by default (set VITE_DEV_BYPASS_AUTH=true to enable)');
+    return false;
 }
 
