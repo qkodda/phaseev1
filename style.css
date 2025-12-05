@@ -2328,6 +2328,8 @@ body {
     position: relative !important;
     z-index: 20;
     transition: none !important; /* LOCKED - No movement */
+    box-shadow: 0 9px 3px rgba(10, 30, 60, 0.35); /* Same shadow as cards */
+    border-radius: 16px;
 }
 
 .hero-section-container .hero-section {
