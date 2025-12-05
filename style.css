@@ -2415,7 +2415,7 @@ body {
     font-weight: 500;
     letter-spacing: 0.3px;
     position: relative;
-    margin: -18px auto 6px; /* Moved down 20px */
+    margin: 20px auto 10px; /* Below swipe modal, above textbox */
 }
 
 .swiper-info span {
@@ -2459,7 +2459,7 @@ body {
 .card-stack {
     position: relative;
     width: 300px;
-    height: 260px;
+    height: 230px; /* 10px shorter than cards for stacked appearance */
     touch-action: manipulation;
     z-index: 10;
     margin: 0 auto 0; /* Flush at top, centered */
