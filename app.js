@@ -840,29 +840,36 @@ function navigateTo(pageId) {
             generateNewIdeas({ showLoading: false });
         }
         
-        // Always re-initialize swipe handlers when returning to homepage
-        // This fixes the issue where swipe modal becomes inaccessible after navigation
+        // Reset swipe state and re-initialize handlers when returning to homepage
         const reinitSwipe = () => {
             const cardStack = document.getElementById('card-stack');
             if (!cardStack) return;
             
-            // Force re-initialization by clearing the attached flag on ALL cards
+            // Clear any active swipe state
+            if (window.swipeState) {
+                window.swipeState.activeCard = null;
+            }
+            
+            // Reset all cards to clean state
             const cards = cardStack.querySelectorAll('.idea-card');
             cards.forEach(card => {
-                card.dataset.swipeHandlersAttached = 'false';
-                // Also reset any stale transform states
+                card.dataset.swipeReady = 'false'; // Allow re-binding
                 card.style.transform = '';
                 card.style.transition = '';
                 card.classList.remove('swiping');
             });
-            initSwipeHandlers();
-            console.log('🔄 Re-initialized swipe handlers after navigation');
+            
+            if (typeof initSwipeHandlers === 'function') {
+                initSwipeHandlers();
+            } else if (typeof window.initSwipeHandlers === 'function') {
+                window.initSwipeHandlers();
+            }
+            console.log('🔄 Swipe system reset');
         };
         
-        // Run immediately and again after a delay for safety
-        reinitSwipe();
-        setTimeout(reinitSwipe, 200);
-        setTimeout(reinitSwipe, 500);
+        // Run after a brief delay to ensure DOM is ready
+        setTimeout(reinitSwipe, 100);
+        setTimeout(reinitSwipe, 400);
         
         // Update header button based on page
         const homeProfileBtn = document.querySelector('#homepage .profile-pill-btn');
@@ -2541,177 +2548,186 @@ window.handleForgotPassword = async function() {
     }
 
     /**
-     * Initialize swipe event handlers for all cards - Mobile-First Approach
+     * SWIPE SYSTEM v2 - Event Delegation Approach
+     * Uses single document-level handlers to prevent listener accumulation
+     */
+    
+    // Global swipe state - single source of truth
+    window.swipeState = {
+        activeCard: null,
+        startX: 0,
+        startY: 0,
+        currentX: 0,
+        currentY: 0,
+        hasMoved: false,
+        isTouch: false
+    };
+    
+    // Install document-level handlers ONCE
+    if (!window.swipeHandlersInstalled) {
+        window.swipeHandlersInstalled = true;
+        
+        // Document-level touch handlers
+        document.addEventListener('touchmove', (e) => {
+            const state = window.swipeState;
+            if (!state.activeCard || !state.isTouch) return;
+            
+            const touch = e.touches[0];
+            state.currentX = touch.clientX;
+            state.currentY = touch.clientY;
+            
+            const deltaX = state.currentX - state.startX;
+            const deltaY = state.currentY - state.startY;
+            
+            if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+                state.hasMoved = true;
+                e.preventDefault();
+            }
+            
+            const rotation = deltaX / 20;
+            state.activeCard.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotation}deg)`;
+        }, { passive: false });
+        
+        document.addEventListener('touchend', (e) => {
+            const state = window.swipeState;
+            if (!state.activeCard || !state.isTouch) return;
+            
+            const card = state.activeCard;
+            card.classList.remove('swiping');
+            
+            const deltaX = state.currentX - state.startX;
+            const threshold = 80; // Lower threshold for easier swipes
+            
+            if (Math.abs(deltaX) > threshold && state.hasMoved) {
+                const direction = deltaX > 0 ? 'right' : 'left';
+                swipeCard(card, direction);
+            } else {
+                card.style.transition = 'transform 0.3s ease-out';
+                card.style.transform = '';
+                setTimeout(() => { card.style.transition = ''; }, 300);
+            }
+            
+            // Reset state
+            state.activeCard = null;
+            state.isTouch = false;
+        }, { passive: true });
+        
+        document.addEventListener('touchcancel', (e) => {
+            const state = window.swipeState;
+            if (!state.activeCard) return;
+            
+            const card = state.activeCard;
+            card.classList.remove('swiping');
+            card.style.transition = 'transform 0.3s ease-out';
+            card.style.transform = '';
+            setTimeout(() => { card.style.transition = ''; }, 300);
+            
+            state.activeCard = null;
+            state.isTouch = false;
+        }, { passive: true });
+        
+        // Document-level mouse handlers
+        document.addEventListener('mousemove', (e) => {
+            const state = window.swipeState;
+            if (!state.activeCard || state.isTouch) return;
+            
+            const deltaX = e.clientX - state.startX;
+            const deltaY = e.clientY - state.startY;
+            const rotation = deltaX / 20;
+            
+            state.currentX = e.clientX;
+            state.currentY = e.clientY;
+            state.hasMoved = true;
+            
+            state.activeCard.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotation}deg)`;
+        });
+        
+        document.addEventListener('mouseup', (e) => {
+            const state = window.swipeState;
+            if (!state.activeCard || state.isTouch) return;
+            
+            const card = state.activeCard;
+            card.classList.remove('swiping');
+            
+            const deltaX = e.clientX - state.startX;
+            const threshold = 80;
+            
+            if (Math.abs(deltaX) > threshold && state.hasMoved) {
+                const direction = deltaX > 0 ? 'right' : 'left';
+                swipeCard(card, direction);
+            } else {
+                card.style.transition = 'transform 0.3s ease-out';
+                card.style.transform = '';
+                setTimeout(() => { card.style.transition = ''; }, 300);
+            }
+            
+            state.activeCard = null;
+        });
+        
+        console.log('✅ Global swipe handlers installed (once)');
+    }
+    
+    /**
+     * Initialize swipe handlers for cards - attaches start events only
      */
     function initSwipeHandlers() {
         const cardStack = document.getElementById('card-stack');
         if (!cardStack) {
-            console.error('Card stack not found');
+            console.warn('Card stack not found');
             return;
         }
-
+        
         const cards = cardStack.querySelectorAll('.idea-card:not(.loading-placeholder)');
-        console.log(`🎯 Initializing swipe for ${cards.length} cards`);
+        console.log(`🎯 Setting up swipe for ${cards.length} cards`);
         
         cards.forEach((card, index) => {
-            // Skip if handlers already attached
-            if (card.dataset.swipeHandlersAttached === 'true') {
-                console.log(`⏭️ Skipping card ${index} - handlers already attached`);
-                return;
-            }
+            // Skip if already set up
+            if (card.dataset.swipeReady === 'true') return;
+            card.dataset.swipeReady = 'true';
             
-            // Mark this card as having handlers
-            card.dataset.swipeHandlersAttached = 'true';
-            console.log(`✅ Attaching handlers to card ${index}`);
-            
-            let touchStartX = 0;
-            let touchStartY = 0;
-            let touchCurrentX = 0;
-            let touchCurrentY = 0;
-            let isTouching = false;
-            let hasMoved = false;
-
-            // Touch Start
+            // Touch start handler
             card.addEventListener('touchstart', (e) => {
-                // Block swipe if subscription expired
-                if (window.swipeHandlersDisabled) {
-                    return;
-                }
+                if (window.swipeHandlersDisabled) return;
                 
-                console.log(`📱 Card ${index} touchstart`);
+                const topCard = cardStack.querySelector('.idea-card:not(.swipe-left):not(.swipe-right):not(.loading-placeholder)');
+                if (!topCard || card !== topCard) return;
+                if (e.target.closest('button')) return;
                 
-                // Only allow dragging the current top idea card (ignore other siblings)
-                const topCard = cardStack.querySelector('.idea-card:not(.swipe-left):not(.swipe-right)');
-                if (!topCard || card !== topCard) {
-                    console.log('Not top card');
-                    return;
-                }
-                
-                // Don't drag if touching a button
-                if (e.target.closest('button')) {
-                    console.log('Button touched');
-                    return;
-                }
-
                 const touch = e.touches[0];
-                touchStartX = touch.clientX;
-                touchStartY = touch.clientY;
-                touchCurrentX = touchStartX;
-                touchCurrentY = touchStartY;
-                isTouching = true;
-                hasMoved = false;
+                window.swipeState = {
+                    activeCard: card,
+                    startX: touch.clientX,
+                    startY: touch.clientY,
+                    currentX: touch.clientX,
+                    currentY: touch.clientY,
+                    hasMoved: false,
+                    isTouch: true
+                };
                 
                 card.classList.add('swiping');
-                console.log('✅ Touch started', touchStartX, touchStartY);
-            }, { passive: false });
-
-            // Touch Move
-            card.addEventListener('touchmove', (e) => {
-                if (!isTouching) return;
-
-                const touch = e.touches[0];
-                touchCurrentX = touch.clientX;
-                touchCurrentY = touch.clientY;
-                
-                const deltaX = touchCurrentX - touchStartX;
-                const deltaY = touchCurrentY - touchStartY;
-                
-                if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
-                    hasMoved = true;
-                    e.preventDefault(); // Prevent scrolling
-                }
-                
-                const rotation = deltaX / 20;
-                card.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotation}deg)`;
-                
-                if (hasMoved) {
-                    console.log(`📍 Moving: ${deltaX}px`);
-                }
-            }, { passive: false });
-
-            // Touch End
-            card.addEventListener('touchend', (e) => {
-                if (!isTouching) return;
-                
-                console.log('🏁 Touch ended');
-                isTouching = false;
-                card.classList.remove('swiping');
-
-                const deltaX = touchCurrentX - touchStartX;
-                const threshold = 100;
-
-                if (Math.abs(deltaX) > threshold && hasMoved) {
-                    console.log(`✨ Swipe detected: ${deltaX > 0 ? 'right' : 'left'}`);
-                    const direction = deltaX > 0 ? 'right' : 'left';
-                    swipeCard(card, direction);
-                } else {
-                    console.log('↩️ Returning to center');
-                    card.style.transition = 'transform 0.3s ease-out'; /* Smooth return, no bounce */
-                    card.style.transform = '';
-                    setTimeout(() => {
-                        card.style.transition = 'none';
-                    }, 300);
-                }
-            });
-
-            // Touch Cancel
-            card.addEventListener('touchcancel', (e) => {
-                console.log('❌ Touch cancelled');
-                if (!isTouching) return;
-                
-                isTouching = false;
-                card.classList.remove('swiping');
-                card.style.transition = 'transform 0.3s ease-out'; /* Smooth return, no bounce */
-                card.style.transform = '';
-                setTimeout(() => {
-                    card.style.transition = 'none';
-                }, 300);
-            });
-
-            // Mouse events for desktop
-            let mouseDown = false;
-            let mouseStartX = 0;
-            let mouseStartY = 0;
-
+                console.log('📱 Touch start on card', index);
+            }, { passive: true });
+            
+            // Mouse down handler
             card.addEventListener('mousedown', (e) => {
-                const topCard = cardStack.querySelector('.idea-card:not(.swipe-left):not(.swipe-right)');
-                if (!topCard || card !== topCard || e.target.closest('button')) return;
-
-                mouseDown = true;
-                mouseStartX = e.clientX;
-                mouseStartY = e.clientY;
+                if (window.swipeHandlersDisabled) return;
+                
+                const topCard = cardStack.querySelector('.idea-card:not(.swipe-left):not(.swipe-right):not(.loading-placeholder)');
+                if (!topCard || card !== topCard) return;
+                if (e.target.closest('button')) return;
+                
+                window.swipeState = {
+                    activeCard: card,
+                    startX: e.clientX,
+                    startY: e.clientY,
+                    currentX: e.clientX,
+                    currentY: e.clientY,
+                    hasMoved: false,
+                    isTouch: false
+                };
+                
                 card.classList.add('swiping');
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                if (!mouseDown) return;
-
-                const deltaX = e.clientX - mouseStartX;
-                const deltaY = e.clientY - mouseStartY;
-                const rotation = deltaX / 20;
-
-                card.style.transform = `translate(${deltaX}px, ${deltaY}px) rotate(${rotation}deg)`;
-            });
-
-            document.addEventListener('mouseup', (e) => {
-                if (!mouseDown) return;
-
-                mouseDown = false;
-                card.classList.remove('swiping');
-
-                const deltaX = e.clientX - mouseStartX;
-                const threshold = 100;
-
-                if (Math.abs(deltaX) > threshold) {
-                    const direction = deltaX > 0 ? 'right' : 'left';
-                    swipeCard(card, direction);
-                } else {
-                    card.style.transition = 'transform 0.3s ease-out'; /* Smooth return, no bounce */
-                    card.style.transform = '';
-                    setTimeout(() => {
-                        card.style.transition = 'none';
-                    }, 300);
-                }
+                console.log('🖱️ Mouse down on card', index);
             });
         });
     }
@@ -3933,13 +3949,8 @@ function fallbackShare(text) {
 }
 
 // ============================================
-// EXPORT NAVIGATION FUNCTION FOR INLINE USE
+// HELPER FUNCTIONS
 // ============================================
-
-window.navigateTo = navigateTo;
-window.startFreeTrial = startFreeTrial;
-window.completeOnboarding = completeOnboarding;
-window.saveProfileChanges = saveProfileChanges;
 
 function syncCollapsedCards(updatedIdea) {
     if (!updatedIdea) return;

@@ -212,7 +212,20 @@ body {
 }
 
 #homepage.page {
-    background: linear-gradient(180deg, #ffffff 0%, #e6f2fa 10%, #b8ddf5 25%, #7ac4ed 45%, #3eaadb 65%, #1a8fc2 80%, #0a6e9c 100%) !important;
+    background: linear-gradient(180deg, 
+        #ffffff 0%, 
+        #f0f8ff 8%, 
+        #e0f0ff 15%, 
+        #d0e8ff 22%, 
+        #e8f4ff 30%, 
+        #ffffff 40%, 
+        #f0f8ff 50%, 
+        #dce8f5 60%, 
+        #e8f0f8 70%, 
+        #f5f9fc 80%, 
+        #ffffff 90%, 
+        #f8fbff 100%
+    ) !important;
     margin-top: 0;
     padding-top: 0;
     top: 0 !important;
@@ -232,7 +245,20 @@ body {
     top: 0 !important;
     margin-top: 0 !important;
     padding-top: 0 !important;
-    background: linear-gradient(180deg, #ffffff 0%, #e6f2fa 10%, #b8ddf5 25%, #7ac4ed 45%, #3eaadb 65%, #1a8fc2 80%, #0a6e9c 100%) !important;
+    background: linear-gradient(180deg, 
+        #ffffff 0%, 
+        #f0f8ff 8%, 
+        #e0f0ff 15%, 
+        #d0e8ff 22%, 
+        #e8f4ff 30%, 
+        #ffffff 40%, 
+        #f0f8ff 50%, 
+        #dce8f5 60%, 
+        #e8f0f8 70%, 
+        #f5f9fc 80%, 
+        #ffffff 90%, 
+        #f8fbff 100%
+    ) !important;
 }
 
 #settings-page.page {
@@ -716,7 +742,14 @@ body {
    SIGN IN PAGE
    ============================================ */
 #sign-in-page {
-    background: linear-gradient(180deg, #ffffff 0%, #e6f2fa 10%, #b8ddf5 25%, #7ac4ed 45%, #3eaadb 65%, #1a8fc2 80%, #0a6e9c 100%) !important;
+    background: linear-gradient(180deg, 
+        #ffffff 0%, 
+        #f0f8ff 15%, 
+        #e0f0ff 30%, 
+        #f0f8ff 50%, 
+        #ffffff 70%, 
+        #f8fbff 100%
+    ) !important;
 }
 
 #sign-in-page .page-content {
@@ -1055,7 +1088,14 @@ body {
    PAYWALL PAGE - No Scroll, Compact Layout
    ============================================ */
 #paywall-page {
-    background: linear-gradient(180deg, #ffffff 0%, #e6f2fa 10%, #b8ddf5 25%, #7ac4ed 45%, #3eaadb 65%, #1a8fc2 80%, #0a6e9c 100%) !important;
+    background: linear-gradient(180deg, 
+        #ffffff 0%, 
+        #f0f8ff 15%, 
+        #e0f0ff 30%, 
+        #f0f8ff 50%, 
+        #ffffff 70%, 
+        #f8fbff 100%
+    ) !important;
 }
 
 #paywall-page .page-content {
@@ -2442,11 +2482,7 @@ body {
     position: absolute !important;
     top: 0px !important; /* Flush at top */
     left: 0 !important;
-    box-shadow: 
-        0 4px 0 0 rgba(30, 58, 95, 0.9),
-        0 8px 0 0 rgba(30, 58, 95, 0.7),
-        0 12px 0 0 rgba(30, 58, 95, 0.5),
-        0 20px 40px -5px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.35), 0 25px 50px -10px rgba(0, 0, 0, 0.25) !important;
     overflow: hidden !important;
     cursor: grab !important;
     transition: none !important;
