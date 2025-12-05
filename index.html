@@ -53,7 +53,7 @@
                 <div class="auth-container">
                     <!-- Sign In Form -->
                     <form id="sign-in-form" class="auth-form active">
-                        <h2 class="form-title">Sign In</h2>
+                        <h2 class="form-title">Log In to Phazee!</h2>
                         
                         <div class="input-group">
                             <label for="signin-email">Email</label>
@@ -67,7 +67,7 @@
 
                         <button type="submit" class="btn-primary">Sign In</button>
                         
-                        <button type="button" class="btn-text">Forgot Password?</button>
+                        <button type="button" class="btn-text" onclick="handleForgotPassword()">Forgot Password?</button>
                     </form>
 
                     <!-- Sign Up Form -->
@@ -135,6 +135,8 @@
                         <label for="onb-founded">Founded Year</label>
                         <select id="onb-founded" class="custom-dropdown">
                             <option value="">Select year</option>
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
                             <option value="2024">2024</option>
                             <option value="2023">2023</option>
                             <option value="2022">2022</option>
@@ -878,6 +880,7 @@
 
             <div class="page-content">
                 <h2 class="page-section-title">Profile</h2>
+                <p class="profile-subtitle">Phazee AI uses your brand info to create tailored ideas. Give us the goods!</p>
 
                 <div class="profile-content">
                     <div class="input-group">
@@ -902,6 +905,8 @@
                         <label for="profile-founded">Founded Year</label>
                         <select id="profile-founded" class="custom-dropdown">
                             <option value="">Select year</option>
+                            <option value="2026">2026</option>
+                            <option value="2025">2025</option>
                             <option value="2024">2024</option>
                             <option value="2023">2023</option>
                             <option value="2022">2022</option>
@@ -989,7 +994,7 @@
 
                     <div class="input-group">
                         <label>Platforms</label>
-                        <div class="platform-selection" id="profile-platforms">
+                        <div class="platform-selection centered" id="profile-platforms">
                             <button class="platform-select-btn" data-platform="tiktok">
                                 <img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok">
                             </button>

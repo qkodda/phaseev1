@@ -382,6 +382,14 @@ function showConfirmModal(title, message, onConfirm) {
     messageEl.textContent = message;
     modal.classList.add('active');
     
+    // Helper to close modal and reinit swipe
+    const closeAndReinit = () => {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            if (typeof initSwipeHandlers === 'function') initSwipeHandlers();
+        }, 100);
+    };
+    
     // Remove old listeners
     const newCancelBtn = cancelBtn.cloneNode(true);
     const newConfirmBtn = confirmBtn.cloneNode(true);
@@ -389,19 +397,17 @@ function showConfirmModal(title, message, onConfirm) {
     confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
     
     // Add new listeners
-    newCancelBtn.addEventListener('click', () => {
-        modal.classList.remove('active');
-    });
+    newCancelBtn.addEventListener('click', closeAndReinit);
     
     newConfirmBtn.addEventListener('click', () => {
-        modal.classList.remove('active');
+        closeAndReinit();
         if (onConfirm) onConfirm();
     });
     
     // Close on outside click
     modal.onclick = (e) => {
         if (e.target === modal) {
-            modal.classList.remove('active');
+            closeAndReinit();
         }
     };
 }
@@ -419,20 +425,28 @@ function showAlertModal(title, message, onClose) {
     messageEl.textContent = message;
     modal.classList.add('active');
     
+    // Helper to close modal and reinit swipe
+    const closeAndReinit = () => {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            if (typeof initSwipeHandlers === 'function') initSwipeHandlers();
+        }, 100);
+    };
+    
     // Remove old listener
     const newOkBtn = okBtn.cloneNode(true);
     okBtn.parentNode.replaceChild(newOkBtn, okBtn);
     
     // Add new listener
     newOkBtn.addEventListener('click', () => {
-        modal.classList.remove('active');
+        closeAndReinit();
         if (onClose) onClose();
     });
     
     // Close on outside click
     modal.onclick = (e) => {
         if (e.target === modal) {
-            modal.classList.remove('active');
+            closeAndReinit();
             if (onClose) onClose();
         }
     };
@@ -637,6 +651,41 @@ function startRotatingText() {
     setTimeout(() => {
         setInterval(rotatePlaceholder, 10000);
     }, 5000);
+    
+    // Update dynamic prompt initially and every 30 seconds
+    updateDynamicPrompt();
+    setInterval(updateDynamicPrompt, 30000);
+}
+
+/**
+ * Update the dynamic prompt with real pinned/scheduled counts
+ */
+function updateDynamicPrompt() {
+    const promptEl = document.getElementById('header-dynamic-prompt');
+    if (!promptEl) return;
+    
+    // Count pinned ideas (drawing board)
+    const pinnedCards = document.querySelectorAll('#ideas-grid .idea-card-collapsed');
+    const pinnedCount = pinnedCards ? pinnedCards.length : 0;
+    
+    // Count scheduled ideas (calendar)
+    const scheduledCards = document.querySelectorAll('#calendar-list .idea-card-collapsed');
+    const scheduledCount = scheduledCards ? scheduledCards.length : 0;
+    
+    // Generate dynamic message based on counts
+    let message = '';
+    
+    if (pinnedCount === 0 && scheduledCount === 0) {
+        message = "Start swiping to build your content!";
+    } else if (scheduledCount > 0 && pinnedCount > 0) {
+        message = `${scheduledCount} scheduled, ${pinnedCount} on deck!`;
+    } else if (scheduledCount > 0) {
+        message = `${scheduledCount} idea${scheduledCount > 1 ? 's' : ''} scheduled! Keep going!`;
+    } else if (pinnedCount > 0) {
+        message = `${pinnedCount} idea${pinnedCount > 1 ? 's' : ''} pinned! Schedule them!`;
+    }
+    
+    promptEl.textContent = message;
 }
 
 async function personalizeHeroSection() {
@@ -1531,6 +1580,14 @@ window.closeExpandedModal = function() {
 
     isEditMode = false;
     console.log('Expanded modal closed');
+    
+    // Re-initialize swipe handlers after modal closes
+    setTimeout(() => {
+        if (typeof initSwipeHandlers === 'function') {
+            initSwipeHandlers();
+            console.log('🔄 Swipe handlers re-initialized after modal close');
+        }
+    }, 100);
 };
 
 /**
@@ -1869,6 +1926,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================
     // SWIPE CARD SYSTEM
     // ============================================
+
+// ============================================
+// FORGOT PASSWORD HANDLER (Global Function)
+// ============================================
+window.handleForgotPassword = async function() {
+    const email = document.getElementById('signin-email').value;
+    
+    if (!email || !email.includes('@')) {
+        showAlertModal('Email Required', 'Please enter your email address in the email field first, then click Forgot Password.');
+        return;
+    }
+    
+    try {
+        // Import resetPassword from auth-integration
+        const { handlePasswordReset } = await import('./auth-integration.js');
+        const result = await handlePasswordReset(email);
+        
+        if (result.success) {
+            showAlertModal('Password Reset Sent', 'Check your email for a password reset link. It may take a few minutes to arrive.');
+        } else {
+            showAlertModal('Reset Failed', result.error || 'Could not send password reset email. Please try again.');
+        }
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        showAlertModal('Error', 'Could not send password reset email. Please try again later.');
+    }
+};
 
     let isGeneratingIdeas = false;
     let generatorStatusTimer = null;
@@ -2849,6 +2933,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (existingEmptyState) {
             existingEmptyState.remove();
         }
+        
+        // Update dynamic prompt with new counts
+        if (typeof updateDynamicPrompt === 'function') {
+            updateDynamicPrompt();
+        }
     }
 
     /**
@@ -2870,6 +2959,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else if (existingEmptyState) {
             existingEmptyState.remove();
+        }
+        
+        // Update dynamic prompt with new counts
+        if (typeof updateDynamicPrompt === 'function') {
+            updateDynamicPrompt();
         }
     }
 
@@ -4097,6 +4191,10 @@ async function completeOnboarding() {
 async function saveProfileChanges() {
     console.log('💾 Saving profile changes to Supabase...');
     
+    // Get the save button for inline feedback
+    const saveBtn = document.querySelector('#profile-page .btn-primary');
+    const originalText = saveBtn ? saveBtn.textContent : 'Save Changes';
+    
     try {
         const user = getUser();
         if (!user) {
@@ -4123,7 +4221,15 @@ async function saveProfileChanges() {
             }
         }
         
-        showAlertModal('Profile Updated', 'Your profile details have been saved.');
+        // Inline button feedback instead of modal
+        if (saveBtn) {
+            saveBtn.textContent = 'Profile Updated!';
+            saveBtn.style.background = '#f97316'; // Orange color
+            setTimeout(() => {
+                saveBtn.textContent = originalText;
+                saveBtn.style.background = ''; // Reset to default
+            }, 2500);
+        }
         console.log('✅ Profile saved successfully');
     } catch (err) {
         console.error('❌ Failed to save profile:', err);

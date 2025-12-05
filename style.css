@@ -212,7 +212,7 @@ body {
 }
 
 #homepage.page {
-    background: linear-gradient(180deg, #ffffff 0%, #f0f7fc 20%, #e1f0fa 40%, #d4eaf8 60%, #c7e4f6 80%, #bde0f5 100%) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #e8f4fc 15%, #cce5f5 30%, #a8d4ef 50%, #7ec0e6 70%, #4fa8d9 85%, #2a8fc9 100%) !important;
     margin-top: 0;
     padding-top: 0;
     top: 0 !important;
@@ -232,7 +232,7 @@ body {
     top: 0 !important;
     margin-top: 0 !important;
     padding-top: 0 !important;
-    background: linear-gradient(180deg, #ffffff 0%, #f0f7fc 20%, #e1f0fa 40%, #d4eaf8 60%, #c7e4f6 80%, #bde0f5 100%) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #e8f4fc 15%, #cce5f5 30%, #a8d4ef 50%, #7ec0e6 70%, #4fa8d9 85%, #2a8fc9 100%) !important;
 }
 
 #settings-page.page {
@@ -698,7 +698,7 @@ body {
    SIGN IN PAGE
    ============================================ */
 #sign-in-page {
-    background: linear-gradient(180deg, #ffffff 0%, #f0f7fc 20%, #e1f0fa 40%, #d4eaf8 60%, #c7e4f6 80%, #bde0f5 100%) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #e8f4fc 15%, #cce5f5 30%, #a8d4ef 50%, #7ec0e6 70%, #4fa8d9 85%, #2a8fc9 100%) !important;
 }
 
 #sign-in-page .page-content {
@@ -1036,6 +1036,10 @@ body {
 /* ============================================
    PAYWALL PAGE - No Scroll, Compact Layout
    ============================================ */
+#paywall-page {
+    background: linear-gradient(180deg, #ffffff 0%, #e8f4fc 15%, #cce5f5 30%, #a8d4ef 50%, #7ec0e6 70%, #4fa8d9 85%, #2a8fc9 100%) !important;
+}
+
 #paywall-page .page-content {
     display: flex;
     flex-direction: column;
@@ -1044,7 +1048,7 @@ body {
     padding: 20px 24px;
     overflow: hidden;
     height: 100vh;
-    background: #ffffff;
+    background: transparent;
 }
 
 .paywall-header {
@@ -2350,7 +2354,7 @@ body {
     font-weight: 500;
     letter-spacing: 0.3px;
     position: relative;
-    margin: -44px auto 0; /* Moved up 30px more */
+    margin: -38px auto 6px; /* Centered between swipe modal and hero */
 }
 
 .swiper-info span {
@@ -2417,7 +2421,7 @@ body {
     position: absolute !important;
     top: 0px !important; /* Flush at top */
     left: 0 !important;
-    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 6px 0 -1px rgba(0, 0, 0, 0.12), 0 12px 0 -2px rgba(0, 0, 0, 0.08), 0 20px 35px 0px rgba(0, 0, 0, 0.4) !important;
     overflow: hidden !important;
     cursor: grab !important;
     transition: none !important;
@@ -3829,6 +3833,16 @@ END GENERATOR STYLES */
     text-align: center;
 }
 
+.profile-subtitle {
+    font-size: 14px;
+    color: rgba(50, 50, 50, 0.8);
+    text-align: center;
+    margin-top: -4px;
+    margin-bottom: 16px;
+    padding: 0 20px;
+    line-height: 1.4;
+}
+
 /* Settings page specific title */
 #settings-page .page-section-title {
     margin-bottom: 4px;
@@ -3849,8 +3863,8 @@ END GENERATOR STYLES */
 .settings-content {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-top: 8px;
+    gap: 16px;
+    margin-top: 12px;
     max-height: calc(100vh - 160px);
     overflow: hidden;
 }
@@ -3858,16 +3872,16 @@ END GENERATOR STYLES */
 .settings-group {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    padding: 8px;
+    padding: 12px;
 }
 
 .settings-group-title {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 800;
     color: rgba(40, 40, 40, 0.9);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 6px;
+    margin-bottom: 10px;
     padding: 0;
     text-align: left;
 }
@@ -3877,14 +3891,15 @@ END GENERATOR STYLES */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 12px;
+    padding: 14px 14px;
+    font-size: 16px;
     background: rgba(255, 255, 255, 0.05);
     border: none;
     border-radius: 8px;
     color: rgba(40, 40, 40, 0.9);
     font-size: 15px;
     cursor: pointer;
-    margin-bottom: 2px;
+    margin-bottom: 6px;
     transition: all 0.2s;
 }
 
@@ -4211,16 +4226,28 @@ END GENERATOR STYLES */
     right: 0;
     bottom: 0;
     z-index: 10000;
+    pointer-events: none; /* Ensure hidden modals don't block */
 }
 
 .modal.active {
     display: flex;
     align-items: center;
     justify-content: center;
+    pointer-events: auto; /* Re-enable when active */
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent backdrop */
+}
+
+.modal:not(.active) {
+    visibility: hidden;
+    pointer-events: none !important;
 }
 
 .modal:not(#expanded-idea-modal) {
     background: transparent;
+}
+
+.modal:not(#expanded-idea-modal).active {
+    background: rgba(0, 0, 0, 0.5);
 }
 
 #expanded-idea-modal {
