@@ -2322,7 +2322,7 @@ body {
 
 /* Hero Section Container (Textbox) - Adjusted for inside content */
 .hero-section-container {
-    margin-top: -10px !important; /* Moved up 30px (was 20px) */
+    margin-top: 0px !important; /* Moved down 10px (was -10px) */
     margin-bottom: 24px !important; /* Space below before drawing board */
     display: block !important;
     position: relative !important;
