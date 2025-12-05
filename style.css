@@ -847,6 +847,7 @@ body {
 .btn-signup {
     width: 100%;
     margin-top: 24px;
+    margin-bottom: 16px; /* Add spacing below */
     padding: 16px;
     background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%); /* Revital Gradient */
     color: white;
@@ -5684,19 +5685,31 @@ body {
 .streak-square::before {
     content: '';
     position: absolute;
-    bottom: -20px;
-    right: -20px;
-    font-size: 100px;
+    bottom: -15px;
+    right: -15px;
+    font-size: 80px;
     opacity: 0.2;
     z-index: 0;
     pointer-events: none;
     transform: rotate(-35deg);
+    /* Consistent rendering across devices */
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    line-height: 1;
 }
 
 #streak-square-scheduled::before { content: '📅'; }
 #streak-square-generated::before { content: '💡'; }
 #streak-square-scheduling::before { content: '🔥'; }
 #streak-square-session::before { content: '⚡'; }
+
+/* Mobile adjustments for streak square icons */
+@media (max-width: 480px) {
+    .streak-square::before {
+        font-size: 60px;
+        bottom: -10px;
+        right: -10px;
+    }
+}
 
 /* Hide any SVG background icons */
 .streak-bg-icon {
