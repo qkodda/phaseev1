@@ -2154,12 +2154,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="logo-loader" aria-hidden="true">
                     <img src="/PHasse-Logo.png" alt="" class="logo-fill-animated">
                 </div>
-                <h3 class="loading-title">Phazee is Building!</h3>
-                <div class="ai-thinking-window">
-                    <div class="thinking-line">▸ Scouring the web...</div>
-                    <div class="thinking-line">▸ Formulating viral concepts...</div>
-                    <div class="thinking-line">▸ Analyzing trending content...</div>
-                    <div class="thinking-line">▸ Crafting unique angles...</div>
+                <h3 class="loading-title">Phazee is thinking</h3>
+                <div class="ai-thinking-dots">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
                 </div>
             </div>
         `;
@@ -2167,92 +2166,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Animate AI thinking process with live updates
+     * Start thinking animation (now CSS-only with dots)
      */
     let thinkingInterval = null;
     function startLiveThinking(userProfile = {}) {
-        // Personalize thinking steps with user's actual data
-        const brandName = userProfile.brandName || 'your brand';
-        const audience = userProfile.targetAudience || 'target audience';
-        const platform = userProfile.platforms?.[0] || userProfile.preferredPlatforms?.[0] || 'platform';
-        const industry = userProfile.industry || 'industry';
-        const productionLevel = userProfile.productionLevel || 'production';
-        const cultureValue = userProfile.cultureValues?.[0] || 'authentic';
-        
-        const thinkingSteps = [
-            `▸ Scouring the web for trends...`,
-            `▸ Formulating viral concepts...`,
-            `▸ Analyzing top-performing content...`,
-            `▸ Crafting scroll-stopping hooks...`,
-            `▸ Researching ${platform} algorithms...`,
-            `▸ Identifying content gaps...`,
-            `▸ Generating unique angles...`,
-            `▸ Optimizing for maximum engagement...`,
-            `▸ Refining ${brandName} voice...`,
-            `▸ Building breakthrough ideas...`,
-            `▸ Polishing viral potential...`,
-            `▸ Finalizing your content strategy...`
-        ];
-        
-        let stepIndex = 0;
-        
-        // Clear any existing interval
-        if (thinkingInterval) {
-            clearInterval(thinkingInterval);
-            thinkingInterval = null;
-        }
-        
-        // Function to update thinking lines
-        const updateThinkingLines = () => {
-            const windows = document.querySelectorAll('.ai-thinking-window');
-            
-            if (windows.length === 0) {
-                console.log('⚠️ No thinking windows found, waiting...');
-                return;
-            }
-            
-            windows.forEach(window => {
-                const lines = window.querySelectorAll('.thinking-line');
-                
-                if (lines.length < 4) {
-                    console.log('⚠️ Not enough thinking lines found:', lines.length);
-                    return;
-                }
-                
-                // Shift lines up (scroll effect)
-                lines[0].textContent = lines[1].textContent;
-                lines[1].textContent = lines[2].textContent;
-                lines[2].textContent = lines[3].textContent;
-                lines[3].textContent = thinkingSteps[stepIndex % thinkingSteps.length];
-                
-                // Reset animation and add fade-in effect
-                lines[3].style.animation = 'none';
-                // Force reflow to restart animation
-                void lines[3].offsetWidth;
-                lines[3].style.animation = 'fadeInLine 0.4s ease';
-                
-                // Also add subtle slide-up animation to all lines for smooth scrolling effect
-                lines.forEach((line, index) => {
-                    if (index < 3) {
-                        line.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-                        line.style.transform = 'translateY(-100%)';
-                        setTimeout(() => {
-                            line.style.transform = 'translateY(0)';
-                        }, 10);
-                    }
-                });
-            });
-            
-            stepIndex++;
-        };
-        
-        // Start immediately
-        updateThinkingLines();
-        
-        // Then update every 800ms
-        thinkingInterval = setInterval(updateThinkingLines, 800);
-        
-        console.log('✅ Thinking animation started');
+        // The new dots animation is CSS-only, no JS needed
+        // Just log that we're in thinking mode
+        console.log('✅ Thinking animation started (CSS dots)');
     }
 
     function stopLiveThinking() {
