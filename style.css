@@ -4731,33 +4731,33 @@ END GENERATOR STYLES */
 .expanded-idea-card .card-actions-bottom {
     grid-row: 4 !important;
     display: flex !important;
-    justify-content: space-between !important;
+    justify-content: center !important;
     align-items: center !important;
     padding: 12px !important;
     border-top: none !important;
     height: auto !important;
-    position: relative;
-    top: 12px;
-    left: 8px;
 }
 
-/* Edit button stays left, platform icons center, schedule button right */
-.expanded-idea-card .card-actions-bottom .expanded-action-btn.edit-btn {
-    order: 1;
-    position: absolute;
-    left: 12px;
-    bottom: 12px;
+/* Edit button - bottom left corner of expanded card */
+.expanded-idea-card .expanded-action-btn.edit-btn {
+    position: absolute !important;
+    left: 12px !important;
+    bottom: 12px !important;
+    z-index: 10;
 }
 
+/* Platform icons - centered in bottom action bar */
 .expanded-idea-card .card-actions-bottom .platform-icons {
-    order: 2;
-    flex: 1;
     display: flex;
     justify-content: center;
 }
 
-.expanded-idea-card .card-actions-bottom .expanded-action-btn.schedule-btn {
-    order: 3;
+/* Schedule button - bottom right corner of expanded card */
+.expanded-idea-card .expanded-action-btn.schedule-btn {
+    position: absolute !important;
+    right: 12px !important;
+    bottom: 12px !important;
+    z-index: 10;
 }
 
 /* Center: Platform Icons */
