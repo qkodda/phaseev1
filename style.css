@@ -6023,6 +6023,8 @@ body {
     justify-content: space-between;
     margin-bottom: 16px;
     width: 100%;
+    padding: 0 20px; /* Inward padding for titles/icons */
+    box-sizing: border-box;
 }
 
 .section-title-group {
