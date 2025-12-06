@@ -2670,22 +2670,22 @@ body {
 
 .idea-swiper .card-stack .idea-card:nth-child(2 of .idea-card):not(.swiping) {
     z-index: 9;
-    transform: scaleX(0.97); /* Only scale width, not height */
-    height: 220px !important; /* Explicit 220px height */
-    top: 10px !important; /* Centered: (240-220)/2 = 10px from top */
+    transform: none; /* Same size as front card */
+    height: 240px !important; /* Same as front card */
+    top: 0 !important; /* Same position */
     opacity: 1 !important;
     pointer-events: none;
-    box-shadow: 0 9px 6px rgba(10, 30, 60, 0.35) !important; /* More blur */
+    box-shadow: 0 9px 6px rgba(10, 30, 60, 0.35) !important;
 }
 
 .idea-swiper .card-stack .idea-card:nth-child(3 of .idea-card):not(.swiping) {
     z-index: 8;
-    transform: scaleX(0.94); /* Only scale width, not height */
-    height: 220px !important; /* Explicit 220px height */
-    top: 10px !important; /* Centered: (240-220)/2 = 10px from top */
+    transform: none; /* Same size as front card */
+    height: 240px !important; /* Same as front card */
+    top: 0 !important; /* Same position */
     opacity: 1 !important;
     pointer-events: none;
-    box-shadow: 0 9px 6px rgba(10, 30, 60, 0.35) !important; /* More blur */
+    box-shadow: 0 9px 6px rgba(10, 30, 60, 0.35) !important;
 }
 
 .idea-swiper .card-stack .idea-card:nth-child(n+4 of .idea-card):not(.swiping) {
