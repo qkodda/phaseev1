@@ -5869,9 +5869,9 @@ body {
 .streak-square::before {
     content: '';
     position: absolute;
-    bottom: -20px;
-    right: -20px;
-    font-size: 128px; /* Increased 60% from 80px */
+    bottom: -25px;
+    right: -25px;
+    font-size: 173px; /* Increased another 35% from 128px */
     opacity: 0.2;
     z-index: 0;
     pointer-events: none;
@@ -5889,9 +5889,9 @@ body {
 /* Mobile adjustments for streak square icons */
 @media (max-width: 480px) {
     .streak-square::before {
-        font-size: 100px; /* Increased from 60px */
-        bottom: -15px;
-        right: -15px;
+        font-size: 135px; /* Increased another 35% from 100px */
+        bottom: -20px;
+        right: -20px;
     }
 }
 
