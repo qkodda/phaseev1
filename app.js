@@ -334,8 +334,8 @@ function handleChangePassword() {
         return;
     }
     
-    if (newPass.length < 8) {
-        showAlertModal('Error', 'New password must be at least 8 characters long.');
+    if (newPass.length < 6) {
+        showAlertModal('Error', 'New password must be at least 6 characters long.');
         return;
     }
     
