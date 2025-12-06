@@ -6097,7 +6097,7 @@ body {
 }
 
 #calendar-send-btn .section-action-icon {
-    transform: rotate(-45deg);
+    transform: rotate(-45deg) translateY(-4px);
 }
 
 /* Cards */
@@ -6134,7 +6134,8 @@ body {
     max-height: 215px; /* Same as drawing board - shows 3 at a time */
     overflow-y: auto;
     overflow-x: visible;
-    padding-top: 10px; /* Space for date badge offset */
+    padding-top: 16px; /* Space for date badge offset */
+    margin-top: -6px; /* Compensate for padding */
 }
 
 .revital-card-list::-webkit-scrollbar {
