@@ -4729,13 +4729,28 @@ END GENERATOR STYLES */
 /* Bottom Section - Action Bar (Edit | Icons | Schedule) */
 .expanded-idea-card .card-actions-bottom {
     grid-row: 4 !important;
-    display: grid !important;
-    grid-template-columns: 32px 1fr 32px !important;
+    display: flex !important;
+    justify-content: space-between !important;
     align-items: center !important;
     padding: 12px !important;
     border-top: none !important;
     height: auto !important;
-    gap: 8px;
+}
+
+/* Edit button stays left, platform icons center, schedule button right */
+.expanded-idea-card .card-actions-bottom .expanded-action-btn.edit-btn {
+    order: 1;
+}
+
+.expanded-idea-card .card-actions-bottom .platform-icons {
+    order: 2;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.expanded-idea-card .card-actions-bottom .expanded-action-btn.schedule-btn {
+    order: 3;
 }
 
 /* Center: Platform Icons */
@@ -6118,7 +6133,8 @@ body {
 #calendar-list {
     max-height: 215px; /* Same as drawing board - shows 3 at a time */
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: visible;
+    padding-top: 10px; /* Space for date badge offset */
 }
 
 .revital-card-list::-webkit-scrollbar {
