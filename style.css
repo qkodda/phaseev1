@@ -4741,8 +4741,8 @@ END GENERATOR STYLES */
 /* Edit button - bottom left corner of expanded card */
 .expanded-idea-card .expanded-action-btn.edit-btn {
     position: absolute !important;
-    left: 12px !important;
-    bottom: 12px !important;
+    left: 8px !important;
+    bottom: 8px !important;
     z-index: 10;
 }
 
@@ -4755,8 +4755,8 @@ END GENERATOR STYLES */
 /* Schedule button - bottom right corner of expanded card */
 .expanded-idea-card .expanded-action-btn.schedule-btn {
     position: absolute !important;
-    right: 12px !important;
-    bottom: 12px !important;
+    right: 8px !important;
+    bottom: 8px !important;
     z-index: 10;
 }
 
