@@ -4744,6 +4744,9 @@ END GENERATOR STYLES */
 /* Edit button stays left, platform icons center, schedule button right */
 .expanded-idea-card .card-actions-bottom .expanded-action-btn.edit-btn {
     order: 1;
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
 }
 
 .expanded-idea-card .card-actions-bottom .platform-icons {
