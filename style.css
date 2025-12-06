@@ -4742,8 +4742,8 @@ END GENERATOR STYLES */
 .expanded-idea-card .card-actions-bottom .expanded-action-btn.edit-btn {
     order: 1;
     position: relative;
-    left: 10px;
-    top: 10px;
+    left: -20px;
+    top: 18px;
 }
 
 .expanded-idea-card .card-actions-bottom .platform-icons {
