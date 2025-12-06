@@ -3524,8 +3524,9 @@ END GENERATOR STYLES */
     flex-direction: column;
     align-items: center;
     row-gap: 8px;
-    width: 100%;
-    padding: 16px 0;
+    width: calc(100% + 40px); /* Expand 20px each side */
+    margin-left: -20px;
+    padding: 16px 20px;
     max-height: 215px;
     overflow-y: auto;
     overflow-x: visible;
@@ -6109,8 +6110,9 @@ body {
     max-height: 215px;
     overflow-y: auto;
     overflow-x: visible;
-    width: 100%;
-    padding: 16px 0;
+    width: calc(100% + 40px); /* Expand 20px each side */
+    margin-left: -20px;
+    padding: 16px 20px;
     box-sizing: border-box;
     /* Fade effect at top and bottom - reduced exposure */
     -webkit-mask-image: linear-gradient(
