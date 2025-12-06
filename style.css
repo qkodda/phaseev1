@@ -3524,9 +3524,9 @@ END GENERATOR STYLES */
     flex-direction: column;
     align-items: center;
     row-gap: 8px;
-    width: 100%;
-    padding: 16px 0; /* Vertical padding only */
-    margin: 0 auto;
+    width: calc(100% + 20px); /* Expand 10px each side */
+    margin-left: -10px;
+    padding: 16px 10px; /* Vertical + horizontal padding */
     max-height: 215px;
     overflow-y: auto;
     overflow-x: visible;
@@ -6095,8 +6095,9 @@ body {
     max-height: 215px;
     overflow-y: auto;
     overflow-x: visible;
-    padding: 16px 0; /* Vertical padding only */
-    width: 100%;
+    width: calc(100% + 20px); /* Expand 10px each side */
+    margin-left: -10px;
+    padding: 16px 10px; /* Vertical + horizontal padding */
     box-sizing: border-box;
     /* Fade effect at top and bottom - reduced exposure */
     -webkit-mask-image: linear-gradient(
@@ -6221,11 +6222,13 @@ body {
 
 /* Content Trends Carousel - Seamless Infinite Loop */
 .trends-carousel-wrapper {
-    width: 100%;
-    max-width: 360px;
-    margin: 0 auto;
+    width: calc(100% + 20px); /* Expand 10px each side */
+    max-width: 380px; /* Expanded from 360px */
+    margin: 0 auto 0 -10px;
     height: 220px;
     overflow: hidden;
+    padding: 0 10px;
+    box-sizing: border-box;
     position: relative;
     background: transparent; /* Made transparent */
     border-radius: 16px;

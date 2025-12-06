@@ -2744,16 +2744,16 @@ window.handleForgotPassword = async function() {
         const ideaData = JSON.parse(card.dataset.idea);
 
         if (direction === 'right') {
-            // Check limit before pinning (max 7 pinned ideas)
+            // Check limit before pinning (max 14 pinned ideas)
             const grid = document.querySelector('.pinned-ideas .ideas-grid');
             const existingPinnedCards = grid ? grid.querySelectorAll('.idea-card-collapsed') : [];
             
             console.log('🔍 Pin limit check: Current pinned count =', existingPinnedCards.length);
             
-            if (existingPinnedCards.length >= 7) {
+            if (existingPinnedCards.length >= 14) {
                 // Show alert and return card to center
                 console.warn('⚠️ Pin limit reached! Cannot pin more ideas.');
-                showAlertModal('Pin Limit Reached', 'You can only pin up to 7 ideas at a time. Please schedule or delete an idea before pinning another.');
+                showAlertModal('Pin Limit Reached', 'You can only pin up to 14 ideas at a time. Please schedule or delete an idea before pinning another.');
                 card.style.transition = 'transform 0.3s ease-out'; /* Smooth return, no bounce */
                 card.style.transform = '';
                 card.classList.remove('swiping');
@@ -3019,11 +3019,11 @@ window.handleForgotPassword = async function() {
             console.log('🆔 Generated new idea ID:', idea.id);
         }
 
-        // Check if already at 7 pinned ideas limit
+        // Check if already at 14 pinned ideas limit
         const existingPinnedCards = grid.querySelectorAll('.idea-card-collapsed');
-        if (existingPinnedCards.length >= 7) {
+        if (existingPinnedCards.length >= 14) {
             console.warn('⚠️ Pin limit reached:', existingPinnedCards.length);
-            showAlertModal('Pin Limit Reached', 'You can only pin up to 7 ideas at a time. Please schedule or delete an idea before pinning another.');
+            showAlertModal('Pin Limit Reached', 'You can only pin up to 14 ideas at a time. Please schedule or delete an idea before pinning another.');
             return null;
         }
 
