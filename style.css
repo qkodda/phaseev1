@@ -4736,6 +4736,9 @@ END GENERATOR STYLES */
     padding: 12px !important;
     border-top: none !important;
     height: auto !important;
+    position: relative;
+    top: 12px;
+    left: 8px;
 }
 
 /* Edit button stays left, platform icons center, schedule button right */
