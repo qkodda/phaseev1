@@ -3587,6 +3587,7 @@ END GENERATOR STYLES */
     width: 340px;
     height: 61px; /* Reduced by 4px */
     display: flex;
+    overflow: visible; /* Allow date badge to overflow */
     align-items: center;
     justify-content: flex-start;
     gap: 10px;
@@ -3596,7 +3597,6 @@ END GENERATOR STYLES */
     margin: 0 auto;
     justify-self: center;
     position: relative;
-    overflow: hidden;
     flex-shrink: 0;
     align-self: center;
     box-sizing: border-box;
@@ -4880,11 +4880,11 @@ END GENERATOR STYLES */
     display: none;
 }
 
-/* Date badge for calendar scheduled cards - offset style */
+/* Date badge for calendar scheduled cards - offset corner style */
 .scheduled-date-badge {
     position: absolute;
-    top: -8px; /* Offset above card */
-    right: 12px;
+    top: -6px; /* Offset above card */
+    right: -6px; /* Offset outside right edge */
     background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
     color: white;
     padding: 4px 10px;
@@ -4892,6 +4892,7 @@ END GENERATOR STYLES */
     font-size: 10px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     font-weight: 600;
+    z-index: 5;
     box-shadow: 0 2px 6px rgba(30, 58, 95, 0.3);
     z-index: 5;
 }
@@ -4965,6 +4966,17 @@ END GENERATOR STYLES */
 
 .expanded-action-btn.copy-btn:hover {
     transform: scale(1.05);
+}
+
+/* Delete button - red theme */
+.expanded-action-btn.delete-btn {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    box-shadow: 0 3px 10px rgba(220, 38, 38, 0.35);
+}
+
+.expanded-action-btn.delete-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.45);
 }
 
 .expanded-action-btn:hover {
@@ -5857,9 +5869,9 @@ body {
 .streak-square::before {
     content: '';
     position: absolute;
-    bottom: -15px;
-    right: -15px;
-    font-size: 80px;
+    bottom: -20px;
+    right: -20px;
+    font-size: 128px; /* Increased 60% from 80px */
     opacity: 0.2;
     z-index: 0;
     pointer-events: none;
@@ -5877,9 +5889,9 @@ body {
 /* Mobile adjustments for streak square icons */
 @media (max-width: 480px) {
     .streak-square::before {
-        font-size: 60px;
-        bottom: -10px;
-        right: -10px;
+        font-size: 100px; /* Increased from 60px */
+        bottom: -15px;
+        right: -15px;
     }
 }
 
