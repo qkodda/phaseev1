@@ -6141,7 +6141,7 @@ body {
 
 /* Calendar list can show more scheduled ideas - holds up to 30 */
 #calendar-list {
-    max-height: 215px; /* Same as drawing board - shows 3 at a time */
+    max-height: 500px; /* Increased to show ~6-7 cards at a time, scrollable for up to 30 */
     overflow-y: auto;
     overflow-x: visible;
     padding-top: 16px; /* Space for date badge offset */
