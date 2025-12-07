@@ -6141,27 +6141,17 @@ body {
 
 /* Calendar list - shows 3 cards at a time, scrollable for up to 30 total */
 #calendar-list {
-    max-height: 260px !important; /* Override .revital-card-list - shows ~3 cards */
+    max-height: 300px !important; /* Override .revital-card-list - shows 3 cards with date badges */
+    min-height: 100px; /* Ensure minimum height even with few cards */
     overflow-y: auto;
     overflow-x: visible;
-    padding-top: 16px; /* Space for date badge offset */
+    padding-top: 20px; /* Space for date badge offset */
+    padding-bottom: 8px;
     margin-top: -6px; /* Compensate for padding */
     scroll-behavior: smooth;
-    /* Override mask to show full cards without fade cutoff */
-    -webkit-mask-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        black 3%,
-        black 97%,
-        transparent 100%
-    ) !important;
-    mask-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        black 3%,
-        black 97%,
-        transparent 100%
-    ) !important;
+    /* Remove mask entirely for calendar to show all cards clearly */
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
 }
 
 /* Ensure calendar list scrollbar is visible for discoverability */
