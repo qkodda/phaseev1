@@ -4,65 +4,133 @@
  * SECURITY: API calls are made through Vercel serverless function
  * to keep your OpenAI API key SECRET and never exposed to the browser.
  * 
+ * GOVERNANCE: Integrates with generation-governance.js for rate limiting,
+ * tiering, cooldowns, and abuse prevention.
+ * 
  * Setup Instructions:
  * 1. Get your OpenAI API key from https://platform.openai.com/api-keys
  * 2. Add it to Vercel as OPENAI_API_KEY (NO VITE_ prefix - server-side only)
  * 3. The api/generate-ideas.js function handles the secure API calls
  */
 
-// Call our secure serverless function instead of OpenAI directly
-async function callOpenAI(userProfile, customDirection, isCampaign, preferredPlatforms, count) {
-  console.log('🔒 Calling secure serverless function for AI generation...')
-  
-  const response = await fetch('/api/generate-ideas', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      userProfile,
-      customDirection,
-      isCampaign,
+import { getUser, getSession } from './auth-integration.js';
+import * as governance from './generation-governance.js';
+
+// Export governance functions for convenience
+export { 
+  initGovernance, 
+  getGovernanceState, 
+  isOnCooldown, 
+  getRemainingCooldown,
+  getTierInfo,
+  getHourlyProgress,
+  getDailyProgress,
+  isAtSoftWarning,
+  getIdeasRemainingToday,
+  formatCooldownTime,
+  redeemBoost,
+  getBoostBalance
+} from './generation-governance.js';
+
+/**
+ * Generate content ideas with full governance integration
+ * @param {Object} userProfile - User's profile data
+ * @param {string} customDirection - Optional custom direction from user
+ * @param {boolean} isCampaign - Whether to generate campaign ideas
+ * @param {string[]} preferredPlatforms - Preferred platforms
+ * @param {boolean} useBoost - Whether to use a boost token
+ * @returns {Promise<Object>} Result with ideas and governance info
+ */
+export async function generateContentIdeas(userProfile, customDirection = '', isCampaign = false, preferredPlatforms = [], useBoost = false) {
+  try {
+    // Use governance-aware generation
+    const result = await governance.generateWithGovernance(
+      userProfile, 
+      customDirection, 
+      isCampaign, 
       preferredPlatforms,
-      count
-    })
-  })
-  
-  if (!response.ok) {
-    const errorData = await response.json()
-    console.error('❌ API error:', errorData)
-    throw new Error(errorData.error || 'API request failed')
+      useBoost
+    );
+    
+    if (!result.success) {
+      // Handle governance blocks (cooldown, limits, etc.)
+      const error = new Error(result.message || 'Generation blocked');
+      error.governance = result.governance;
+      error.status = result.error;
+      error.cooldownSeconds = result.cooldown_seconds;
+      throw error;
+    }
+    
+    // Format the ideas
+    return {
+      ideas: formatIdeas(result.ideas || []),
+      governance: result.governance
+    };
+    
+  } catch (error) {
+    // If it's a governance error, re-throw with info
+    if (error.governance) {
+      throw error;
+    }
+    
+    console.error('API Error:', error);
+    throw new Error(`Failed to generate ideas: ${error.message}`);
   }
-  
-  return response.json()
 }
 
 /**
- * Generate content ideas based on user profile
- * @param {Object} userProfile - User's profile data
- * @param {string} userProfile.contentType - Type of content creator
- * @param {string} userProfile.targetAudience - Target audience description
- * @param {Array<string>} userProfile.platforms - Selected platforms
- * @param {Array<string>} userProfile.cultureValues - Selected culture values
- * @param {string} customDirection - Optional custom direction from user
- * @param {boolean} isCampaign - Whether to generate campaign ideas
- * @returns {Promise<Array>} Array of 7 generated ideas
+ * Legacy function for backward compatibility
+ * Calls generateContentIdeas and returns just the ideas array
  */
-export async function generateContentIdeas(userProfile, customDirection = '', isCampaign = false, preferredPlatforms = [], count = 7) {
-  try {
-    // Call our secure serverless function
-    const response = await callOpenAI(userProfile, customDirection, isCampaign, preferredPlatforms, count)
-    
-    // Response is already parsed and formatted by the serverless function
-    return formatIdeas(response.ideas || [])
-    
-  } catch (error) {
-    console.error('API Error:', error)
-    throw new Error(`Failed to generate ideas: ${error.message}`)
-  }
+export async function generateContentIdeasLegacy(userProfile, customDirection = '', isCampaign = false, preferredPlatforms = [], count = 7) {
+  const result = await generateContentIdeas(userProfile, customDirection, isCampaign, preferredPlatforms);
+  return result.ideas;
 }
 
-// buildPrompt moved to serverless function (api/generate-ideas.js)
+/**
+ * Regenerate a single idea (counts as 0.25 toward limits)
+ */
+export async function regenerateSingleIdea(userProfile, originalIdea, customDirection = '', preferredPlatforms = [], useBoost = false) {
+  try {
+    const result = await governance.regenerateSingleIdea(
+      userProfile,
+      originalIdea,
+      customDirection,
+      preferredPlatforms,
+      useBoost
+    );
+    
+    if (!result.success) {
+      const error = new Error(result.message || 'Regeneration blocked');
+      error.status = result.error;
+      error.cooldownSeconds = result.cooldown_seconds;
+      throw error;
+    }
+    
+    // Format the single idea
+    const formattedIdea = {
+      id: generateIdeaId(),
+      title: result.idea?.title || 'Untitled Idea',
+      summary: result.idea?.summary || '',
+      action: result.idea?.action || '',
+      setup: result.idea?.setup || '',
+      story: result.idea?.story || '',
+      hook: result.idea?.hook || '',
+      why: result.idea?.why || '',
+      platforms: Array.isArray(result.idea?.platforms) ? result.idea.platforms : ['tiktok'],
+      createdAt: new Date().toISOString()
+    };
+    
+    return {
+      idea: formattedIdea,
+      governance: result.governance
+    };
+    
+  } catch (error) {
+    console.error('Regenerate Error:', error);
+    throw error;
+  }
+}
 
 /**
  * Format and validate generated ideas
@@ -90,20 +158,26 @@ function generateIdeaId() {
 }
 
 /**
- * Generate ideas with retry logic
+ * Generate ideas with retry logic (legacy support)
  */
 export async function generateIdeasWithRetry(userProfile, customDirection = '', isCampaign = false, preferredPlatforms = [], maxRetries = 3) {
   let lastError
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      return await generateContentIdeas(userProfile, customDirection, isCampaign, preferredPlatforms)
+      const result = await generateContentIdeas(userProfile, customDirection, isCampaign, preferredPlatforms)
+      return result.ideas
     } catch (error) {
       lastError = error
+      
+      // Don't retry governance blocks
+      if (error.governance || error.status === 'cooldown' || error.status === 'hourly_limit' || error.status === 'daily_limit') {
+        throw error
+      }
+      
       console.warn(`Attempt ${attempt} failed:`, error.message)
       
       if (attempt < maxRetries) {
-        // Wait before retrying (exponential backoff)
         await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
       }
     }
@@ -116,16 +190,14 @@ export async function generateIdeasWithRetry(userProfile, customDirection = '', 
  * Estimate token usage for a request (approximate)
  */
 export function estimateTokens(userProfile, customDirection = '') {
-  // Rough estimate based on typical prompt size
-  const baseTokens = 2000 // Base prompt
+  const baseTokens = 2000
   const directionTokens = customDirection ? Math.ceil(customDirection.length / 4) : 0
-  const responseTokens = 3000 // Expected response
+  const responseTokens = 3000
   return baseTokens + directionTokens + responseTokens
 }
 
 /**
  * Check if API is configured
- * In production, this checks if the serverless function is available
  */
 export async function isConfigured() {
   try {
@@ -229,4 +301,3 @@ export function getFallbackIdeas() {
     }
   ]
 }
-

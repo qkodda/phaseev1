@@ -22,6 +22,349 @@ import {
 } from './auth-integration.js';
 import { isDevBypassEnabled } from './auth-config.js';
 
+// Generation Governance System
+import {
+    initGovernance,
+    getGovernanceState,
+    isOnCooldown,
+    getRemainingCooldown,
+    getTierInfo,
+    getHourlyProgress,
+    getDailyProgress,
+    isAtSoftWarning,
+    getIdeasRemainingToday,
+    formatCooldownTime,
+    redeemBoost,
+    getBoostBalance,
+    setCooldown
+} from './generation-governance.js';
+
+// ============================================
+// GENERATION GOVERNANCE UI
+// ============================================
+
+let governanceInitialized = false;
+let cooldownTimerInterval = null;
+
+/**
+ * Initialize generation governance system
+ */
+async function initializeGovernance() {
+    if (governanceInitialized) return;
+    
+    try {
+        await initGovernance({
+            onStateChange: updateGovernanceUI,
+            onCooldownTick: updateCooldownDisplay,
+            onCooldownEnd: onCooldownComplete
+        });
+        
+        governanceInitialized = true;
+        updateGovernanceUI(getGovernanceState());
+        console.log('✅ Governance system initialized');
+    } catch (error) {
+        console.warn('⚠️ Governance initialization failed (offline mode):', error);
+        hideGovernanceUI();
+    }
+}
+
+/**
+ * Update governance UI elements
+ */
+function updateGovernanceUI(state) {
+    if (!state) return;
+    
+    // Update hourly progress
+    const hourlyBar = document.getElementById('hourly-progress-bar');
+    const hourlyStat = document.getElementById('hourly-stat');
+    if (hourlyBar && hourlyStat) {
+        const hourlyProgress = (state.hourlyCount / state.hourlyLimit) * 100;
+        hourlyBar.style.width = `${Math.min(100, hourlyProgress)}%`;
+        
+        // Color coding
+        hourlyBar.classList.remove('warning', 'danger');
+        if (hourlyProgress >= 90) {
+            hourlyBar.classList.add('danger');
+        } else if (hourlyProgress >= 50) {
+            hourlyBar.classList.add('warning');
+        }
+        
+        // Show ideas (hourly count * 7)
+        const ideasGenerated = Math.round(state.hourlyCount * 7);
+        const maxIdeas = state.hourlyLimit * 7;
+        hourlyStat.textContent = `${ideasGenerated}/${maxIdeas}`;
+    }
+    
+    // Update daily progress
+    const dailyBar = document.getElementById('daily-progress-bar');
+    const dailyStat = document.getElementById('daily-stat');
+    if (dailyBar && dailyStat) {
+        const dailyProgress = (state.dailyCount / state.dailyLimit) * 100;
+        dailyBar.style.width = `${Math.min(100, dailyProgress)}%`;
+        
+        dailyBar.classList.remove('warning', 'danger');
+        if (dailyProgress >= 90) {
+            dailyBar.classList.add('danger');
+        } else if (dailyProgress >= 50) {
+            dailyBar.classList.add('warning');
+        }
+        
+        const ideasGenerated = Math.round(state.dailyCount * 7);
+        const maxIdeas = state.dailyLimit * 7;
+        dailyStat.textContent = `${ideasGenerated}/${maxIdeas}`;
+    }
+    
+    // Update tier badge
+    const tierBadge = document.getElementById('tier-badge');
+    if (tierBadge) {
+        const tierLetter = tierBadge.querySelector('.tier-letter');
+        const tierLabel = tierBadge.querySelector('.tier-label');
+        const tierInfo = getTierInfo();
+        
+        if (tierLetter) tierLetter.textContent = state.currentTier;
+        if (tierLabel) tierLabel.textContent = tierInfo.name;
+        
+        tierBadge.className = 'governance-tier-badge';
+        if (state.currentTier === 'B') tierBadge.classList.add('tier-b');
+        if (state.currentTier === 'C') tierBadge.classList.add('tier-c');
+        if (state.activeBoostBatches > 0) tierBadge.classList.add('boost-active');
+    }
+    
+    // Update boost badge
+    const boostBadge = document.getElementById('boost-badge');
+    const boostCount = document.getElementById('boost-count');
+    if (boostBadge && boostCount) {
+        if (state.boostBalance > 0) {
+            boostBadge.style.display = 'flex';
+            boostCount.textContent = state.boostBalance;
+        } else {
+            boostBadge.style.display = 'none';
+        }
+    }
+    
+    // Update generate button state
+    const generateBtn = document.getElementById('header-generate-btn');
+    if (generateBtn) {
+        if (state.status === 'cooldown' || isOnCooldown()) {
+            generateBtn.classList.add('on-cooldown');
+        } else {
+            generateBtn.classList.remove('on-cooldown');
+        }
+    }
+}
+
+/**
+ * Update cooldown display in real-time
+ */
+function updateCooldownDisplay(secondsRemaining) {
+    const cooldownTimer = document.getElementById('cooldown-timer');
+    if (cooldownTimer) {
+        cooldownTimer.textContent = secondsRemaining;
+    }
+    
+    // Update progress bar
+    const cooldownBar = document.getElementById('cooldown-progress-bar');
+    const state = getGovernanceState();
+    if (cooldownBar && state.cooldownSeconds > 0) {
+        const progress = (secondsRemaining / state.cooldownSeconds) * 100;
+        cooldownBar.style.width = `${progress}%`;
+    }
+}
+
+/**
+ * Handle cooldown completion
+ */
+function onCooldownComplete() {
+    const generateBtn = document.getElementById('header-generate-btn');
+    if (generateBtn) {
+        generateBtn.classList.remove('on-cooldown');
+    }
+    
+    // Hide cooldown modal if open
+    const cooldownModal = document.getElementById('cooldown-modal');
+    if (cooldownModal && cooldownModal.classList.contains('active')) {
+        cooldownModal.classList.remove('active');
+    }
+    
+    // Show "ready" toast
+    showGovernanceToast('Ready to generate! 🚀', 'success');
+}
+
+/**
+ * Show cooldown modal
+ */
+function showCooldownModal(seconds) {
+    const modal = document.getElementById('cooldown-modal');
+    const timer = document.getElementById('cooldown-timer');
+    const progressBar = document.getElementById('cooldown-progress-bar');
+    
+    if (!modal) return;
+    
+    timer.textContent = seconds;
+    progressBar.style.width = '100%';
+    modal.classList.add('active');
+    
+    // Setup close button
+    const okBtn = document.getElementById('cooldown-modal-ok');
+    if (okBtn) {
+        okBtn.onclick = () => modal.classList.remove('active');
+    }
+    
+    // Close on background click
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+    };
+}
+
+/**
+ * Show daily limit modal
+ */
+function showDailyLimitModal() {
+    const modal = document.getElementById('daily-limit-modal');
+    const state = getGovernanceState();
+    
+    if (!modal) return;
+    
+    const ideasGenerated = document.getElementById('daily-ideas-generated');
+    if (ideasGenerated) {
+        ideasGenerated.textContent = Math.round(state.dailyCount * 7);
+    }
+    
+    modal.classList.add('active');
+    
+    const okBtn = document.getElementById('daily-limit-modal-ok');
+    if (okBtn) {
+        okBtn.onclick = () => modal.classList.remove('active');
+    }
+    
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+    };
+}
+
+/**
+ * Show soft warning toast
+ */
+function showSoftWarningToast() {
+    const toast = document.getElementById('soft-warning-toast');
+    if (!toast) return;
+    
+    toast.classList.add('visible');
+    setTimeout(() => toast.classList.remove('visible'), 4000);
+}
+
+/**
+ * Show tier change toast
+ */
+function showTierChangeToast(tier) {
+    const toast = document.getElementById('tier-change-toast');
+    const icon = document.getElementById('tier-toast-icon');
+    const message = document.getElementById('tier-toast-message');
+    
+    if (!toast) return;
+    
+    toast.className = 'governance-toast tier-toast';
+    
+    if (tier === 'B') {
+        toast.classList.add('tier-b');
+        icon.textContent = '⚡';
+        message.textContent = 'Standard quality mode active';
+    } else if (tier === 'C') {
+        toast.classList.add('tier-c');
+        icon.textContent = '🚀';
+        message.textContent = 'Rapid mode - fast ideas';
+    } else {
+        icon.textContent = '✨';
+        message.textContent = 'Premium quality restored';
+    }
+    
+    toast.classList.add('visible');
+    setTimeout(() => toast.classList.remove('visible'), 3000);
+}
+
+/**
+ * Show generic governance toast
+ */
+function showGovernanceToast(text, type = 'info') {
+    const toast = document.getElementById('soft-warning-toast');
+    if (!toast) return;
+    
+    const messageEl = toast.querySelector('.toast-message');
+    if (messageEl) messageEl.textContent = text;
+    
+    toast.classList.add('visible');
+    setTimeout(() => toast.classList.remove('visible'), 3000);
+}
+
+/**
+ * Hide governance UI (offline mode)
+ */
+function hideGovernanceUI() {
+    const statsBar = document.getElementById('governance-stats-bar');
+    if (statsBar) statsBar.classList.add('hidden');
+    
+    const boostBadge = document.getElementById('boost-badge');
+    if (boostBadge) boostBadge.style.display = 'none';
+}
+
+/**
+ * Show boost redemption modal
+ */
+function showBoostModal() {
+    const modal = document.getElementById('boost-modal');
+    const state = getGovernanceState();
+    
+    if (!modal) return;
+    
+    const balanceEl = document.getElementById('boost-modal-balance');
+    if (balanceEl) balanceEl.textContent = state.boostBalance;
+    
+    modal.classList.add('active');
+    
+    const cancelBtn = document.getElementById('boost-modal-cancel');
+    const confirmBtn = document.getElementById('boost-modal-confirm');
+    
+    if (cancelBtn) {
+        cancelBtn.onclick = () => modal.classList.remove('active');
+    }
+    
+    if (confirmBtn) {
+        confirmBtn.onclick = async () => {
+            const result = await redeemBoost();
+            modal.classList.remove('active');
+            
+            if (result.success) {
+                showGovernanceToast(`Boost activated! ⚡ ${result.batches_granted} premium batches unlocked`);
+                updateGovernanceUI(getGovernanceState());
+            } else {
+                showAlertModal('Boost Failed', result.error || 'Could not redeem boost');
+            }
+        };
+    }
+    
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+    };
+}
+
+/**
+ * Handle governance errors in generation
+ */
+function handleGovernanceError(error) {
+    if (error.status === 'cooldown') {
+        showCooldownModal(error.cooldownSeconds || 5);
+        setCooldown(error.cooldownSeconds || 5);
+    } else if (error.status === 'daily_limit') {
+        showDailyLimitModal();
+    } else if (error.status === 'hourly_limit') {
+        showAlertModal('Hourly Limit', 'Take a quick break! Your ideas will be ready soon.');
+    } else if (error.status === 'banned') {
+        showAlertModal('Temporarily Blocked', error.message || 'Please try again in a few minutes.');
+    } else {
+        showAlertModal('Generation Error', error.message || 'Something went wrong. Please try again.');
+    }
+}
+
 // ============================================
 // CULTURE VALUES CAROUSEL
 // ============================================
@@ -810,6 +1153,11 @@ function navigateTo(pageId) {
         
         // Personalize hero section
         personalizeHeroSection();
+        
+        // Initialize generation governance system
+        initializeGovernance().catch(err => {
+            console.warn('⚠️ Governance init failed (offline mode):', err);
+        });
         
         // Update session streak and render streak squares
         updateSessionStreak();
@@ -2102,7 +2450,56 @@ window.handleForgotPassword = async function() {
             }, 50);
 
             console.log('⚡ Generating full idea set (7 ideas)...');
-            const allIdeasRaw = await generateContentIdeas(userProfile, customDirection + vibeContext, isCampaign, preferredPlatforms, 7);
+            
+            // Generate with governance - returns { ideas, governance } or throws governance error
+            let allIdeasRaw;
+            let governanceData = null;
+            try {
+                const result = await generateContentIdeas(userProfile, customDirection + vibeContext, isCampaign, preferredPlatforms);
+                // Handle new response format: { ideas: [], governance: {} }
+                if (result && result.ideas) {
+                    allIdeasRaw = result.ideas;
+                    governanceData = result.governance;
+                } else if (Array.isArray(result)) {
+                    // Legacy format: just an array
+                    allIdeasRaw = result;
+                } else {
+                    allIdeasRaw = [];
+                }
+                
+                // Update governance UI if we got governance data
+                if (governanceData) {
+                    updateGovernanceUI({
+                        hourlyCount: governanceData.hourly_count || 0,
+                        hourlyLimit: governanceData.hourly_limit || 12,
+                        dailyCount: governanceData.daily_count || 0,
+                        dailyLimit: governanceData.daily_limit || 100,
+                        currentTier: governanceData.tier || 'A',
+                        boostBalance: governanceData.remaining_boosts || 0,
+                        activeBoostBatches: governanceData.active_boost_batches || 0,
+                        status: governanceData.status || 'ok'
+                    });
+                    
+                    // Show warnings/toasts based on governance response
+                    if (governanceData.soft_warning) {
+                        showSoftWarningToast();
+                    }
+                    
+                    // Apply cooldown if specified
+                    if (governanceData.cooldown_seconds > 0) {
+                        setCooldown(governanceData.cooldown_seconds);
+                    }
+                }
+            } catch (genError) {
+                // Check if this is a governance error
+                if (genError.governance || genError.status) {
+                    cleanup();
+                    handleGovernanceError(genError);
+                    return;
+                }
+                throw genError; // Re-throw non-governance errors
+            }
+            
             const allIdeas = Array.isArray(allIdeasRaw) ? allIdeasRaw.slice(0, 7) : [];
 
             if (allIdeas.length === 0) {
@@ -5290,6 +5687,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         
         console.log('✅ Header generate button initialized');
+    }
+    
+    // Initialize boost badge click handler
+    const boostBadge = document.getElementById('boost-badge');
+    if (boostBadge) {
+        boostBadge.addEventListener('click', () => {
+            showBoostModal();
+        });
+        console.log('✅ Boost badge click handler initialized');
     }
     
     // Listen for auth state changes

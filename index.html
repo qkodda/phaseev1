@@ -412,6 +412,34 @@
                             <span id="ideas-count">7 Ideas</span> - <span id="refresh-time">Refreshed just now</span>
                         </div>
 
+                        <!-- Generation Governance Stats Bar -->
+                        <div class="governance-stats-bar" id="governance-stats-bar">
+                            <div class="governance-stat">
+                                <span class="stat-label">Hourly</span>
+                                <div class="stat-progress-container">
+                                    <div class="stat-progress-bar" id="hourly-progress-bar"></div>
+                                </div>
+                                <span class="stat-value" id="hourly-stat">0/84</span>
+                            </div>
+                            <div class="governance-tier-badge" id="tier-badge">
+                                <span class="tier-letter">A</span>
+                                <span class="tier-label">Premium</span>
+                            </div>
+                            <div class="governance-stat">
+                                <span class="stat-label">Daily</span>
+                                <div class="stat-progress-container">
+                                    <div class="stat-progress-bar" id="daily-progress-bar"></div>
+                                </div>
+                                <span class="stat-value" id="daily-stat">0/700</span>
+                            </div>
+                        </div>
+
+                        <!-- Boost Badge (floating) -->
+                        <div class="boost-badge" id="boost-badge" style="display: none;">
+                            <span class="boost-icon">⚡</span>
+                            <span class="boost-count" id="boost-count">0</span>
+                        </div>
+
                         <!-- HeroSection (Textbox) - Moved Inside Content -->
                         <section class="hero-section-container">
                             <div class="hero-section">
@@ -830,6 +858,65 @@
                 <h3 id="alert-modal-title" style="font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px;"></h3>
                 <p id="alert-modal-message" style="font-size: 15px; color: rgba(60, 60, 60, 0.9); line-height: 1.6; margin-bottom: 24px;"></p>
                 <button id="alert-modal-ok" class="btn-primary" style="width: 100%;">OK</button>
+            </div>
+        </div>
+
+        <!-- Cooldown Modal (Rate Limiting) -->
+        <div id="cooldown-modal" class="modal governance-modal">
+            <div class="modal-content cooldown-modal-content">
+                <div class="cooldown-emoji">🏃💨</div>
+                <h3 class="cooldown-title">Woah woah, slow your roll!</h3>
+                <p class="cooldown-message">Please wait <span id="cooldown-timer">0</span> seconds.</p>
+                <div class="cooldown-progress-container">
+                    <div class="cooldown-progress-bar" id="cooldown-progress-bar"></div>
+                </div>
+                <button id="cooldown-modal-ok" class="btn-primary cooldown-btn">Got it</button>
+            </div>
+        </div>
+
+        <!-- Daily Limit Modal -->
+        <div id="daily-limit-modal" class="modal governance-modal">
+            <div class="modal-content daily-limit-modal-content">
+                <div class="limit-emoji">🌙</div>
+                <h3 class="limit-title">You've been busy today!</h3>
+                <p class="limit-message">You've generated a lot of amazing ideas. Come back tomorrow for fresh inspiration!</p>
+                <div class="limit-stats">
+                    <span class="limit-stat-value" id="daily-ideas-generated">0</span>
+                    <span class="limit-stat-label">ideas generated today</span>
+                </div>
+                <p class="limit-reset-time">Resets at <span id="daily-reset-time">midnight UTC</span></p>
+                <button id="daily-limit-modal-ok" class="btn-primary">Got it</button>
+            </div>
+        </div>
+
+        <!-- Soft Warning Toast -->
+        <div id="soft-warning-toast" class="governance-toast">
+            <span class="toast-icon">🔥</span>
+            <span class="toast-message">Love the momentum! Quality may vary slightly.</span>
+        </div>
+
+        <!-- Tier Change Toast -->
+        <div id="tier-change-toast" class="governance-toast tier-toast">
+            <span class="toast-icon" id="tier-toast-icon">⚡</span>
+            <span class="toast-message" id="tier-toast-message">Switched to Standard mode</span>
+        </div>
+
+        <!-- Boost Redemption Modal -->
+        <div id="boost-modal" class="modal governance-modal">
+            <div class="modal-content boost-modal-content">
+                <div class="boost-modal-icon">⚡</div>
+                <h3 class="boost-modal-title">Use a Boost?</h3>
+                <p class="boost-modal-message">Activate Premium quality for your next <span id="boost-batches-count">3</span> generations.</p>
+                <div class="boost-balance-display">
+                    <span class="boost-balance-label">Your Boosts:</span>
+                    <span class="boost-balance-value" id="boost-modal-balance">0</span>
+                </div>
+                <div class="boost-modal-actions">
+                    <button id="boost-modal-cancel" class="btn-secondary">Cancel</button>
+                    <button id="boost-modal-confirm" class="btn-primary boost-confirm-btn">
+                        <span class="boost-btn-icon">⚡</span> Use Boost
+                    </button>
+                </div>
             </div>
         </div>
 
