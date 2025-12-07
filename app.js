@@ -2491,13 +2491,15 @@ window.handleForgotPassword = async function() {
                     }
                 }
             } catch (genError) {
-                // Check if this is a governance error
-                if (genError.governance || genError.status) {
+                // Check if this is a governance error (specific statuses only)
+                const governanceStatuses = ['cooldown', 'hourly_limit', 'daily_limit', 'banned'];
+                if (genError.governance && governanceStatuses.includes(genError.status)) {
                     cleanup();
                     handleGovernanceError(genError);
                     return;
                 }
-                throw genError; // Re-throw non-governance errors
+                // For all other errors (network, API key missing, etc.), throw to trigger fallback
+                throw genError;
             }
             
             const allIdeas = Array.isArray(allIdeasRaw) ? allIdeasRaw.slice(0, 7) : [];
