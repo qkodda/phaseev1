@@ -2530,12 +2530,12 @@ body {
 }
 
 /* ============================================
-   BUILD MORE CARD - Exciting design with animations
+   BUILD MORE CARD - Clean, polished design
    ============================================ */
 .platform--tiktok .idea-swiper .build-more-card,
 .platform--youtube .idea-swiper .build-more-card,
 .build-more-card {
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%) !important;
+    background: linear-gradient(145deg, #0f172a 0%, #1e3a5f 60%, #234670 100%) !important;
     color: #ffffff !important;
     z-index: 0 !important;
     box-shadow: 0 11px 6px rgba(10, 30, 60, 0.4) !important;
@@ -2547,87 +2547,87 @@ body {
     overflow: hidden !important;
 }
 
-/* Animated shimmer sweep effect */
+/* Subtle animated glow at top */
 .build-more-card::before {
     content: '' !important;
     position: absolute !important;
-    top: -50% !important;
-    left: -50% !important;
-    width: 200% !important;
-    height: 200% !important;
-    background: linear-gradient(
-        45deg,
-        transparent 30%,
-        rgba(94, 234, 212, 0.1) 50%,
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 120px !important;
+    background: radial-gradient(
+        ellipse at 50% 0%,
+        rgba(94, 234, 212, 0.12) 0%,
         transparent 70%
     ) !important;
-    animation: buildMoreShimmer 3s ease-in-out infinite !important;
+    animation: glowPulse 3s ease-in-out infinite !important;
     pointer-events: none !important;
     z-index: 1 !important;
 }
 
-@keyframes buildMoreShimmer {
-    0% { transform: translateX(-100%) rotate(45deg); }
-    100% { transform: translateX(100%) rotate(45deg); }
+@keyframes glowPulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
 }
 
-/* Floating sparkle effect */
+/* No emoji/sparkle */
 .build-more-card::after {
-    content: '⚡' !important;
-    position: absolute !important;
-    font-size: 24px !important;
-    top: 15% !important;
-    right: 12% !important;
-    opacity: 0.7 !important;
-    animation: floatSparkle 2.5s ease-in-out infinite !important;
-    pointer-events: none !important;
-    z-index: 1 !important;
-    display: block !important;
-    background-image: none !important;
+    display: none !important;
+    content: none !important;
 }
 
-@keyframes floatSparkle {
-    0%, 100% { 
-        transform: translateY(0) scale(1);
-        opacity: 0.5;
-    }
-    50% { 
-        transform: translateY(-10px) scale(1.2);
-        opacity: 0.9;
-    }
-}
-
-/* Build more card content wrapper */
-.build-more-card .card-content {
+/* Build more card content - centered, compact */
+.build-more-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 60px 24px 50px !important;
     position: relative !important;
     z-index: 2 !important;
+    height: 100% !important;
+    box-sizing: border-box !important;
 }
 
-/* Hide action buttons on build more card */
+/* Title - clean white */
+.build-more-title {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    margin: 0 0 6px 0 !important;
+    letter-spacing: -0.3px !important;
+    line-height: 1.2 !important;
+}
+
+/* Subtitle - softer */
+.build-more-subtitle {
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+    margin: 0 0 20px 0 !important;
+    line-height: 1.4 !important;
+}
+
+/* Hide action buttons */
 .build-more-card .card-actions-bottom {
     display: none !important;
 }
 
-/* Build more button - neon orange with pulse animation */
+/* Build more button - clean with shine animation */
 .build-more-btn {
+    padding: 14px 36px !important;
     background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%) !important;
     color: white !important;
+    border: none !important;
+    border-radius: 10px !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
     position: relative !important;
     overflow: hidden !important;
-    animation: buttonPulse 2s ease-in-out infinite !important;
-    box-shadow: 0 4px 20px rgba(255, 107, 53, 0.5) !important;
+    box-shadow: 0 4px 16px rgba(255, 107, 53, 0.4) !important;
     transition: all 0.3s ease !important;
-}
-
-@keyframes buttonPulse {
-    0%, 100% { 
-        transform: scale(1);
-        box-shadow: 0 4px 20px rgba(255, 107, 53, 0.5);
-    }
-    50% { 
-        transform: scale(1.02);
-        box-shadow: 0 6px 30px rgba(255, 107, 53, 0.7);
-    }
 }
 
 /* Button shine sweep */
@@ -2641,10 +2641,10 @@ body {
     background: linear-gradient(
         90deg,
         transparent,
-        rgba(255, 255, 255, 0.4),
+        rgba(255, 255, 255, 0.3),
         transparent
     ) !important;
-    animation: buttonShine 2.5s ease-in-out infinite !important;
+    animation: buttonShine 3s ease-in-out infinite !important;
 }
 
 @keyframes buttonShine {
@@ -2653,15 +2653,14 @@ body {
 }
 
 .build-more-btn:hover {
-    transform: scale(1.08) !important;
-    box-shadow: 0 8px 40px rgba(255, 107, 53, 0.8) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 24px rgba(255, 107, 53, 0.5) !important;
     background: linear-gradient(135deg, #ff8c42 0%, #ffa755 100%) !important;
-    animation: none !important;
 }
 
 .build-more-btn:active {
-    transform: scale(0.98) !important;
-    box-shadow: 0 2px 15px rgba(255, 107, 53, 0.4) !important;
+    transform: translateY(0) scale(0.98) !important;
+    box-shadow: 0 2px 12px rgba(255, 107, 53, 0.3) !important;
 }
 
 /* Loading placeholder - Gradient background */

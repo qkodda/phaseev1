@@ -1281,31 +1281,24 @@ function createBuildMoreCard() {
     buildMoreCard.dataset.platform = currentPlatform;
     buildMoreCard.style.zIndex = '0'; // Bottom layer - lowest z-index, underneath all other cards
     
-    // Rotating exciting messages
+    // Rotating exciting messages (no emojis)
     const excitingMessages = [
-        { title: "You're on fire! 🔥", subtitle: "Let's keep this creative streak going!" },
-        { title: "Ideas? Crushed! 💪", subtitle: "Time to reload the inspiration cannon!" },
-        { title: "Deck's empty! 🎴", subtitle: "Ready for another round of brilliance?" },
-        { title: "That was fast! ⚡", subtitle: "Someone's feeling creative today!" },
-        { title: "Content machine! 🚀", subtitle: "Keep the momentum rolling!" },
+        { title: "You're on fire!", subtitle: "Let's keep this creative streak going" },
+        { title: "Ideas? Crushed.", subtitle: "Time to reload the inspiration cannon" },
+        { title: "Deck's empty!", subtitle: "Ready for another round of brilliance?" },
+        { title: "That was fast!", subtitle: "Someone's feeling creative today" },
+        { title: "Content machine!", subtitle: "Keep the momentum rolling" },
     ];
     const randomMsg = excitingMessages[Math.floor(Math.random() * excitingMessages.length)];
     
     buildMoreCard.innerHTML = `
-        <div class="card-content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 20px; position: relative; z-index: 2;">
-            <div class="build-more-emoji" style="font-size: 48px; margin-bottom: 16px; animation: bounceEmoji 1s ease-in-out infinite;">🎯</div>
-            <h3 class="card-title build-more-title" style="font-size: 26px; margin-bottom: 8px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">${randomMsg.title}</h3>
-            <p class="build-more-subtitle" style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 28px; font-weight: 500;">${randomMsg.subtitle}</p>
-            <button class="build-more-btn" onclick="handleBuildMore()" style="padding: 16px 36px; background: linear-gradient(135deg, #ff6b35, #ff8c42); color: white; border: none; border-radius: 12px; font-size: 17px; font-weight: 700; cursor: pointer; position: relative; overflow: hidden;">
+        <div class="card-content build-more-content">
+            <h3 class="build-more-title">${randomMsg.title}</h3>
+            <p class="build-more-subtitle">${randomMsg.subtitle}</p>
+            <button class="build-more-btn" onclick="handleBuildMore()">
                 Build More!
             </button>
         </div>
-        <style>
-            @keyframes bounceEmoji {
-                0%, 100% { transform: translateY(0) scale(1); }
-                50% { transform: translateY(-8px) scale(1.1); }
-            }
-        </style>
     `;
     
     // Insert at the beginning of card-stack so it's at the bottom layer
