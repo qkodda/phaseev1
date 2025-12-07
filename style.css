@@ -6177,25 +6177,6 @@ body {
     background: linear-gradient(135deg, #14b8a6, #0d9488) !important;
 }
 
-/* Ensure calendar list scrollbar is visible for discoverability */
-#calendar-list::-webkit-scrollbar {
-    width: 4px;
-}
-
-#calendar-list::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-}
-
-#calendar-list::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
-}
-
-#calendar-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
-}
-
 /* Hide scrollbar on drawing board list but NOT calendar */
 .revital-card-list:not(#calendar-list)::-webkit-scrollbar {
     display: none;
