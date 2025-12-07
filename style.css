@@ -6139,13 +6139,33 @@ body {
     );
 }
 
-/* Calendar list can show more scheduled ideas - holds up to 30 */
+/* Calendar list - shows 3 cards at a time, scrollable for up to 30 total */
 #calendar-list {
-    max-height: 500px; /* Increased to show ~6-7 cards at a time, scrollable for up to 30 */
+    max-height: 230px; /* ~3 cards visible (each card ~70px + gaps) */
     overflow-y: auto;
     overflow-x: visible;
     padding-top: 16px; /* Space for date badge offset */
     margin-top: -6px; /* Compensate for padding */
+    scroll-behavior: smooth;
+}
+
+/* Ensure calendar list scrollbar is visible for discoverability */
+#calendar-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+#calendar-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+#calendar-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+#calendar-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
 }
 
 .revital-card-list::-webkit-scrollbar {
