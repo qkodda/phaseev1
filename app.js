@@ -1247,6 +1247,7 @@ function navigateTo(pageId) {
 
 // Global variables
 let pendingScheduleCard = null; // For calendar date picker
+window.pendingScheduleCard = null; // Also expose globally for debugging
 let isEditMode = false; // Track edit mode state
 let ideasStack = []; // Stack of idea cards
 let cardsRemaining = 7; // Track remaining cards
@@ -1308,6 +1309,8 @@ window.scheduleIdea = function(button) {
 
     // Store the card for later when date is selected
     pendingScheduleCard = card;
+    window.pendingScheduleCard = card; // Also set globally
+    console.log('📅 scheduleIdea: pendingScheduleCard set:', card.dataset.idea ? JSON.parse(card.dataset.idea).title : 'unknown');
 
     // Open calendar modal and generate calendar picker
     const calendarModal = document.getElementById('calendar-modal');
@@ -1323,8 +1326,16 @@ window.scheduleIdea = function(button) {
  * Confirm schedule with selected date
  */
 function confirmScheduleDate(selectedDateStr) {
-    if (!pendingScheduleCard) return;
+    // Check both local and window variable (fallback)
+    const cardToSchedule = pendingScheduleCard || window.pendingScheduleCard;
+    if (!cardToSchedule) {
+        console.error('❌ confirmScheduleDate: No pending card to schedule');
+        return;
+    }
     if (!selectedDateStr) return;
+    
+    // Use the found card
+    pendingScheduleCard = cardToSchedule;
 
     const selectedDate = new Date(selectedDateStr + 'T00:00:00');
     const month = selectedDate.toLocaleDateString('en-US', { month: 'short' });
@@ -1820,6 +1831,8 @@ window.scheduleFromExpanded = function scheduleFromExpanded() {
 
         // Store card for scheduling
         pendingScheduleCard = originalCard;
+        window.pendingScheduleCard = originalCard; // Also set globally
+        console.log('📅 pendingScheduleCard set for scheduling:', originalCard.dataset.idea ? JSON.parse(originalCard.dataset.idea).title : 'unknown');
 
         // Open calendar modal and generate calendar picker
         const calendarModal = document.getElementById('calendar-modal');
@@ -1827,6 +1840,8 @@ window.scheduleFromExpanded = function scheduleFromExpanded() {
             generateCalendarPicker();
             calendarModal.classList.add('active');
         }
+    } else {
+        console.error('❌ scheduleFromExpanded: Could not find original collapsed card');
     }
 }
 
