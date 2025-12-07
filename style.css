@@ -6193,7 +6193,8 @@ body {
     background: rgba(255, 255, 255, 0.5);
 }
 
-.revital-card-list::-webkit-scrollbar {
+/* Hide scrollbar on drawing board list but NOT calendar */
+.revital-card-list:not(#calendar-list)::-webkit-scrollbar {
     display: none;
 }
 
