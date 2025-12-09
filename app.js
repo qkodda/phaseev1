@@ -5215,10 +5215,12 @@ const LocalStorage = {
 async function savePinnedIdeaToSupabase(ideaData) {
     try {
         console.log('📡 Importing Supabase functions...');
-        const { saveIdeaToDrawingBoard, getCurrentUser } = await import('./supabase.js');
-        const { user, error: userError } = await getCurrentUser();
+        const { saveIdeaToDrawingBoard } = await import('./supabase.js');
         
-        if (userError || !user) {
+        // Use getUser() from auth-integration.js (works with dev bypass)
+        const user = getUser();
+        
+        if (!user) {
             console.warn('⚠️ User not logged in, idea saved locally only');
             return null;
         }
@@ -5311,10 +5313,12 @@ async function savePinnedIdeaToSupabase(ideaData) {
  */
 async function saveScheduledIdeaToSupabase(ideaData, scheduledDate) {
     try {
-        const { scheduleIdea, getCurrentUser } = await import('./supabase.js');
-        const { user, error: userError } = await getCurrentUser();
+        const { scheduleIdea } = await import('./supabase.js');
         
-        if (userError || !user) {
+        // Use getUser() from auth-integration.js (works with dev bypass)
+        const user = getUser();
+        
+        if (!user) {
             console.warn('User not logged in, idea saved locally only');
             return null;
         }

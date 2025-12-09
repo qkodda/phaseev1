@@ -2508,14 +2508,14 @@ body {
     background: #ffffff !important;
 }
 
-/* Text color update for white cards */
-.idea-swiper .idea-card .title-text,
-.idea-swiper .idea-card .section-label,
-.idea-swiper .idea-card .section-content,
-.idea-swiper .idea-card .card-title,
-.idea-swiper .idea-card .card-section .section-text,
-.idea-swiper .idea-card h3,
-.idea-swiper .idea-card p {
+/* Text color update for white cards - exclude build-more-card */
+.idea-swiper .idea-card:not(.build-more-card) .title-text,
+.idea-swiper .idea-card:not(.build-more-card) .section-label,
+.idea-swiper .idea-card:not(.build-more-card) .section-content,
+.idea-swiper .idea-card:not(.build-more-card) .card-title,
+.idea-swiper .idea-card:not(.build-more-card) .card-section .section-text,
+.idea-swiper .idea-card:not(.build-more-card) h3,
+.idea-swiper .idea-card:not(.build-more-card) p {
     color: #1a1a1a !important; /* Black text */
 }
 
@@ -2591,7 +2591,8 @@ body {
 }
 
 /* Title - clean white */
-.build-more-title {
+.build-more-card .build-more-title,
+.idea-swiper .build-more-card h3.build-more-title {
     font-size: 22px !important;
     font-weight: 700 !important;
     color: #ffffff !important;
@@ -2601,11 +2602,12 @@ body {
 }
 
 /* Subtitle - softer */
-.build-more-subtitle {
-    font-size: 14px !important;
-    font-weight: 400 !important;
-    color: rgba(255, 255, 255, 0.6) !important;
-    margin: 0 0 20px 0 !important;
+.build-more-card .build-more-subtitle,
+.idea-swiper .build-more-card p.build-more-subtitle {
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    margin: 0 0 24px 0 !important;
     line-height: 1.4 !important;
 }
 
@@ -2616,18 +2618,33 @@ body {
 
 /* Build more button - clean with shine animation */
 .build-more-btn {
-    padding: 14px 36px !important;
-    background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%) !important;
+    padding: 16px 40px !important;
+    background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 50%, #ff6b35 100%) !important;
+    background-size: 200% 100% !important;
     color: white !important;
     border: none !important;
-    border-radius: 10px !important;
-    font-size: 16px !important;
+    border-radius: 8px !important;
+    font-size: 17px !important;
     font-weight: 700 !important;
     cursor: pointer !important;
     position: relative !important;
     overflow: hidden !important;
-    box-shadow: 0 4px 16px rgba(255, 107, 53, 0.4) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    box-shadow: 
+        0 4px 20px rgba(255, 107, 53, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
     transition: all 0.3s ease !important;
+    animation: buttonGradientShift 3s ease-in-out infinite !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+    letter-spacing: 0.3px !important;
+}
+
+@keyframes buttonGradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
 }
 
 /* Button shine sweep */
@@ -2653,9 +2670,10 @@ body {
 }
 
 .build-more-btn:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 24px rgba(255, 107, 53, 0.5) !important;
-    background: linear-gradient(135deg, #ff8c42 0%, #ffa755 100%) !important;
+    transform: translateY(-2px) scale(1.02) !important;
+    box-shadow: 
+        0 8px 30px rgba(255, 107, 53, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.2) inset !important;
 }
 
 .build-more-btn:active {
@@ -2694,14 +2712,14 @@ body {
     }
 }
 
-.idea-swiper .idea-card .title-text,
-.idea-swiper .idea-card .section-label,
-.idea-swiper .idea-card .section-content,
-.idea-swiper .idea-card .card-title,
-.idea-swiper .idea-card .card-section .section-text,
-.idea-swiper .idea-card h3,
-.idea-swiper .idea-card p {
-    color: #1a1a1a !important; /* Black text enforced */
+.idea-swiper .idea-card:not(.build-more-card) .title-text,
+.idea-swiper .idea-card:not(.build-more-card) .section-label,
+.idea-swiper .idea-card:not(.build-more-card) .section-content,
+.idea-swiper .idea-card:not(.build-more-card) .card-title,
+.idea-swiper .idea-card:not(.build-more-card) .card-section .section-text,
+.idea-swiper .idea-card:not(.build-more-card) h3,
+.idea-swiper .idea-card:not(.build-more-card) p {
+    color: #1a1a1a !important; /* Black text enforced - excludes build-more-card */
 }
 
 .idea-card:active {
