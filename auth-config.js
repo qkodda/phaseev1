@@ -75,12 +75,16 @@ export function isDevBypassEnabled() {
         }
     }
     
-    // Default: enabled in dev mode for localhost
-    const isLocalhost = typeof window !== 'undefined' && 
-        (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    // Default: enabled in dev mode for localhost or local network IPs
+    const isLocalDev = typeof window !== 'undefined' && 
+        (window.location.hostname === 'localhost' || 
+         window.location.hostname === '127.0.0.1' ||
+         window.location.hostname.startsWith('192.168.') ||
+         window.location.hostname.startsWith('10.') ||
+         window.location.hostname.startsWith('172.'));
     
-    if (isLocalhost) {
-        console.log('✅ DEV BYPASS ENABLED (localhost default)');
+    if (isLocalDev) {
+        console.log('✅ DEV BYPASS ENABLED (local network default)');
         _devBypassCached = true;
         return true;
     }

@@ -320,7 +320,7 @@
         <div id="subscription-page" class="page">
             <header class="app-header">
                 <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
-                    <img src="PHasse-Logo.png" alt="Phazee Logo" class="header-logo">
+                    <img src="Phazee-Logo.png" alt="Phazee Logo" class="header-logo">
                 </button>
                 <button class="back-btn" onclick="navigateTo('settings-page')" aria-label="Back">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -359,7 +359,7 @@
                 <section class="topbar-section">
                     <header class="app-header" id="app-header">
                             <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
-                            <img src="PHasse-Logo.png" alt="Phazee Logo" class="header-logo">
+                            <img src="Phazee-Logo.png" alt="Phazee Logo" class="header-logo">
                             </button>
                             <h2 class="header-greeting" id="header-greeting">Welcome back, <span id="header-user-name">John</span></h2>
                             <button class="profile-icon-btn" onclick="navigateTo('profile-page')" aria-label="Profile">
@@ -570,6 +570,14 @@
                                 </div>
                             </div>
                             <section class="pinned-ideas" id="pinned-ideas">
+                                <div class="swipe-hints-row">
+                                    <div class="swipe-hint swipe-hint-left">
+                                        <span class="swipe-hint-arrow">←</span><span class="swipe-hint-text">Delete</span>
+                                    </div>
+                                    <div class="swipe-hint swipe-hint-right">
+                                        <span class="swipe-hint-text">Schedule</span><span class="swipe-hint-arrow">→</span>
+                                    </div>
+                                </div>
                                 <div class="ideas-grid">
                                     <div class="empty-state">
                                         <p>No pinned ideas yet. Start swiping!</p>
@@ -594,6 +602,14 @@
                                 </button>
                             </div>
                             
+                            <div class="swipe-hints-row calendar-hints">
+                                <div class="swipe-hint swipe-hint-left">
+                                    <span class="swipe-hint-arrow">←</span><span class="swipe-hint-text">Delete</span>
+                                </div>
+                                <div class="swipe-hint swipe-hint-right">
+                                    <span class="swipe-hint-text">Reschedule</span><span class="swipe-hint-arrow">→</span>
+                                </div>
+                            </div>
                             <div class="revital-card-list" id="calendar-list">
                                 <div class="empty-state calendar-empty">
                                     <p>No scheduled ideas yet. Pin and schedule!</p>
@@ -841,13 +857,13 @@
         </div>
 
         <!-- Custom Confirm Modal -->
-        <div id="custom-confirm-modal" class="modal">
-            <div class="modal-content" style="width: 340px; max-width: 90%; height: auto;">
-                <h3 id="confirm-modal-title" style="font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px;"></h3>
-                <p id="confirm-modal-message" style="font-size: 15px; color: rgba(60, 60, 60, 0.9); line-height: 1.6; margin-bottom: 24px;"></p>
-                <div style="display: flex; gap: 12px;">
-                    <button id="confirm-modal-cancel" class="btn-secondary" style="flex: 1;">Cancel</button>
-                    <button id="confirm-modal-confirm" class="btn-primary" style="flex: 1;">Confirm</button>
+        <div id="custom-confirm-modal" class="modal confirm-modal">
+            <div class="confirm-modal-content">
+                <h3 id="confirm-modal-title" class="confirm-modal-title"></h3>
+                <p id="confirm-modal-message" class="confirm-modal-message"></p>
+                <div class="confirm-modal-buttons">
+                    <button id="confirm-modal-cancel" class="confirm-btn confirm-btn-cancel">Cancel</button>
+                    <button id="confirm-modal-confirm" class="confirm-btn confirm-btn-delete">Delete</button>
                 </div>
             </div>
         </div>
@@ -943,7 +959,7 @@
         <!-- Calendar Modal for Scheduling -->
         <div id="calendar-modal" class="modal">
             <div class="modal-content calendar-modal-content">
-                <button class="modal-close" onclick="document.getElementById('calendar-modal').classList.remove('active')">&times;</button>
+                <button class="modal-close" onclick="closeCalendarModal()">&times;</button>
                 <h3 class="calendar-modal-title">Schedule This Idea</h3>
                 <p class="calendar-modal-subtitle">Select a date for shooting or posting!</p>
                 <div id="calendar-picker-container" class="calendar-picker-container">
@@ -956,7 +972,7 @@
         <div id="profile-page" class="page">
             <header class="app-header" id="profile-header">
                 <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
-                    <img src="PHasse-Logo.png" alt="Phazee Logo" class="header-logo">
+                    <img src="Phazee-Logo.png" alt="Phazee Logo" class="header-logo">
                 </button>
                 <button class="back-btn" onclick="navigateTo('homepage')" aria-label="Back">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -1141,7 +1157,7 @@
         <div id="account-details-page" class="page">
             <header class="app-header">
                 <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
-                    <img src="PHasse-Logo.png" alt="Phazee Logo" class="header-logo">
+                    <img src="Phazee-Logo.png" alt="Phazee Logo" class="header-logo">
                 </button>
                 <button class="back-btn" onclick="navigateTo('settings-page')" aria-label="Back">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -1185,7 +1201,7 @@
         <div id="change-password-page" class="page">
             <header class="app-header">
                 <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
-                    <img src="PHasse-Logo.png" alt="Phazee Logo" class="header-logo">
+                    <img src="Phazee-Logo.png" alt="Phazee Logo" class="header-logo">
                 </button>
                 <button class="back-btn" onclick="navigateTo('account-details-page')" aria-label="Back">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -1227,7 +1243,7 @@
         <div id="delete-account-page" class="page">
             <header class="app-header">
                 <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
-                    <img src="PHasse-Logo.png" alt="Phazee Logo" class="header-logo">
+                    <img src="Phazee-Logo.png" alt="Phazee Logo" class="header-logo">
                 </button>
                 <button class="back-btn" onclick="navigateTo('account-details-page')" aria-label="Back">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -1271,7 +1287,7 @@
         <div id="notifications-page" class="page">
             <header class="app-header">
                 <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
-                    <img src="PHasse-Logo.png" alt="Phazee Logo" class="header-logo">
+                    <img src="Phazee-Logo.png" alt="Phazee Logo" class="header-logo">
                 </button>
                 <button class="back-btn" onclick="navigateTo('settings-page')" aria-label="Back">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -1311,7 +1327,7 @@
         <div id="settings-page" class="page">
             <header class="app-header" id="settings-header">
                 <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
-                    <img src="PHasse-Logo.png" alt="Phazee Logo" class="header-logo">
+                    <img src="Phazee-Logo.png" alt="Phazee Logo" class="header-logo">
                 </button>
                 <button class="back-btn" onclick="navigateTo('homepage')" aria-label="Back">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -1378,7 +1394,7 @@
         <div id="privacy-page" class="page">
             <header class="app-header">
                 <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
-                    <img src="PHasse-Logo.png" alt="Phazee Logo" class="header-logo">
+                    <img src="Phazee-Logo.png" alt="Phazee Logo" class="header-logo">
                 </button>
                 <button class="back-btn" onclick="navigateTo('settings-page')" aria-label="Back">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -1413,7 +1429,7 @@
         <div id="terms-page" class="page">
             <header class="app-header">
                 <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
-                    <img src="PHasse-Logo.png" alt="Phazee Logo" class="header-logo">
+                    <img src="Phazee-Logo.png" alt="Phazee Logo" class="header-logo">
                 </button>
                 <button class="back-btn" onclick="navigateTo('settings-page')" aria-label="Back">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -1451,7 +1467,7 @@
         <div id="help-page" class="page">
             <header class="app-header">
                 <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
-                    <img src="PHasse-Logo.png" alt="Phazee Logo" class="header-logo">
+                    <img src="Phazee-Logo.png" alt="Phazee Logo" class="header-logo">
                 </button>
                 <button class="back-btn" onclick="navigateTo('settings-page')" aria-label="Back">
                     <svg viewBox="0 0 24 24" width="24" height="24">
@@ -1506,7 +1522,7 @@
         <div id="feedback-page" class="page">
             <header class="app-header">
                 <button class="logo-btn" onclick="navigateTo('homepage')" aria-label="Home">
-                    <img src="PHasse-Logo.png" alt="Phazee Logo" class="header-logo">
+                    <img src="Phazee-Logo.png" alt="Phazee Logo" class="header-logo">
                 </button>
                 <button class="back-btn" onclick="navigateTo('settings-page')" aria-label="Back">
                     <svg viewBox="0 0 24 24" width="24" height="24">

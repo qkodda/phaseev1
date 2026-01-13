@@ -1,8 +1,6 @@
 -- ============================================
 -- PHAZEE GENERATION GOVERNANCE SYSTEM
--- Complete Rate Limiting, Tiering, Boosts, Abuse Prevention
--- Date: 2024-12-07
--- Branch: ratelimiting
+-- Rate Limiting & Tiering (V1 - No Boosts)
 -- ============================================
 -- 
 -- This migration implements:
@@ -10,7 +8,6 @@
 -- ✅ Multi-tier model routing (A/B/C)
 -- ✅ Rolling hour + daily limits
 -- ✅ Server-enforced cooldowns
--- ✅ Boost system
 -- ✅ Abuse detection & temp-bans
 -- ✅ Admin-configurable settings
 -- ✅ Complete RLS policies
@@ -43,9 +40,6 @@ CREATE TABLE IF NOT EXISTS admin_settings (
     cooldown_tier_c_min INTEGER DEFAULT 20,
     cooldown_tier_c_max INTEGER DEFAULT 60,
     
-    -- Boost Settings
-    boost_tier_a_batches INTEGER DEFAULT 3, -- Each boost grants 3 Tier A batches
-    
     -- Abuse Detection
     abuse_request_threshold INTEGER DEFAULT 1,     -- Max requests per window
     abuse_window_seconds INTEGER DEFAULT 5,        -- Window size
@@ -75,9 +69,6 @@ CREATE POLICY "Authenticated users can read settings"
     TO authenticated
     USING (true);
 
--- Only service role can update (via admin panel with service key)
--- No INSERT/UPDATE/DELETE policies for regular users
-
 -- ============================================
 -- 2. USER GENERATION USAGE TABLE
 -- Tracks every generation with full metadata
@@ -97,9 +88,6 @@ CREATE TABLE IF NOT EXISTS user_generation_usage (
     session_id TEXT,
     user_agent TEXT,
     
-    -- Boost Info
-    boost_applied BOOLEAN DEFAULT FALSE,
-    
     -- Context
     direction TEXT, -- User's custom direction if any
     is_campaign BOOLEAN DEFAULT FALSE,
@@ -112,11 +100,9 @@ CREATE TABLE IF NOT EXISTS user_generation_usage (
 CREATE INDEX IF NOT EXISTS idx_usage_user_created 
     ON user_generation_usage(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_usage_rolling_hour 
-    ON user_generation_usage(user_id, created_at) 
-    WHERE created_at > NOW() - INTERVAL '1 hour';
+    ON user_generation_usage(user_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_usage_daily 
-    ON user_generation_usage(user_id, created_at) 
-    WHERE created_at > NOW() - INTERVAL '1 day';
+    ON user_generation_usage(user_id, created_at);
 
 -- RLS
 ALTER TABLE user_generation_usage ENABLE ROW LEVEL SECURITY;
@@ -130,79 +116,7 @@ CREATE POLICY "Users can insert own usage"
     WITH CHECK (auth.uid() = user_id);
 
 -- ============================================
--- 3. USER BOOSTS TABLE
--- Tracks boost balances and redemption history
--- ============================================
-
-CREATE TABLE IF NOT EXISTS user_boosts (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL UNIQUE,
-    
-    -- Balance
-    balance INTEGER DEFAULT 0 CHECK (balance >= 0),
-    
-    -- Active Boost Tracking
-    active_boost_batches_remaining INTEGER DEFAULT 0,
-    
-    -- Timestamps
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- RLS
-ALTER TABLE user_boosts ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view own boosts"
-    ON user_boosts FOR SELECT
-    USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own boosts"
-    ON user_boosts FOR INSERT
-    WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update own boosts"
-    ON user_boosts FOR UPDATE
-    USING (auth.uid() = user_id);
-
--- ============================================
--- 4. BOOST TRANSACTION LOG
--- Immutable log of all boost changes
--- ============================================
-
-CREATE TABLE IF NOT EXISTS boost_transactions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-    
-    -- Transaction Details
-    transaction_type TEXT NOT NULL CHECK (transaction_type IN ('purchase', 'grant', 'redeem', 'expire', 'admin_add', 'admin_remove')),
-    amount INTEGER NOT NULL, -- Positive for add, negative for remove
-    balance_after INTEGER NOT NULL,
-    
-    -- Metadata
-    reason TEXT,
-    admin_user_id UUID, -- If admin action
-    
-    -- Timestamps
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Index for user transaction history
-CREATE INDEX IF NOT EXISTS idx_boost_tx_user 
-    ON boost_transactions(user_id, created_at DESC);
-
--- RLS
-ALTER TABLE boost_transactions ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view own boost transactions"
-    ON boost_transactions FOR SELECT
-    USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own boost transactions"
-    ON boost_transactions FOR INSERT
-    WITH CHECK (auth.uid() = user_id);
-
--- ============================================
--- 5. GENERATION ABUSE FLAGS TABLE
+-- 3. GENERATION ABUSE FLAGS TABLE
 -- Tracks rate limit violations and temp-bans
 -- ============================================
 
@@ -248,10 +162,8 @@ CREATE POLICY "Users can view own abuse flags"
     ON generation_abuse_flags FOR SELECT
     USING (auth.uid() = user_id);
 
--- Only service role can insert/update abuse flags
-
 -- ============================================
--- 6. REQUEST RATE TRACKING TABLE
+-- 4. REQUEST RATE TRACKING TABLE
 -- For abuse pattern detection (rolling window)
 -- ============================================
 
@@ -268,15 +180,13 @@ CREATE TABLE IF NOT EXISTS request_rate_tracking (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Index for fast rate checking (only recent requests matter)
+-- Index for fast rate checking
 CREATE INDEX IF NOT EXISTS idx_rate_tracking_recent 
-    ON request_rate_tracking(user_id, created_at DESC) 
-    WHERE created_at > NOW() - INTERVAL '5 minutes';
+    ON request_rate_tracking(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_rate_tracking_ip 
-    ON request_rate_tracking(ip_address, created_at DESC) 
-    WHERE created_at > NOW() - INTERVAL '5 minutes';
+    ON request_rate_tracking(ip_address, created_at DESC);
 
--- RLS - users can only insert
+-- RLS
 ALTER TABLE request_rate_tracking ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can insert rate tracking"
@@ -284,11 +194,11 @@ CREATE POLICY "Users can insert rate tracking"
     WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
 
 -- ============================================
--- 7. RPC FUNCTIONS
+-- 5. RPC FUNCTIONS
 -- ============================================
 
 -- --------------------------------------------
--- 7.1 GET ROLLING HOUR STATS
+-- 5.1 GET ROLLING HOUR STATS
 -- Returns usage stats for the current rolling hour
 -- --------------------------------------------
 
@@ -301,7 +211,6 @@ DECLARE
     v_batch_count DECIMAL;
     v_settings RECORD;
     v_current_tier CHAR(1);
-    v_boost_remaining INTEGER;
 BEGIN
     -- Get settings
     SELECT * INTO v_settings FROM admin_settings WHERE id = 1;
@@ -322,23 +231,11 @@ BEGIN
         v_current_tier := 'C';
     END IF;
     
-    -- Check for active boost
-    SELECT COALESCE(active_boost_batches_remaining, 0)
-    INTO v_boost_remaining
-    FROM user_boosts
-    WHERE user_id = p_user_id;
-    
-    -- If boost active, force Tier A
-    IF COALESCE(v_boost_remaining, 0) > 0 THEN
-        v_current_tier := 'A';
-    END IF;
-    
     RETURN json_build_object(
         'batch_count', v_batch_count,
         'batch_limit', v_settings.hourly_batch_limit,
         'soft_warning_threshold', v_settings.soft_warning_threshold,
         'current_tier', v_current_tier,
-        'boost_batches_remaining', COALESCE(v_boost_remaining, 0),
         'tier_a_max', v_settings.tier_a_max,
         'tier_b_max', v_settings.tier_b_max,
         'is_at_limit', v_batch_count >= v_settings.hourly_batch_limit,
@@ -348,7 +245,7 @@ END;
 $$;
 
 -- --------------------------------------------
--- 7.2 GET DAILY STATS
+-- 5.2 GET DAILY STATS
 -- Returns usage stats for the current day (UTC)
 -- --------------------------------------------
 
@@ -388,7 +285,7 @@ END;
 $$;
 
 -- --------------------------------------------
--- 7.3 CHECK GENERATION LIMITS
+-- 5.3 CHECK GENERATION LIMITS
 -- Comprehensive limit check before generation
 -- --------------------------------------------
 
@@ -406,7 +303,6 @@ DECLARE
     v_hourly_stats JSON;
     v_daily_stats JSON;
     v_abuse_flag RECORD;
-    v_boost RECORD;
     v_last_generation TIMESTAMPTZ;
     v_cooldown_seconds INTEGER;
     v_current_tier CHAR(1);
@@ -481,16 +377,6 @@ BEGIN
     -- Get current tier
     v_current_tier := v_hourly_stats->>'current_tier';
     
-    -- Get boost info
-    SELECT * INTO v_boost
-    FROM user_boosts
-    WHERE user_id = p_user_id;
-    
-    -- If boost active, force Tier A
-    IF COALESCE(v_boost.active_boost_batches_remaining, 0) > 0 THEN
-        v_current_tier := 'A';
-    END IF;
-    
     -- Get last generation time for cooldown calculation
     SELECT created_at INTO v_last_generation
     FROM user_generation_usage
@@ -544,16 +430,13 @@ BEGIN
         END,
         'hourly_stats', v_hourly_stats,
         'daily_stats', v_daily_stats,
-        'boost_balance', COALESCE(v_boost.balance, 0),
-        'boost_active', COALESCE(v_boost.active_boost_batches_remaining, 0) > 0,
-        'boost_batches_remaining', COALESCE(v_boost.active_boost_batches_remaining, 0),
         'cooldown_after_generation', v_cooldown_seconds
     );
 END;
 $$;
 
 -- --------------------------------------------
--- 7.4 LOG GENERATION
+-- 5.4 LOG GENERATION
 -- Records a generation event
 -- --------------------------------------------
 
@@ -565,7 +448,6 @@ CREATE OR REPLACE FUNCTION log_generation(
     p_ip_address INET DEFAULT NULL,
     p_session_id TEXT DEFAULT NULL,
     p_user_agent TEXT DEFAULT NULL,
-    p_boost_applied BOOLEAN DEFAULT FALSE,
     p_direction TEXT DEFAULT NULL,
     p_is_campaign BOOLEAN DEFAULT FALSE
 )
@@ -575,27 +457,18 @@ SECURITY DEFINER
 AS $$
 DECLARE
     v_usage_id UUID;
-    v_boost RECORD;
 BEGIN
     -- Insert usage record
     INSERT INTO user_generation_usage (
         user_id, batch_weight, model_tier_used, ideas_generated,
-        ip_address, session_id, user_agent, boost_applied,
+        ip_address, session_id, user_agent,
         direction, is_campaign
     ) VALUES (
         p_user_id, p_batch_weight, p_tier, p_ideas_count,
-        p_ip_address, p_session_id, p_user_agent, p_boost_applied,
+        p_ip_address, p_session_id, p_user_agent,
         p_direction, p_is_campaign
     )
     RETURNING id INTO v_usage_id;
-    
-    -- If boost was applied, decrement remaining batches
-    IF p_boost_applied THEN
-        UPDATE user_boosts
-        SET active_boost_batches_remaining = GREATEST(0, active_boost_batches_remaining - 1),
-            updated_at = NOW()
-        WHERE user_id = p_user_id;
-    END IF;
     
     -- Log rate tracking for abuse detection
     INSERT INTO request_rate_tracking (user_id, ip_address, session_id, endpoint)
@@ -612,111 +485,7 @@ END;
 $$;
 
 -- --------------------------------------------
--- 7.5 REDEEM BOOST
--- Uses a boost token to get Tier A batches
--- --------------------------------------------
-
-CREATE OR REPLACE FUNCTION redeem_boost(p_user_id UUID)
-RETURNS JSON
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
-DECLARE
-    v_boost RECORD;
-    v_settings RECORD;
-    v_new_balance INTEGER;
-    v_batches_granted INTEGER;
-BEGIN
-    -- Get settings
-    SELECT * INTO v_settings FROM admin_settings WHERE id = 1;
-    v_batches_granted := v_settings.boost_tier_a_batches;
-    
-    -- Get current boost record
-    SELECT * INTO v_boost
-    FROM user_boosts
-    WHERE user_id = p_user_id
-    FOR UPDATE;
-    
-    -- Check if user has boosts
-    IF NOT FOUND OR v_boost.balance < 1 THEN
-        RETURN json_build_object(
-            'success', FALSE,
-            'error', 'No boosts available',
-            'balance', COALESCE(v_boost.balance, 0)
-        );
-    END IF;
-    
-    -- Deduct boost and add active batches
-    v_new_balance := v_boost.balance - 1;
-    
-    UPDATE user_boosts
-    SET balance = v_new_balance,
-        active_boost_batches_remaining = active_boost_batches_remaining + v_batches_granted,
-        updated_at = NOW()
-    WHERE user_id = p_user_id;
-    
-    -- Log transaction
-    INSERT INTO boost_transactions (user_id, transaction_type, amount, balance_after, reason)
-    VALUES (p_user_id, 'redeem', -1, v_new_balance, 'Redeemed for ' || v_batches_granted || ' Tier A batches');
-    
-    RETURN json_build_object(
-        'success', TRUE,
-        'new_balance', v_new_balance,
-        'active_boost_batches', v_boost.active_boost_batches_remaining + v_batches_granted,
-        'batches_granted', v_batches_granted
-    );
-END;
-$$;
-
--- --------------------------------------------
--- 7.6 ADD BOOST (Admin/Purchase)
--- Adds boosts to user account
--- --------------------------------------------
-
-CREATE OR REPLACE FUNCTION add_boost(
-    p_user_id UUID,
-    p_amount INTEGER,
-    p_reason TEXT DEFAULT 'purchase',
-    p_admin_id UUID DEFAULT NULL
-)
-RETURNS JSON
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
-DECLARE
-    v_new_balance INTEGER;
-    v_tx_type TEXT;
-BEGIN
-    -- Determine transaction type
-    IF p_admin_id IS NOT NULL THEN
-        v_tx_type := 'admin_add';
-    ELSE
-        v_tx_type := CASE WHEN p_reason = 'purchase' THEN 'purchase' ELSE 'grant' END;
-    END IF;
-    
-    -- Upsert boost record
-    INSERT INTO user_boosts (user_id, balance)
-    VALUES (p_user_id, p_amount)
-    ON CONFLICT (user_id) 
-    DO UPDATE SET 
-        balance = user_boosts.balance + p_amount,
-        updated_at = NOW()
-    RETURNING balance INTO v_new_balance;
-    
-    -- Log transaction
-    INSERT INTO boost_transactions (user_id, transaction_type, amount, balance_after, reason, admin_user_id)
-    VALUES (p_user_id, v_tx_type, p_amount, v_new_balance, p_reason, p_admin_id);
-    
-    RETURN json_build_object(
-        'success', TRUE,
-        'new_balance', v_new_balance,
-        'amount_added', p_amount
-    );
-END;
-$$;
-
--- --------------------------------------------
--- 7.7 CHECK ABUSE PATTERN
+-- 5.5 CHECK ABUSE PATTERN
 -- Detects rate limit abuse patterns
 -- --------------------------------------------
 
@@ -772,7 +541,7 @@ END;
 $$;
 
 -- --------------------------------------------
--- 7.8 FLAG ABUSE
+-- 5.6 FLAG ABUSE
 -- Creates an abuse flag and temp-ban
 -- --------------------------------------------
 
@@ -809,42 +578,7 @@ END;
 $$;
 
 -- --------------------------------------------
--- 7.9 GET BOOST BALANCE
--- Returns user's boost information
--- --------------------------------------------
-
-CREATE OR REPLACE FUNCTION get_boost_balance(p_user_id UUID)
-RETURNS JSON
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
-DECLARE
-    v_boost RECORD;
-    v_settings RECORD;
-BEGIN
-    SELECT * INTO v_settings FROM admin_settings WHERE id = 1;
-    
-    SELECT * INTO v_boost
-    FROM user_boosts
-    WHERE user_id = p_user_id;
-    
-    IF NOT FOUND THEN
-        -- Create initial record
-        INSERT INTO user_boosts (user_id, balance, active_boost_batches_remaining)
-        VALUES (p_user_id, 0, 0)
-        RETURNING * INTO v_boost;
-    END IF;
-    
-    RETURN json_build_object(
-        'balance', v_boost.balance,
-        'active_boost_batches', v_boost.active_boost_batches_remaining,
-        'batches_per_boost', v_settings.boost_tier_a_batches
-    );
-END;
-$$;
-
--- --------------------------------------------
--- 7.10 GET ADMIN SETTINGS
+-- 5.7 GET ADMIN SETTINGS
 -- Returns all admin settings
 -- --------------------------------------------
 
@@ -863,7 +597,7 @@ END;
 $$;
 
 -- --------------------------------------------
--- 7.11 UPDATE ADMIN SETTINGS
+-- 5.8 UPDATE ADMIN SETTINGS
 -- Updates admin settings (service role only)
 -- --------------------------------------------
 
@@ -886,7 +620,6 @@ BEGIN
         cooldown_tier_b_max = COALESCE((p_settings->>'cooldown_tier_b_max')::INTEGER, cooldown_tier_b_max),
         cooldown_tier_c_min = COALESCE((p_settings->>'cooldown_tier_c_min')::INTEGER, cooldown_tier_c_min),
         cooldown_tier_c_max = COALESCE((p_settings->>'cooldown_tier_c_max')::INTEGER, cooldown_tier_c_max),
-        boost_tier_a_batches = COALESCE((p_settings->>'boost_tier_a_batches')::INTEGER, boost_tier_a_batches),
         abuse_request_threshold = COALESCE((p_settings->>'abuse_request_threshold')::INTEGER, abuse_request_threshold),
         abuse_window_seconds = COALESCE((p_settings->>'abuse_window_seconds')::INTEGER, abuse_window_seconds),
         abuse_sustained_seconds = COALESCE((p_settings->>'abuse_sustained_seconds')::INTEGER, abuse_sustained_seconds),
@@ -903,7 +636,7 @@ END;
 $$;
 
 -- ============================================
--- 8. CLEANUP FUNCTIONS
+-- 6. CLEANUP FUNCTIONS
 -- ============================================
 
 -- Clean up old rate tracking records (run via cron)
@@ -944,7 +677,7 @@ END;
 $$;
 
 -- ============================================
--- 9. TRIGGERS
+-- 7. TRIGGERS
 -- ============================================
 
 -- Update timestamp trigger for admin_settings
@@ -953,21 +686,13 @@ CREATE TRIGGER update_admin_settings_timestamp
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
--- Update timestamp trigger for user_boosts
-CREATE TRIGGER update_user_boosts_timestamp
-    BEFORE UPDATE ON user_boosts
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
 -- ============================================
--- MIGRATION COMPLETE
+-- MIGRATION COMPLETE (V1 - No Boosts)
 -- ============================================
 -- 
 -- Tables Created:
 -- ✅ admin_settings (singleton config)
 -- ✅ user_generation_usage (usage tracking)
--- ✅ user_boosts (boost balances)
--- ✅ boost_transactions (immutable log)
 -- ✅ generation_abuse_flags (temp-bans)
 -- ✅ request_rate_tracking (abuse detection)
 -- 
@@ -976,19 +701,18 @@ CREATE TRIGGER update_user_boosts_timestamp
 -- ✅ get_daily_stats(user_id)
 -- ✅ check_generation_limits(user_id, ip, session)
 -- ✅ log_generation(...)
--- ✅ redeem_boost(user_id)
--- ✅ add_boost(user_id, amount, reason, admin_id)
 -- ✅ check_abuse_pattern(user_id, ip)
 -- ✅ flag_abuse(user_id, ip, reason, ban_minutes, pattern)
--- ✅ get_boost_balance(user_id)
 -- ✅ get_admin_settings()
 -- ✅ update_admin_settings(settings)
 -- ✅ cleanup_rate_tracking()
 -- ✅ expire_abuse_flags()
 -- 
--- Next Steps:
--- 1. Run this migration in Supabase SQL Editor
--- 2. Set up cron jobs for cleanup functions
--- 3. Deploy API endpoints
+-- REMOVED (V2 Feature):
+-- ❌ user_boosts table
+-- ❌ boost_transactions table
+-- ❌ redeem_boost function
+-- ❌ add_boost function
+-- ❌ get_boost_balance function
 -- ============================================
 

@@ -420,17 +420,22 @@ function loadStreakData() {
             return {
                 lifetimeIdeasScheduled: 0,
                 lifetimeIdeasGenerated: 0,
-                schedulingStreak: { count: 0, lastDate: null },
+                schedulingStreak: { count: 0, lastDate: null, maxStreak: 0 },
                 sessionStreak: { count: 0, lastDate: null }
             };
         }
-        return JSON.parse(stored);
+        const data = JSON.parse(stored);
+        // Ensure maxStreak exists for older data
+        if (!data.schedulingStreak.maxStreak) {
+            data.schedulingStreak.maxStreak = data.schedulingStreak.count || 0;
+        }
+        return data;
     } catch (err) {
         console.error('Failed to load streak data:', err);
         return {
             lifetimeIdeasScheduled: 0,
             lifetimeIdeasGenerated: 0,
-            schedulingStreak: { count: 0, lastDate: null },
+            schedulingStreak: { count: 0, lastDate: null, maxStreak: 0 },
             sessionStreak: { count: 0, lastDate: null }
         };
     }
@@ -544,6 +549,11 @@ function incrementIdeasScheduled() {
         streakUpdated = true;
     }
     
+    // Update max streak if current is higher (historical tracking)
+    if (data.schedulingStreak.count > (data.schedulingStreak.maxStreak || 0)) {
+        data.schedulingStreak.maxStreak = data.schedulingStreak.count;
+    }
+    
     saveStreakData(data);
     
     // Render with animation
@@ -568,11 +578,11 @@ function renderStreakSquares(animateSquare = null) {
     // Convert animateSquare to array
     const animateList = animateSquare ? (Array.isArray(animateSquare) ? animateSquare : [animateSquare]) : [];
     
-    // Ideas Scheduled
+    // Ideas Scheduled - show LIFETIME total of all ideas ever scheduled
     const scheduledNumber = document.getElementById('streak-number-scheduled');
     const scheduledLabel = document.getElementById('streak-label-scheduled');
     if (scheduledNumber) {
-        scheduledNumber.textContent = data.lifetimeIdeasScheduled;
+        scheduledNumber.textContent = data.lifetimeIdeasScheduled || 0;
         if (animateList.includes('scheduled')) {
             triggerStreakAnimation('streak-square-scheduled');
         }
@@ -594,20 +604,21 @@ function renderStreakSquares(animateSquare = null) {
         generatedLabel.textContent = 'Ideas Generated';
     }
     
-    // Scheduling Streak
+    // Scheduling Streak - show max historical streak
     const schedulingNumber = document.getElementById('streak-number-scheduling');
     const schedulingLabel = document.getElementById('streak-label-scheduling');
     if (schedulingNumber) {
-        const count = data.schedulingStreak.count;
-        const dayText = count === 1 ? 'Day' : 'Days';
-        schedulingNumber.textContent = `${count} ${dayText}`;
+        // Use maxStreak for historical tracking (ever scheduled before)
+        const maxCount = data.schedulingStreak.maxStreak || data.schedulingStreak.count || 0;
+        const dayText = maxCount === 1 ? 'Day' : 'Days';
+        schedulingNumber.textContent = `${maxCount} ${dayText}`;
         if (animateList.includes('scheduling')) {
             triggerStreakAnimation('streak-square-scheduling');
         }
     }
     if (schedulingLabel) {
-        const count = data.schedulingStreak.count;
-        schedulingLabel.textContent = count > 0 ? 'Days in a Row' : 'Schedule daily!';
+        const maxCount = data.schedulingStreak.maxStreak || data.schedulingStreak.count || 0;
+        schedulingLabel.textContent = maxCount > 0 ? 'Best Streak' : 'Schedule daily!';
     }
     
     // Session Streak
@@ -1347,9 +1358,13 @@ function confirmScheduleDate(selectedDateStr) {
     
     // Use the found card
     pendingScheduleCard = cardToSchedule;
+    
+    // Check if this is a reschedule (card is already in calendar)
+    const isReschedule = window.isRescheduling || pendingScheduleCard.closest('#calendar-list') !== null;
 
     const selectedDate = new Date(selectedDateStr + 'T00:00:00');
     const month = selectedDate.toLocaleDateString('en-US', { month: 'short' });
+    const monthLower = month.toLowerCase();
     const day = selectedDate.getDate();
 
     const ideaData = JSON.parse(pendingScheduleCard.dataset.idea);
@@ -1364,6 +1379,82 @@ function confirmScheduleDate(selectedDateStr) {
         return;
     }
 
+    if (isReschedule) {
+        // RESCHEDULE: Update existing card in place
+        console.log('📅 Rescheduling idea to:', month, day);
+        
+        // Update the card's data
+        pendingScheduleCard.dataset.idea = JSON.stringify(ideaData);
+        
+        // Update the date badge on the card
+        const dateBadge = pendingScheduleCard.querySelector('.scheduled-date-badge');
+        if (dateBadge) {
+            dateBadge.textContent = `${month} ${day}`;
+            dateBadge.dataset.month = monthLower;
+        }
+        
+        // Remove card temporarily to re-insert in correct position
+        pendingScheduleCard.remove();
+        
+        // Re-insert in chronological order
+        const existingScheduledCards = scheduleList.querySelectorAll('.idea-card-collapsed');
+        let inserted = false;
+        
+        for (let card of existingScheduledCards) {
+            const cardData = JSON.parse(card.dataset.idea);
+            if (cardData.scheduledDate && ideaData.scheduledDate < cardData.scheduledDate) {
+                scheduleList.insertBefore(pendingScheduleCard, card);
+                inserted = true;
+                break;
+            }
+        }
+        
+        if (!inserted) {
+            // Check if there's an empty state to insert before, or just append
+            const emptyState = scheduleList.querySelector('.empty-state');
+            if (emptyState) {
+                scheduleList.insertBefore(pendingScheduleCard, emptyState);
+            } else {
+                scheduleList.appendChild(pendingScheduleCard);
+            }
+        }
+        
+        // Update in Supabase
+        saveScheduledIdeaToSupabase(ideaData, selectedDateStr)
+            .then(savedIdea => {
+                if (savedIdea) {
+                    pendingScheduleCard.dataset.idea = JSON.stringify({
+                        ...savedIdea,
+                        scheduledDate: savedIdea.scheduled_date || ideaData.scheduledDate,
+                        scheduledMonth: month,
+                        scheduledDay: day,
+                        platforms: savedIdea.platforms || ideaData.platforms || []
+                    });
+                }
+            })
+            .catch(err => {
+                console.error('Failed to update rescheduled idea:', err);
+            });
+        
+        // Reset modal title back to default
+        const calendarModal = document.getElementById('calendar-modal');
+        if (calendarModal) {
+            const modalTitle = calendarModal.querySelector('.calendar-modal-title');
+            if (modalTitle) modalTitle.textContent = 'Schedule This Idea';
+            const modalSubtitle = calendarModal.querySelector('.calendar-modal-subtitle');
+            if (modalSubtitle) modalSubtitle.textContent = 'Select a date for shooting or posting!';
+        }
+        
+        // Clear flags
+        pendingScheduleCard = null;
+        window.isRescheduling = false;
+        
+        generateScheduleCalendar();
+        console.log('✅ Rescheduled idea to:', month, day);
+        return;
+    }
+
+    // NEW SCHEDULE: Original logic for scheduling from Drawing Board
     // Check schedule limit before scheduling (max 30 scheduled ideas)
     const existingScheduledCards = scheduleList.querySelectorAll('.idea-card-collapsed');
     console.log('🔍 Schedule limit check: Current scheduled count =', existingScheduledCards.length);
@@ -1484,8 +1575,9 @@ function createScheduledCard(idea) {
     if (dateStr) {
         const date = new Date(dateStr + 'T00:00:00');
         const month = date.toLocaleDateString('en-US', { month: 'short' });
+        const monthLower = month.toLowerCase(); // jan, feb, mar, etc.
         const day = date.getDate();
-        dateBadgeHTML = `<div class="scheduled-date-badge">${month} ${day}</div>`;
+        dateBadgeHTML = `<div class="scheduled-date-badge" data-month="${monthLower}">${month} ${day}</div>`;
     }
 
     const scheduledCard = document.createElement('div');
@@ -1517,12 +1609,15 @@ function createScheduledCard(idea) {
 
     // Add click handler for expansion (entire card, except date badge)
     scheduledCard.addEventListener('click', (e) => {
-        // Don't expand if clicking on the date badge or action buttons
-        if (e.target.closest('.collapsed-scheduled-date') || e.target.closest('.collapsed-action-btn')) {
+        // Don't expand if clicking on the date badge or action buttons or if just swiped
+        if (e.target.closest('.collapsed-scheduled-date') || e.target.closest('.collapsed-action-btn') || scheduledCard.dataset.swiped === 'true') {
             return;
         }
         expandIdeaCard(scheduledCard);
     });
+
+    // Add swipe-to-delete handlers
+    addSwipeToDeleteHandler(scheduledCard);
 
     return scheduledCard;
 }
@@ -1571,8 +1666,28 @@ function expandIdeaCard(card) {
     let topActionsHTML = '';
     let bottomActionsHTML = '';
 
-    // Top actions: trash icon (always present) + copy icon for scheduled cards
-    const copyIconHTML = isScheduled ? `
+    // Close X button - top left (simple red X icon)
+    const closeXHTML = `
+        <button class="close-x-btn" onclick="closeExpandedModal()" aria-label="Close" title="Close">
+            <svg viewBox="0 0 24 24" fill="none">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    `;
+
+    // Delete button - icon only (top right, like X button)
+    const deleteIconHTML = `
+        <button class="delete-icon-btn" onclick="deleteIdeaFromExpanded()" aria-label="Delete" title="Delete">
+            <svg viewBox="0 0 24 24" fill="none">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+        </button>
+    `;
+
+    // Copy button for scheduled cards (will go to bottom right)
+    const copyButtonHTML = isScheduled ? `
         <button class="expanded-action-btn copy-btn" onclick="copyIdeaToClipboard()" aria-label="Copy" title="Copy to Clipboard">
             <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -1582,15 +1697,8 @@ function expandIdeaCard(card) {
     ` : '';
 
     topActionsHTML = `
-        <div class="expanded-card-actions top-actions">
-            <button class="expanded-action-btn delete-btn" onclick="deleteIdeaFromExpanded()" aria-label="Delete" title="Delete">
-                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-            </button>
-            ${copyIconHTML}
-        </div>
+        ${closeXHTML}
+        ${deleteIconHTML}
     `;
 
     // Build bottom actions based on card type
@@ -1613,6 +1721,9 @@ function expandIdeaCard(card) {
             </svg>
         </button>
     ` : '';
+    
+    // Right button for bottom actions - schedule for pinned, copy for scheduled
+    const rightBottomButtonHTML = isPinned ? scheduleButtonHTML : copyButtonHTML;
 
     // Populate the expanded card with full details
     // Layout: EDIT | PLATFORM ICONS | SCHEDULE
@@ -1649,7 +1760,7 @@ function expandIdeaCard(card) {
             <div class="platform-icons" id="expanded-platform-icons">
                 ${platformIconsHTML}
             </div>
-            ${scheduleButtonHTML}
+            ${rightBottomButtonHTML}
         </div>
     `;
 
@@ -1657,6 +1768,14 @@ function expandIdeaCard(card) {
     expandedCard.dataset.originalCard = card.dataset.idea;
     expandedCard.dataset.isPinned = isPinned;
     expandedCard.dataset.isScheduled = isScheduled;
+
+    // Add click handlers to platform icons (selectable even outside edit mode)
+    const platformIconsContainer = expandedCard.querySelector('#expanded-platform-icons');
+    if (platformIconsContainer) {
+        platformIconsContainer.querySelectorAll('.platform-icon-wrapper').forEach(wrapper => {
+            wrapper.onclick = () => togglePlatformSelection(wrapper);
+        });
+    }
 
     // Show the modal
     expandedModal.classList.add('active');
@@ -1768,7 +1887,7 @@ window.toggleEditMode = function toggleEditMode() {
             el.classList.remove('editable');
         });
         
-        // Save selected platforms and show only selected
+        // Save selected platforms but show ALL platforms (selected ones highlighted)
         if (platformIconsContainer) {
             const selectedWrappers = platformIconsContainer.querySelectorAll('.platform-icon-wrapper:not(.unselected)');
             const selectedPlatforms = Array.from(selectedWrappers).map(w => w.dataset.platform);
@@ -1778,7 +1897,8 @@ window.toggleEditMode = function toggleEditMode() {
             ideaData.platforms = selectedPlatforms;
             expandedCard.dataset.originalCard = JSON.stringify(ideaData);
             
-            // Show only selected platforms
+            // Show ALL platforms - selected ones highlighted, others dimmed
+            const allPlatforms = ['tiktok', 'instagram', 'youtube', 'x', 'facebook'];
             const iconMap = {
                 'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
                 'instagram': '<img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="platform-icon">',
@@ -1787,7 +1907,22 @@ window.toggleEditMode = function toggleEditMode() {
                 'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
             };
             
-            platformIconsContainer.innerHTML = selectedPlatforms.map(p => iconMap[p] || '').join('');
+            // Rebuild with all platforms, keeping selection state
+            platformIconsContainer.innerHTML = '';
+            allPlatforms.forEach(platform => {
+                const iconWrapper = document.createElement('div');
+                iconWrapper.className = 'platform-icon-wrapper';
+                iconWrapper.dataset.platform = platform;
+                
+                if (!selectedPlatforms.includes(platform)) {
+                    iconWrapper.classList.add('unselected');
+                }
+                
+                iconWrapper.innerHTML = iconMap[platform];
+                iconWrapper.onclick = () => togglePlatformSelection(iconWrapper);
+                
+                platformIconsContainer.appendChild(iconWrapper);
+            });
             platformIconsContainer.classList.remove('edit-mode');
         }
         
@@ -1808,9 +1943,246 @@ window.toggleEditMode = function toggleEditMode() {
     }
 }
 
+/**
+ * Add swipe-to-delete handler to a collapsed card
+ * Swipe left triggers delete confirmation
+ */
+window.addSwipeToDeleteHandler = function addSwipeToDeleteHandler(card) {
+    let startX = 0;
+    let startY = 0;
+    let currentX = 0;
+    let isDragging = false;
+    let hasSwiped = false;
+    const threshold = 60; // pixels to trigger action
+    const swipeThreshold = 10; // minimum pixels to consider it a swipe vs tap
+    
+    // Check if this is a pinned card (in drawing board) vs scheduled card (in calendar)
+    const isPinnedCard = () => card.closest('.pinned-ideas') !== null || card.closest('.ideas-grid') !== null;
+    const isCalendarCard = () => card.closest('#calendar-list') !== null;
+
+    const handleStart = (e) => {
+        const touch = e.type.includes('touch') ? e.touches[0] : e;
+        startX = touch.clientX;
+        startY = touch.clientY;
+        currentX = startX;
+        isDragging = true;
+        hasSwiped = false;
+        card.style.transition = 'none';
+    };
+
+    const handleMove = (e) => {
+        if (!isDragging) return;
+        
+        const touch = e.type.includes('touch') ? e.touches[0] : e;
+        currentX = touch.clientX;
+        const currentY = touch.clientY;
+        const deltaX = currentX - startX;
+        const deltaY = Math.abs(currentY - startY);
+        
+        // If vertical scroll is dominant, cancel swipe
+        if (deltaY > Math.abs(deltaX) && Math.abs(deltaX) < swipeThreshold) {
+            return;
+        }
+        
+        // Mark as swiped if moved enough horizontally
+        if (Math.abs(deltaX) > swipeThreshold) {
+            hasSwiped = true;
+            card.dataset.swiped = 'true';
+        }
+        
+        // Allow both left and right swipe for pinned cards and calendar cards
+        if (deltaX < 0) {
+            // Left swipe - delete (for both pinned and scheduled)
+            const limitedDelta = Math.max(deltaX, -120);
+            card.style.transform = `translateX(${limitedDelta}px)`;
+            card.style.opacity = 1 + (limitedDelta / 200);
+            card.style.background = `linear-gradient(90deg, rgba(239, 68, 68, ${Math.min(Math.abs(deltaX) / 120, 0.3)}) 0%, white 30%)`;
+        } else if (deltaX > 0 && (isPinnedCard() || isCalendarCard())) {
+            // Right swipe - schedule (pinned) or reschedule (calendar)
+            const limitedDelta = Math.min(deltaX, 120);
+            card.style.transform = `translateX(${limitedDelta}px)`;
+            card.style.opacity = 1 - (limitedDelta / 300);
+            card.style.background = `linear-gradient(270deg, rgba(94, 234, 212, ${Math.min(deltaX / 120, 0.3)}) 0%, white 30%)`;
+        }
+        
+        // Prevent default to stop scrolling while swiping
+        if (e.cancelable && Math.abs(deltaX) > swipeThreshold) {
+            e.preventDefault();
+        }
+    };
+
+    const handleEnd = (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        
+        const deltaX = currentX - startX;
+        card.style.transition = 'transform 0.3s ease, opacity 0.3s ease, background 0.3s ease';
+        card.style.background = '';
+        
+        if (deltaX < -threshold && hasSwiped) {
+            // Left swipe - Trigger delete confirmation
+            card.style.transform = '';
+            card.style.opacity = '1';
+            
+            const ideaData = JSON.parse(card.dataset.idea || '{}');
+            confirmDeleteCollapsedCard(card, ideaData);
+        } else if (deltaX > threshold && hasSwiped && isPinnedCard()) {
+            // Right swipe - Open schedule calendar (for pinned cards)
+            card.style.transform = '';
+            card.style.opacity = '1';
+            
+            // Store the card reference for scheduling
+            window.pendingScheduleCard = card;
+            
+            // Open the calendar picker modal
+            const calendarModal = document.getElementById('calendar-modal');
+            if (calendarModal) {
+                calendarModal.classList.add('active');
+                // Generate the calendar if function exists
+                if (typeof generateCalendarPicker === 'function') {
+                    generateCalendarPicker();
+                }
+            }
+            
+            console.log('📅 Right swipe detected - opening schedule calendar');
+        } else if (deltaX > threshold && hasSwiped && isCalendarCard()) {
+            // Right swipe - Open reschedule calendar (for calendar cards)
+            card.style.transform = '';
+            card.style.opacity = '1';
+            
+            // Store the card reference for rescheduling
+            window.pendingScheduleCard = card;
+            window.isRescheduling = true;
+            
+            // Open the calendar picker modal for rescheduling
+            const calendarModal = document.getElementById('calendar-modal');
+            if (calendarModal) {
+                // Update modal title for rescheduling
+                const modalTitle = calendarModal.querySelector('.calendar-modal-title');
+                if (modalTitle) {
+                    modalTitle.textContent = 'Reschedule This Idea';
+                }
+                const modalSubtitle = calendarModal.querySelector('.calendar-modal-subtitle');
+                if (modalSubtitle) {
+                    modalSubtitle.textContent = 'Select a new date for this idea!';
+                }
+                
+                calendarModal.classList.add('active');
+                // Generate the calendar if function exists
+                if (typeof generateCalendarPicker === 'function') {
+                    generateCalendarPicker();
+                }
+            }
+            
+            console.log('📅 Right swipe detected - opening reschedule calendar');
+        } else {
+            // Snap back
+            card.style.transform = '';
+            card.style.opacity = '1';
+        }
+        
+        // Keep swiped flag for a moment to prevent click
+        setTimeout(() => {
+            card.dataset.swiped = 'false';
+        }, 100);
+    };
+
+    // Touch events - use passive: false for touchmove to allow preventDefault
+    card.addEventListener('touchstart', handleStart, { passive: true });
+    card.addEventListener('touchmove', handleMove, { passive: false });
+    card.addEventListener('touchend', handleEnd);
+    card.addEventListener('touchcancel', handleEnd);
+
+    // Mouse events (for desktop testing)
+    card.addEventListener('mousedown', handleStart);
+    card.addEventListener('mousemove', handleMove);
+    card.addEventListener('mouseup', handleEnd);
+    card.addEventListener('mouseleave', handleEnd);
+};
+
+/**
+ * Confirm and delete a collapsed card (Drawing Board or Calendar)
+ */
+window.confirmDeleteCollapsedCard = function confirmDeleteCollapsedCard(card, ideaData) {
+    const isScheduled = card.closest('#calendar-list') !== null;
+    const location = isScheduled ? 'Calendar' : 'Drawing Board';
+    
+    showConfirmModal(
+        `Delete "${ideaData.title}"?`,
+        `This idea will be removed from your ${location}.`,
+        async () => {
+            // Delete from database if has ID
+            if (ideaData.id) {
+                try {
+                    const { deleteIdea } = await import('./supabase.js');
+                    const user = getUser();
+                    if (user) {
+                        await deleteIdea(ideaData.id, user.id);
+                        console.log('✅ Deleted idea from database:', ideaData.id);
+                    }
+                } catch (err) {
+                    console.warn('⚠️ Failed to delete from database:', err);
+                }
+            }
+            
+            // Remove card from DOM
+            card.remove();
+            
+            // Refresh counts and empty states
+            if (isScheduled) {
+                refreshCalendarEmptyState();
+            } else {
+                refreshPinnedCount();
+            }
+            
+            console.log('🗑️ Deleted collapsed card:', ideaData.title);
+        }
+    );
+};
+
 window.togglePlatformSelection = function togglePlatformSelection(wrapper) {
     // Multiple selection allowed - toggle the clicked icon
     wrapper.classList.toggle('unselected');
+    
+    // Save selection immediately (works both in and out of edit mode)
+    const expandedCard = document.getElementById('expanded-idea-card');
+    if (expandedCard && expandedCard.dataset.originalCard) {
+        const platformIconsContainer = expandedCard.querySelector('#expanded-platform-icons');
+        if (platformIconsContainer) {
+            const selectedWrappers = platformIconsContainer.querySelectorAll('.platform-icon-wrapper:not(.unselected)');
+            const selectedPlatforms = Array.from(selectedWrappers).map(w => w.dataset.platform);
+            
+            // Update the stored idea data
+            const ideaData = JSON.parse(expandedCard.dataset.originalCard);
+            ideaData.platforms = selectedPlatforms;
+            expandedCard.dataset.originalCard = JSON.stringify(ideaData);
+            
+            // Update the original collapsed card if it exists
+            const allCollapsedCards = document.querySelectorAll('.idea-card-collapsed');
+            allCollapsedCards.forEach(card => {
+                const cardData = JSON.parse(card.dataset.idea || '{}');
+                const matchesById = ideaData.id && cardData.id && ideaData.id === cardData.id;
+                const matchesByTitle = !ideaData.id && cardData.title === ideaData.title;
+                if (matchesById || matchesByTitle) {
+                    cardData.platforms = selectedPlatforms;
+                    card.dataset.idea = JSON.stringify(cardData);
+                    
+                    // Update visible platform icons on collapsed card
+                    const collapsedPlatforms = card.querySelector('.collapsed-bottom-platforms');
+                    if (collapsedPlatforms) {
+                        const iconMap = {
+                            'tiktok': '<img src="https://cdn.simpleicons.org/tiktok/000000" alt="TikTok" class="platform-icon">',
+                            'instagram': '<img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="platform-icon">',
+                            'youtube': '<img src="https://cdn.simpleicons.org/youtube/FF0000" alt="YouTube" class="platform-icon">',
+                            'x': '<img src="https://cdn.simpleicons.org/x/000000" alt="X" class="platform-icon">',
+                            'facebook': '<img src="https://cdn.simpleicons.org/facebook/1877F2" alt="Facebook" class="platform-icon">'
+                        };
+                        collapsedPlatforms.innerHTML = selectedPlatforms.map(p => iconMap[p] || '').filter(html => html).join('');
+                    }
+                }
+            });
+        }
+    }
 }
 
 /**
@@ -2680,7 +3052,7 @@ window.handleForgotPassword = async function() {
         placeholder.innerHTML = `
             <div class="loading-content">
                 <div class="logo-loader" aria-hidden="true">
-                    <img src="PHasse-Logo.png" alt="" class="logo-fill-animated">
+                    <img src="Phazee-Logo.png" alt="" class="logo-fill-animated">
                 </div>
                 <div class="thinking-text-container">
                     <span class="thinking-text"></span>
@@ -2766,9 +3138,9 @@ window.handleForgotPassword = async function() {
     }
 
     /**
-     * Expand idea card to show full details
+     * Expand idea card inline (for Build Idea button on swipe cards)
      */
-    window.expandIdeaCard = function(button) {
+    window.expandIdeaCardInline = function(button) {
         const card = button.closest('.idea-card');
         if (!card) return;
         
@@ -2830,7 +3202,7 @@ window.handleForgotPassword = async function() {
                 <p class="section-text">${ideaData.why}</p>
             </div>
 
-            <button class="build-idea-btn" onclick="expandIdeaCard(this)">
+            <button class="build-idea-btn" onclick="expandIdeaCardInline(this)">
                 <svg viewBox="0 0 24 24" width="16" height="16" style="margin-right: 6px;">
                     <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
                 </svg>
@@ -3226,6 +3598,13 @@ window.handleForgotPassword = async function() {
                         console.warn('⚠️ Database save error (keeping card locally):', err.message || err);
                         // Don't remove card or show error modal - card remains functional locally
                     });
+                
+                // Open expanded card view for quick view/edit after pinning
+                // Small delay to let the swipe animation start smoothly
+                setTimeout(() => {
+                    expandIdeaCard(pinnedCard);
+                    console.log('📖 Expanded card opened after pinning:', ideaData.title);
+                }, 150);
             }
         }
 
@@ -3393,8 +3772,11 @@ window.handleForgotPassword = async function() {
         const calendarList = document.getElementById('calendar-list');
         if (!calendarList) return;
 
-        const scheduledCards = calendarList.querySelectorAll('.calendar-card, .revital-card');
+        // Check for all types of scheduled cards
+        const scheduledCards = calendarList.querySelectorAll('.idea-card-collapsed, .calendar-card, .revital-card, .calendar-scheduled-card');
         const existingEmptyState = calendarList.querySelector('.empty-state');
+        
+        console.log('📅 Calendar empty state check:', scheduledCards.length, 'cards found');
         
         if (scheduledCards.length === 0) {
             if (!existingEmptyState) {
@@ -3503,12 +3885,15 @@ window.handleForgotPassword = async function() {
 
         // Add click handler for expansion
         collapsedCard.addEventListener('click', (e) => {
-            // Don't expand if clicking on action buttons
-            if (e.target.closest('.collapsed-action-btn')) {
+            // Don't expand if clicking on action buttons or if just swiped
+            if (e.target.closest('.collapsed-action-btn') || collapsedCard.dataset.swiped === 'true') {
                 return;
             }
             expandIdeaCard(collapsedCard);
         });
+
+        // Add swipe-to-delete handlers
+        addSwipeToDeleteHandler(collapsedCard);
 
         // Add new pinned idea at the top of the grid (most recent first)
         if (grid.firstChild) {
@@ -3866,6 +4251,26 @@ function navigateMonth(direction) {
 }
 
 let pickerCalendarMonth = new Date();
+
+/**
+ * Close the calendar modal and reset state
+ */
+window.closeCalendarModal = function closeCalendarModal() {
+    const calendarModal = document.getElementById('calendar-modal');
+    if (calendarModal) {
+        calendarModal.classList.remove('active');
+        
+        // Reset modal title and subtitle to defaults
+        const modalTitle = calendarModal.querySelector('.calendar-modal-title');
+        if (modalTitle) modalTitle.textContent = 'Schedule This Idea';
+        const modalSubtitle = calendarModal.querySelector('.calendar-modal-subtitle');
+        if (modalSubtitle) modalSubtitle.textContent = 'Select a date for shooting or posting!';
+    }
+    
+    // Clear rescheduling flag
+    window.isRescheduling = false;
+    window.pendingScheduleCard = null;
+};
 
 function generateCalendarPicker() {
     // Reset to current month when opening calendar (allows fresh start each time)
