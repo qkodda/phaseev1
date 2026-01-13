@@ -8,11 +8,27 @@
  * - Development: Auto-login as "Dev User", any email/password works
  * - Production: Dev bypass disabled, real Supabase auth required
  * 
+ * SECURITY:
+ * - Never logs passwords, tokens, or sensitive data
+ * - Uses safe auth logger for event tracking
+ * - Generic error messages to prevent account enumeration
+ * 
  * This is the ONLY place where auth handlers (signIn, signUp, signOut) are defined.
  */
 
 import { supabase, signUp, signIn, signOut, getCurrentUser, resetPassword } from './supabase.js';
 import { isDevBypassEnabled } from './auth-config.js';
+import { 
+    logAuthEvent, 
+    AUTH_EVENTS, 
+    ERROR_CATEGORIES,
+    categorizeAuthError,
+    getFriendlyErrorMessage,
+    trackAuthError,
+    clearErrorTracking,
+    checkResetCooldown,
+    recordResetRequest
+} from './auth-logger.js';
 
 // ============================================
 // DEV BYPASS CONFIGURATION (DEV ONLY - REMOVE BEFORE MERGE TO MAIN)
@@ -91,13 +107,18 @@ let currentSession = null;
 /**
  * Initialize authentication - check for existing session
  * DEV BYPASS: If enabled and on localhost, creates fake user/session
+ * 
+ * SESSION BOOTSTRAP: Single source of truth for session state on app start
  */
 export async function initAuth() {
+    logAuthEvent(AUTH_EVENTS.SESSION_BOOTSTRAP);
+    
     if (isDevBypassActive()) {
         if (!currentUser) {
             console.warn('🔧 DEV BYPASS ACTIVE - Initializing mock session');
             activateDevBypassSession();
         }
+        logAuthEvent(AUTH_EVENTS.SESSION_RESTORED, { userId: currentUser?.id });
         return currentUser;
     }
     
@@ -106,21 +127,25 @@ export async function initAuth() {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-            console.error('Error getting session:', error);
+            logAuthEvent(AUTH_EVENTS.SESSION_EXPIRED, { 
+                errorCategory: categorizeAuthError(error) 
+            });
             return null;
         }
         
         if (session) {
             currentSession = session;
             currentUser = session.user;
-            console.log('✅ User session found:', currentUser.email);
+            logAuthEvent(AUTH_EVENTS.SESSION_RESTORED, { userId: currentUser.id });
             return currentUser;
         }
         
-        console.log('ℹ️ No active session');
+        logAuthEvent(AUTH_EVENTS.SESSION_BOOTSTRAP, { route: 'no_session' });
         return null;
     } catch (error) {
-        console.error('Error initializing auth:', error);
+        logAuthEvent(AUTH_EVENTS.SESSION_EXPIRED, { 
+            errorCategory: categorizeAuthError(error) 
+        });
         return null;
     }
 }
@@ -161,8 +186,14 @@ export function getSession() {
 
 /**
  * Handle user sign-up with email confirmation
+ * 
+ * SECURITY:
+ * - Never reveals if email already exists
+ * - Profile creation is also handled by DB trigger (reliable backup)
  */
 export async function handleSignUp(name, email, password) {
+    logAuthEvent(AUTH_EVENTS.SIGNUP_ATTEMPT);
+    
     // DEV BYPASS CHECK
     if (isDevBypassActive()) {
         console.warn('🔧 DEV BYPASS ACTIVE - Simulating sign up (DEV ONLY)');
@@ -174,6 +205,8 @@ export async function handleSignUp(name, email, password) {
             }
         });
         
+        logAuthEvent(AUTH_EVENTS.SIGNUP_SUCCESS, { userId: fakeUser.id });
+        
         return {
             success: true,
             requiresConfirmation: false,
@@ -182,8 +215,6 @@ export async function handleSignUp(name, email, password) {
     }
 
     try {
-        console.log('📝 Signing up user:', email);
-        
         // Sign up with Supabase
         const { data, error } = await signUp(email, password, {
             data: {
@@ -193,15 +224,30 @@ export async function handleSignUp(name, email, password) {
         });
         
         if (error) {
-            console.error('Sign up error:', error);
-            throw new Error(error.message);
+            const errorCategory = categorizeAuthError(error);
+            logAuthEvent(AUTH_EVENTS.SIGNUP_FAILED, { errorCategory });
+            
+            // Generic message for security - don't reveal if email exists
+            let friendlyMessage = getFriendlyErrorMessage(error);
+            
+            // Special handling for "already registered" - make it generic
+            if (error.message?.toLowerCase().includes('already') || 
+                error.message?.toLowerCase().includes('exists')) {
+                friendlyMessage = 'Could not create account. Please try a different email or sign in.';
+            }
+            
+            return {
+                success: false,
+                error: friendlyMessage,
+                errorCategory
+            };
         }
-        
-        console.log('✅ Sign up successful:', data);
         
         // Check if email confirmation is required
         if (data.user && !data.session) {
-            // Email confirmation required
+            // Email confirmation required - still a success
+            logAuthEvent(AUTH_EVENTS.SIGNUP_SUCCESS, { userId: data.user.id });
+            
             return {
                 success: true,
                 requiresConfirmation: true,
@@ -214,8 +260,15 @@ export async function handleSignUp(name, email, password) {
             currentSession = data.session;
             currentUser = data.user;
             
-            // Create profile in database
-            await createUserProfile(data.user.id, name, email);
+            logAuthEvent(AUTH_EVENTS.SIGNUP_SUCCESS, { userId: data.user.id });
+            
+            // Create profile in database (backup - DB trigger is primary)
+            try {
+                await createUserProfile(data.user.id, name, email);
+            } catch (profileError) {
+                // Log but don't fail - DB trigger should handle this
+                console.warn('Client-side profile creation failed (DB trigger should handle):', profileError);
+            }
             
             return {
                 success: true,
@@ -230,10 +283,13 @@ export async function handleSignUp(name, email, password) {
         };
         
     } catch (error) {
-        console.error('Sign up error:', error);
+        const errorCategory = categorizeAuthError(error);
+        logAuthEvent(AUTH_EVENTS.SIGNUP_FAILED, { errorCategory });
+        
         return {
             success: false,
-            error: error.message
+            error: getFriendlyErrorMessage(error),
+            errorCategory
         };
     }
 }
@@ -244,13 +300,21 @@ export async function handleSignUp(name, email, password) {
 
 /**
  * Handle user sign-in
+ * 
+ * SECURITY:
+ * - Never reveals if email exists (generic error messages)
+ * - Tracks repeated failures for abuse detection
+ * - Clears error tracking on success
  */
 export async function handleSignIn(email, password) {
+    logAuthEvent(AUTH_EVENTS.LOGIN_ATTEMPT);
+    
     // DEV BYPASS CHECK - HIGHEST PRIORITY
     if (isDevBypassActive()) {
         console.warn('🔧 DEV BYPASS ACTIVE - Simulating sign in (DEV ONLY)');
         activateDevBypassSession({ email });
-        console.log('✅ DEV BYPASS: Returning fake success');
+        logAuthEvent(AUTH_EVENTS.LOGIN_SUCCESS, { userId: currentUser.id });
+        clearErrorTracking();
         return {
             success: true,
             user: currentUser,
@@ -260,10 +324,7 @@ export async function handleSignIn(email, password) {
 
     // NORMAL SIGN IN - Only runs if dev bypass is disabled
     try {
-        console.log('🔐 Signing in user:', email);
-        
         const result = await signIn(email, password);
-        console.log('📦 Sign in result:', result);
         
         if (!result) {
             throw new Error('No response from sign in');
@@ -272,8 +333,20 @@ export async function handleSignIn(email, password) {
         const { data, error } = result;
         
         if (error) {
-            console.error('Sign in error:', error);
-            throw new Error(error.message);
+            const errorCategory = categorizeAuthError(error);
+            logAuthEvent(AUTH_EVENTS.LOGIN_FAILED, { errorCategory });
+            
+            // Track error for repeated failure detection
+            const tracking = trackAuthError(errorCategory);
+            
+            // Return friendly message with optional suggestion
+            return {
+                success: false,
+                error: getFriendlyErrorMessage(error),
+                errorCategory,
+                suggestion: tracking.suggestion,
+                isRepeated: tracking.isRepeated
+            };
         }
         
         if (!data) {
@@ -284,7 +357,8 @@ export async function handleSignIn(email, password) {
             currentSession = data.session;
             currentUser = data.user;
             
-            console.log('✅ Sign in successful:', currentUser.email);
+            logAuthEvent(AUTH_EVENTS.LOGIN_SUCCESS, { userId: currentUser.id });
+            clearErrorTracking();
             
             return {
                 success: true,
@@ -296,11 +370,17 @@ export async function handleSignIn(email, password) {
         throw new Error('No session or user in response');
         
     } catch (error) {
-        console.error('❌ Sign in error:', error);
-        console.error('Error stack:', error.stack);
+        const errorCategory = categorizeAuthError(error);
+        logAuthEvent(AUTH_EVENTS.LOGIN_FAILED, { errorCategory });
+        
+        const tracking = trackAuthError(errorCategory);
+        
         return {
             success: false,
-            error: error.message || 'Sign in failed'
+            error: getFriendlyErrorMessage(error),
+            errorCategory,
+            suggestion: tracking.suggestion,
+            isRepeated: tracking.isRepeated
         };
     }
 }
@@ -313,17 +393,18 @@ export async function handleSignIn(email, password) {
  * Handle user sign-out
  */
 export async function handleSignOut() {
+    const userId = currentUser?.id;
+    
     // DEV BYPASS CHECK
     if (isDevBypassActive()) {
         console.warn('🔧 DEV BYPASS ACTIVE - Simulating sign out (DEV ONLY)');
         currentUser = null;
         currentSession = null;
+        logAuthEvent(AUTH_EVENTS.LOGOUT, { userId });
         return { success: true };
     }
 
     try {
-        console.log('👋 Signing out user');
-        
         const { error } = await signOut();
         
         if (error) {
@@ -335,7 +416,7 @@ export async function handleSignOut() {
         currentUser = null;
         currentSession = null;
         
-        console.log('✅ Sign out successful');
+        logAuthEvent(AUTH_EVENTS.LOGOUT, { userId });
         
         return {
             success: true
@@ -356,31 +437,129 @@ export async function handleSignOut() {
 
 /**
  * Request password reset email
+ * 
+ * SECURITY:
+ * - ALWAYS shows same success message regardless of whether email exists
+ * - Implements rate limiting cooldown
+ * - Never reveals account existence
  */
 export async function handlePasswordReset(email) {
+    logAuthEvent(AUTH_EVENTS.PASSWORD_RESET_REQUEST);
+    
+    // Check cooldown
+    const cooldown = checkResetCooldown();
+    if (cooldown.onCooldown) {
+        return {
+            success: false,
+            onCooldown: true,
+            remainingSeconds: cooldown.remainingSeconds,
+            error: `Please wait ${cooldown.remainingSeconds} seconds before requesting another reset.`
+        };
+    }
+    
     try {
-        console.log('📧 Requesting password reset for:', email);
-        
         const { error } = await resetPassword(email);
         
+        // Record the request for cooldown tracking
+        recordResetRequest();
+        
+        // Check for rate limiting specifically
         if (error) {
-            console.error('Password reset error:', error);
-            throw new Error(error.message);
+            const errorCategory = categorizeAuthError(error);
+            
+            if (errorCategory === ERROR_CATEGORIES.RATE_LIMITED) {
+                return {
+                    success: false,
+                    error: 'Too many reset requests. Please wait a few minutes and try again.',
+                    errorCategory
+                };
+            }
+            
+            // For any other error, still show generic success message
+            // This prevents account enumeration
         }
         
-        console.log('✅ Password reset email sent');
-        
+        // ALWAYS return the same message for security
+        // Don't reveal whether the email exists or not
         return {
             success: true,
-            message: 'Password reset email sent. Please check your inbox.'
+            message: 'If an account exists for that email, we sent a reset link. Please check your inbox.'
         };
         
     } catch (error) {
-        console.error('Password reset error:', error);
+        const errorCategory = categorizeAuthError(error);
+        
+        // Rate limiting should show an error
+        if (errorCategory === ERROR_CATEGORIES.RATE_LIMITED) {
+            return {
+                success: false,
+                error: 'Too many reset requests. Please wait a few minutes and try again.',
+                errorCategory
+            };
+        }
+        
+        // For all other errors, still show generic success
+        // This is intentional for security
+        return {
+            success: true,
+            message: 'If an account exists for that email, we sent a reset link. Please check your inbox.'
+        };
+    }
+}
+
+/**
+ * Update user password (after clicking reset link)
+ * Called from the password recovery screen
+ * 
+ * @param {string} newPassword - The new password
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export async function handleUpdatePassword(newPassword) {
+    try {
+        const { data, error } = await supabase.auth.updateUser({
+            password: newPassword
+        });
+        
+        if (error) {
+            const errorCategory = categorizeAuthError(error);
+            
+            return {
+                success: false,
+                error: getFriendlyErrorMessage(error),
+                errorCategory
+            };
+        }
+        
+        logAuthEvent(AUTH_EVENTS.PASSWORD_RESET_COMPLETE, { userId: data?.user?.id });
+        
+        return {
+            success: true,
+            message: 'Password updated successfully!'
+        };
+        
+    } catch (error) {
+        const errorCategory = categorizeAuthError(error);
+        
         return {
             success: false,
-            error: error.message
+            error: getFriendlyErrorMessage(error),
+            errorCategory
         };
+    }
+}
+
+/**
+ * Check if current URL indicates password recovery mode
+ * Supabase adds type=recovery to the URL hash when user clicks reset link
+ * 
+ * @returns {boolean}
+ */
+export function isPasswordRecoveryMode() {
+    try {
+        const hash = window.location.hash;
+        return hash.includes('type=recovery') || hash.includes('type=password_recovery');
+    } catch (e) {
+        return false;
     }
 }
 
@@ -519,20 +698,50 @@ export async function updateUserProfile(userId, profileData) {
 // AUTH STATE LISTENER
 // ============================================
 
+// Track active subscriptions for cleanup
+let authStateSubscription = null;
+
 /**
  * Listen for auth state changes
+ * 
+ * EVENTS HANDLED:
+ * - SIGNED_IN: User signed in
+ * - SIGNED_OUT: User signed out  
+ * - TOKEN_REFRESHED: Session token refreshed
+ * - PASSWORD_RECOVERY: User clicked password reset link
+ * - USER_UPDATED: User data updated
+ * 
+ * CLEANUP: Returns unsubscribe function, also tracks globally for cleanup
  */
 export function onAuthStateChange(callback) {
+    // Clean up any existing subscription first
+    if (authStateSubscription) {
+        authStateSubscription.unsubscribe();
+        authStateSubscription = null;
+    }
+    
     if (isDevBypassActive()) {
         activateDevBypassSession();
         if (callback) {
             callback('DEV_BYPASS', { user: currentUser, session: currentSession });
         }
-        return { unsubscribe: () => {} };
+        return { 
+            data: { subscription: { unsubscribe: () => {} } }
+        };
     }
     
-    return supabase.auth.onAuthStateChange((event, session) => {
-        console.log('🔄 Auth state changed:', event);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        // Map Supabase events to our auth events
+        const eventMap = {
+            'SIGNED_IN': AUTH_EVENTS.SIGNED_IN,
+            'SIGNED_OUT': AUTH_EVENTS.SIGNED_OUT,
+            'TOKEN_REFRESHED': AUTH_EVENTS.TOKEN_REFRESHED,
+            'PASSWORD_RECOVERY': AUTH_EVENTS.PASSWORD_RECOVERY,
+            'USER_UPDATED': 'user_updated'
+        };
+        
+        const authEvent = eventMap[event] || event;
+        logAuthEvent(authEvent, { userId: session?.user?.id });
         
         if (session) {
             currentSession = session;
@@ -546,6 +755,28 @@ export function onAuthStateChange(callback) {
             callback(event, session);
         }
     });
+    
+    // Track for cleanup
+    authStateSubscription = subscription;
+    
+    return { 
+        data: { subscription },
+        unsubscribe: () => {
+            subscription.unsubscribe();
+            authStateSubscription = null;
+        }
+    };
+}
+
+/**
+ * Clean up all auth subscriptions
+ * Call this on app unmount or before re-initializing
+ */
+export function cleanupAuthListeners() {
+    if (authStateSubscription) {
+        authStateSubscription.unsubscribe();
+        authStateSubscription = null;
+    }
 }
 
 // ============================================
