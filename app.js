@@ -11,6 +11,9 @@ import {
     handleSignUp,
     handleSignIn,
     handleSignOut,
+    handlePasswordReset,
+    handleUpdatePassword,
+    isPasswordRecoveryMode,
     getUserProfile,
     updateUserProfile,
     hasCompletedOnboarding,
@@ -18,8 +21,10 @@ import {
     startTrial,
     isTrialExpired,
     hasActiveSubscription,
-    onAuthStateChange
+    onAuthStateChange,
+    cleanupAuthListeners
 } from './auth-integration.js';
+import { logAuthEvent, AUTH_EVENTS } from './auth-logger.js';
 import { isDevBypassEnabled } from './auth-config.js';
 
 // Generation Governance System
@@ -2547,18 +2552,23 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const email = document.getElementById('signin-email').value;
         const password = document.getElementById('signin-password').value;
+        const errorEl = document.getElementById('signin-error');
+        const suggestionEl = document.getElementById('signin-suggestion');
+        
+        // Hide previous errors
+        if (errorEl) errorEl.style.display = 'none';
+        if (suggestionEl) suggestionEl.style.display = 'none';
         
         // DEV MODE: Accept ANY input as valid login (gibberish is fine)
         if (isDevBypassEnabled()) {
-            console.log('🔧 DEV BYPASS: Accepting any credentials -', email);
+            console.log('🔧 DEV BYPASS: Accepting any credentials');
             navigateTo('homepage');
             return;
         }
         
-        const submitBtn = signInForm.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
+        const submitBtn = document.getElementById('signin-submit-btn');
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Signing in...';
+        submitBtn.classList.add('loading');
         
         try {
             const result = await handleSignIn(email, password);
@@ -2566,16 +2576,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.success) {
                 console.log('✅ Sign in successful');
                 
-                // NOTE: Use centralized isDevBypassEnabled() check
-                if (isDevBypassEnabled()) {
-                    console.log('🔧 Dev bypass active - entering workspace');
-                    setTimeout(() => navigateTo('homepage'), 50);
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = originalText;
-                    return;
-                }
-                
+                // ONBOARDING GATE: Check if onboarding is complete
                 const onboardingComplete = await hasCompletedOnboarding(result.user.id);
+                logAuthEvent(AUTH_EVENTS.ONBOARDING_GATE, { 
+                    userId: result.user.id, 
+                    route: onboardingComplete ? 'main_app' : 'onboarding' 
+                });
                 
                 if (onboardingComplete) {
                     const trialExpired = await isTrialExpired(result.user.id);
@@ -2591,14 +2597,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     navigateTo('onboarding-1-page');
                 }
             } else {
-                showAlertModal('Sign In Failed', result.error || 'Invalid email or password');
+                // Show error in the inline error element
+                if (errorEl) {
+                    errorEl.textContent = result.error || 'Invalid email or password';
+                    errorEl.style.display = 'block';
+                }
+                
+                // Show suggestion if repeated errors
+                if (result.suggestion && suggestionEl) {
+                    suggestionEl.textContent = result.suggestion;
+                    suggestionEl.style.display = 'block';
+                }
             }
         } catch (error) {
             console.error('Sign in error:', error);
-            showAlertModal('Error', 'An error occurred. Please try again.');
+            if (errorEl) {
+                errorEl.textContent = 'Something went wrong. Please try again.';
+                errorEl.style.display = 'block';
+            }
         } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
+            submitBtn.classList.remove('loading');
         }
     });
 
@@ -2608,16 +2627,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = document.getElementById('signup-name').value;
         const email = document.getElementById('signup-email').value;
         const password = document.getElementById('signup-password').value;
+        const errorEl = document.getElementById('signup-error');
+        
+        // Hide previous errors
+        if (errorEl) errorEl.style.display = 'none';
         
         if (password.length < 6) {
-            showAlertModal('Invalid Password', 'Password must be at least 6 characters long');
+            if (errorEl) {
+                errorEl.textContent = 'Password must be at least 6 characters long';
+                errorEl.style.display = 'block';
+            }
             return;
         }
         
-        const submitBtn = signUpForm.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
+        const submitBtn = document.getElementById('signup-submit-btn');
         submitBtn.disabled = true;
-        submitBtn.textContent = 'Creating account...';
+        submitBtn.classList.add('loading');
         
         try {
             const result = await handleSignUp(name, email, password);
@@ -2633,44 +2658,34 @@ document.addEventListener('DOMContentLoaded', () => {
                             authToggle.click(); // Switch back to sign in
                         }
                     );
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = originalText;
                 } else if (result.user) {
                     // Auto-signed in, start trial and go to onboarding
+                    logAuthEvent(AUTH_EVENTS.ONBOARDING_GATE, { 
+                        userId: result.user.id, 
+                        route: 'onboarding' 
+                    });
                     await startTrial(result.user.id);
                     navigateTo('onboarding-1-page');
                 } else {
                     // Success but no user object (shouldn't happen)
                     showAlertModal('Account Created', 'Please check your email to confirm your account.');
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = originalText;
                 }
             } else {
-                // Generic error message for security (don't reveal email status)
-                const errorMessage = result.error && result.error.includes('Password') 
-                    ? result.error 
-                    : 'This email cannot be used. Please try a different email address.';
-                    
-                showAlertModal('Sign Up Failed', errorMessage);
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
+                // Show error in the inline error element
+                if (errorEl) {
+                    errorEl.textContent = result.error || 'Could not create account. Please try again.';
+                    errorEl.style.display = 'block';
+                }
             }
         } catch (error) {
             console.error('Sign up error:', error);
-            
-            // Generic error message for security (don't reveal if email exists)
-            let errorMessage = 'This email cannot be used. Please try a different email address.';
-            
-            // Only show specific errors for non-security issues
-            if (error.message && error.message.includes('40 seconds')) {
-                errorMessage = 'Please wait a moment before trying again.';
-            } else if (error.message && error.message.includes('Password')) {
-                errorMessage = error.message; // Show password requirements
+            if (errorEl) {
+                errorEl.textContent = 'Something went wrong. Please try again.';
+                errorEl.style.display = 'block';
             }
-            
-            showAlertModal('Sign Up Failed', errorMessage);
+        } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
+            submitBtn.classList.remove('loading');
         }
     });
 
@@ -2681,31 +2696,223 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================
 
 // ============================================
-// FORGOT PASSWORD HANDLER (Global Function)
+// FORGOT PASSWORD MODAL HANDLER
 // ============================================
-window.handleForgotPassword = async function() {
-    const email = document.getElementById('signin-email').value;
+
+// Initialize forgot password modal
+function initForgotPasswordModal() {
+    const forgotBtn = document.getElementById('forgot-password-btn');
+    const modal = document.getElementById('forgot-password-modal');
+    const closeBtn = document.getElementById('forgot-password-modal-close');
+    const submitBtn = document.getElementById('forgot-password-submit');
+    const emailInput = document.getElementById('forgot-email');
+    const errorEl = document.getElementById('forgot-password-error');
+    const successEl = document.getElementById('forgot-password-success');
+    const cooldownEl = document.getElementById('forgot-password-cooldown');
     
-    if (!email || !email.includes('@')) {
-        showAlertModal('Email Required', 'Please enter your email address in the email field first, then click Forgot Password.');
-        return;
-    }
+    if (!forgotBtn || !modal) return;
     
-    try {
-        // Import resetPassword from auth-integration
-        const { handlePasswordReset } = await import('./auth-integration.js');
-        const result = await handlePasswordReset(email);
+    // Open modal
+    forgotBtn.addEventListener('click', () => {
+        // Pre-fill email from sign-in form
+        const signinEmail = document.getElementById('signin-email')?.value || '';
+        if (emailInput) emailInput.value = signinEmail;
         
-        if (result.success) {
-            showAlertModal('Password Reset Sent', 'Check your email for a password reset link. It may take a few minutes to arrive.');
-        } else {
-            showAlertModal('Reset Failed', result.error || 'Could not send password reset email. Please try again.');
-        }
-    } catch (error) {
-        console.error('Forgot password error:', error);
-        showAlertModal('Error', 'Could not send password reset email. Please try again later.');
+        // Reset state
+        if (errorEl) errorEl.style.display = 'none';
+        if (successEl) successEl.style.display = 'none';
+        if (cooldownEl) cooldownEl.style.display = 'none';
+        
+        modal.classList.add('active');
+    });
+    
+    // Close modal
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
     }
-};
+    
+    // Close on background click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+        }
+    });
+    
+    // Submit handler
+    if (submitBtn) {
+        submitBtn.addEventListener('click', async () => {
+            const email = emailInput?.value?.trim();
+            
+            // Hide previous messages
+            if (errorEl) errorEl.style.display = 'none';
+            if (successEl) successEl.style.display = 'none';
+            if (cooldownEl) cooldownEl.style.display = 'none';
+            
+            if (!email || !email.includes('@')) {
+                if (errorEl) {
+                    errorEl.textContent = 'Please enter a valid email address.';
+                    errorEl.style.display = 'block';
+                }
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            
+            try {
+                const result = await handlePasswordReset(email);
+                
+                if (result.onCooldown) {
+                    // Show cooldown message
+                    if (cooldownEl) {
+                        cooldownEl.textContent = result.error;
+                        cooldownEl.style.display = 'block';
+                    }
+                } else if (result.success) {
+                    // ALWAYS show same message for security
+                    if (successEl) {
+                        successEl.textContent = result.message;
+                        successEl.style.display = 'block';
+                    }
+                    // Clear input after success
+                    if (emailInput) emailInput.value = '';
+                } else {
+                    // Rate limit or other error
+                    if (errorEl) {
+                        errorEl.textContent = result.error || 'Could not send reset email. Please try again.';
+                        errorEl.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('Forgot password error:', error);
+                if (errorEl) {
+                    errorEl.textContent = 'Something went wrong. Please try again.';
+                    errorEl.style.display = 'block';
+                }
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+            }
+        });
+    }
+}
+
+// ============================================
+// PASSWORD RECOVERY FORM HANDLER
+// ============================================
+
+function initPasswordRecoveryForm() {
+    const form = document.getElementById('password-recovery-form');
+    const submitBtn = document.getElementById('recovery-submit-btn');
+    const errorEl = document.getElementById('recovery-error');
+    
+    if (!form) return;
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const newPassword = document.getElementById('recovery-password')?.value;
+        const confirmPassword = document.getElementById('recovery-password-confirm')?.value;
+        
+        // Hide previous errors
+        if (errorEl) errorEl.style.display = 'none';
+        
+        // Validate passwords
+        if (!newPassword || newPassword.length < 6) {
+            if (errorEl) {
+                errorEl.textContent = 'Password must be at least 6 characters long.';
+                errorEl.style.display = 'block';
+            }
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            if (errorEl) {
+                errorEl.textContent = 'Passwords do not match.';
+                errorEl.style.display = 'block';
+            }
+            return;
+        }
+        
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+        }
+        
+        try {
+            const result = await handleUpdatePassword(newPassword);
+            
+            if (result.success) {
+                showAlertModal('Password Updated', 'Your password has been successfully changed.', async () => {
+                    // Check onboarding and route appropriately
+                    const user = getUser();
+                    if (user) {
+                        const onboardingComplete = await hasCompletedOnboarding(user.id);
+                        logAuthEvent(AUTH_EVENTS.ONBOARDING_GATE, { 
+                            userId: user.id, 
+                            route: onboardingComplete ? 'main_app' : 'onboarding' 
+                        });
+                        
+                        if (onboardingComplete) {
+                            navigateTo('homepage');
+                        } else {
+                            navigateTo('onboarding-1-page');
+                        }
+                    } else {
+                        navigateTo('sign-in-page');
+                    }
+                });
+            } else {
+                if (errorEl) {
+                    errorEl.textContent = result.error || 'Could not update password. Please try again.';
+                    errorEl.style.display = 'block';
+                }
+            }
+        } catch (error) {
+            console.error('Password recovery error:', error);
+            if (errorEl) {
+                errorEl.textContent = 'Something went wrong. Please try again.';
+                errorEl.style.display = 'block';
+            }
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+            }
+        }
+    });
+}
+
+// ============================================
+// PASSWORD VISIBILITY TOGGLE
+// ============================================
+
+function initPasswordToggles() {
+    const toggles = document.querySelectorAll('.password-toggle');
+    
+    toggles.forEach(toggle => {
+        toggle.addEventListener('click', () => {
+            const wrapper = toggle.closest('.password-wrapper');
+            const input = wrapper?.querySelector('input');
+            const eyeOpen = toggle.querySelector('.eye-open');
+            const eyeClosed = toggle.querySelector('.eye-closed');
+            
+            if (!input) return;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (eyeOpen) eyeOpen.style.display = 'none';
+                if (eyeClosed) eyeClosed.style.display = 'block';
+            } else {
+                input.type = 'password';
+                if (eyeOpen) eyeOpen.style.display = 'block';
+                if (eyeClosed) eyeClosed.style.display = 'none';
+            }
+        });
+    });
+}
 
     let isGeneratingIdeas = false;
     let generatorStatusTimer = null;
@@ -5999,10 +6206,30 @@ window.handleUserSignOut = handleUserSignOutLocal;
 
 /**
  * Initialize app on load
+ * 
+ * ROUTING LOGIC:
+ * 1. Check for password recovery mode (from reset link)
+ * 2. Check dev bypass
+ * 3. Initialize auth and get user
+ * 4. ONBOARDING GATE: Always check onboarding status
+ * 5. Check trial/subscription status
  */
 async function initializeApp() {
     try {
         console.log('🚀 initializeApp() called');
+        
+        // Initialize auth UI components first
+        initPasswordToggles();
+        initForgotPasswordModal();
+        initPasswordRecoveryForm();
+        
+        // CHECK FOR PASSWORD RECOVERY MODE (user clicked reset link)
+        if (isPasswordRecoveryMode()) {
+            console.log('🔑 Password recovery mode detected');
+            logAuthEvent(AUTH_EVENTS.PASSWORD_RECOVERY);
+            navigateTo('password-recovery-page');
+            return;
+        }
         
         // CHECK DEV BYPASS ONLY IF EXPLICITLY ENABLED via env var
         // Set VITE_DEV_BYPASS_AUTH=true to skip auth (useful for testing UI)
@@ -6013,7 +6240,7 @@ async function initializeApp() {
         }
         
         const user = await initAuth();
-        console.log('🚀 initAuth() returned:', user ? `User: ${user.email} (ID: ${user.id})` : 'null');
+        console.log('🚀 initAuth() returned:', user ? `User ID: ${user.id}` : 'null');
         
         if (!user) {
             console.log('❌ No user, navigating to sign-in-page');
@@ -6021,18 +6248,28 @@ async function initializeApp() {
             return;
         }
         
-        // NOTE: Use centralized isDevBypassEnabled() check
-        if (isDevBypassEnabled()) {
-            console.log('🔧 DEV BYPASS: Auto-navigating to homepage');
-            navigateTo('homepage');
-            return;
-        }
+        // Set up auth state listener for session changes
+        onAuthStateChange((event, session) => {
+            console.log('🔄 Auth state changed:', event);
+            
+            // Handle password recovery event
+            if (event === 'PASSWORD_RECOVERY') {
+                navigateTo('password-recovery-page');
+            }
+            // Handle sign out
+            else if (event === 'SIGNED_OUT') {
+                navigateTo('sign-in-page');
+            }
+        });
         
-        console.log('✅ User authenticated:', user.email);
-        console.log('🔍 Checking onboarding for user ID:', user.id);
+        console.log('✅ User authenticated');
         
+        // ONBOARDING GATE: Always enforce on session restore
         const onboardingComplete = await hasCompletedOnboarding(user.id);
-        console.log('🔍 Onboarding complete?', onboardingComplete);
+        logAuthEvent(AUTH_EVENTS.ONBOARDING_GATE, { 
+            userId: user.id, 
+            route: onboardingComplete ? 'checking_trial' : 'onboarding' 
+        });
         
         if (!onboardingComplete) {
             console.log('❌ Onboarding not complete, navigating to onboarding-1-page');
@@ -6040,11 +6277,8 @@ async function initializeApp() {
             return;
         }
         
-        console.log('🔍 Checking trial/subscription for user ID:', user.id);
         const trialExpired = await isTrialExpired(user.id);
         const hasSubscription = await hasActiveSubscription(user.id);
-        console.log('🔍 Trial expired?', trialExpired);
-        console.log('🔍 Has subscription?', hasSubscription);
         
         if (trialExpired && !hasSubscription) {
             console.log('❌ Trial expired and no subscription, navigating to paywall-page');
@@ -6057,7 +6291,6 @@ async function initializeApp() {
         // Note: loadIdeasFromSupabase is triggered via navigateTo('homepage')
     } catch (error) {
         console.error('❌ Error initializing app:', error);
-        console.error('❌ Error stack:', error.stack);
         navigateTo('sign-in-page');
     }
 }
