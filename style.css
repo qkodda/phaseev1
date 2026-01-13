@@ -939,6 +939,201 @@ body {
 }
 
 /* ============================================
+   AUTH UI ENHANCEMENTS - iOS Keyboard Safety
+   ============================================ */
+
+/* Auth page content - scrollable for iOS keyboard */
+.auth-page-content {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+/* iOS keyboard safety - when input is focused */
+@supports (-webkit-touch-callout: none) {
+    .auth-page-content {
+        min-height: -webkit-fill-available;
+    }
+    
+    /* Ensure buttons stay visible when keyboard opens */
+    .auth-form button[type="submit"] {
+        margin-bottom: 20px;
+    }
+}
+
+/* Password input wrapper with toggle */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 48px; /* Space for eye icon */
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.password-toggle:hover {
+    color: #333;
+}
+
+.password-toggle:focus {
+    outline: none;
+}
+
+.password-toggle .eye-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.password-hint {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-top: 6px;
+}
+
+/* Auth error message */
+.auth-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #dc2626;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+/* Auth success message */
+.auth-success {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #16a34a;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+/* Auth suggestion (for repeated errors) */
+.auth-suggestion {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #2563eb;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+/* Cooldown timer display */
+.auth-cooldown {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #d97706;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+/* Button loading state */
+.btn-primary .btn-loading,
+.btn-signup .btn-loading {
+    display: none;
+}
+
+.btn-primary.loading .btn-text,
+.btn-signup.loading .btn-text {
+    display: none;
+}
+
+.btn-primary.loading .btn-loading,
+.btn-signup.loading .btn-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Spinner animation */
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+.spinner circle {
+    stroke: currentColor;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Forgot Password Modal */
+.forgot-password-modal-content {
+    max-width: 360px;
+    width: 90%;
+    padding: 32px 24px;
+    background: white;
+    border-radius: 16px;
+    position: relative;
+}
+
+.forgot-password-modal-content .modal-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 8px 0;
+    text-align: center;
+}
+
+.forgot-password-modal-content .modal-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 24px 0;
+    text-align: center;
+}
+
+.forgot-password-modal-content .input-group {
+    margin-bottom: 20px;
+}
+
+.forgot-password-modal-content .btn-primary {
+    width: 100%;
+}
+
+/* Password Recovery Page */
+#password-recovery-page .auth-container {
+    max-width: 380px;
+}
+
+#password-recovery-page .form-title {
+    margin-bottom: 32px;
+}
+
+/* ============================================
    ONBOARDING PAGES - Compact, No Scroll
    ============================================ */
 #onboarding-1-page .page-content,
