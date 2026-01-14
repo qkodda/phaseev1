@@ -18,14 +18,15 @@ import {
     updateUserProfile,
     hasCompletedOnboarding,
     markOnboardingComplete,
+    getOnboardingStep,
     startTrial,
+    hasStartedTrial,
     isTrialExpired,
     hasActiveSubscription,
     onAuthStateChange,
     cleanupAuthListeners
 } from './auth-integration.js';
 import { logAuthEvent, AUTH_EVENTS } from './auth-logger.js';
-import { isDevBypassEnabled } from './auth-config.js';
 
 // Generation Governance System
 import {
@@ -1127,13 +1128,7 @@ function navigateTo(pageId) {
         'subscription-page'
     ]);
 
-    // Skip subscription check for dev bypass users
-    // NOTE: Use centralized isDevBypassEnabled() - single source of truth for bypass logic
-    if (isDevBypassEnabled()) {
-        console.log('🔧 DEV BYPASS: Access granted to page:', pageId);
-    }
-    
-    if (!isDevBypassEnabled() && restrictedPages.has(pageId) && !hasAccessToPaidContent()) {
+    if (restrictedPages.has(pageId) && !hasAccessToPaidContent()) {
         const message = isTrialStarted()
             ? 'Your free trial has ended. Subscribe to continue.'
             : 'Start your free trial to unlock the full experience.';
@@ -2559,13 +2554,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (errorEl) errorEl.style.display = 'none';
         if (suggestionEl) suggestionEl.style.display = 'none';
         
-        // DEV MODE: Accept ANY input as valid login (gibberish is fine)
-        if (isDevBypassEnabled()) {
-            console.log('🔧 DEV BYPASS: Accepting any credentials');
-            navigateTo('homepage');
-            return;
-        }
-        
         const submitBtn = document.getElementById('signin-submit-btn');
         submitBtn.disabled = true;
         submitBtn.classList.add('loading');
@@ -2576,14 +2564,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result.success) {
                 console.log('✅ Sign in successful');
                 
-                // ONBOARDING GATE: Check if onboarding is complete
-                const onboardingComplete = await hasCompletedOnboarding(result.user.id);
-                logAuthEvent(AUTH_EVENTS.ONBOARDING_GATE, { 
-                    userId: result.user.id, 
-                    route: onboardingComplete ? 'main_app' : 'onboarding' 
-                });
+                // MANDATORY FLOW: Route user to exactly where they left off
+                const trialStarted = await hasStartedTrial(result.user.id);
                 
-                if (onboardingComplete) {
+                if (trialStarted) {
+                    // Check if trial expired
                     const trialExpired = await isTrialExpired(result.user.id);
                     const hasSubscription = await hasActiveSubscription(result.user.id);
                     
@@ -2593,8 +2578,21 @@ document.addEventListener('DOMContentLoaded', () => {
                         navigateTo('homepage');
                     }
                 } else {
-                    await startTrial(result.user.id);
-                    navigateTo('onboarding-1-page');
+                    // Trial not started - check onboarding step
+                    const onboardingStep = await getOnboardingStep(result.user.id);
+                    logAuthEvent(AUTH_EVENTS.ONBOARDING_GATE, { 
+                        userId: result.user.id, 
+                        step: onboardingStep 
+                    });
+                    
+                    // Route based on step
+                    if (onboardingStep >= 2) {
+                        navigateTo('paywall-page');
+                    } else if (onboardingStep === 1) {
+                        navigateTo('onboarding-2-page');
+                    } else {
+                        navigateTo('onboarding-1-page');
+                    }
                 }
             } else {
                 // Show error in the inline error element
@@ -2659,12 +2657,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     );
                 } else if (result.user) {
-                    // Auto-signed in, start trial and go to onboarding
-                    logAuthEvent(AUTH_EVENTS.ONBOARDING_GATE, { 
-                        userId: result.user.id, 
-                        route: 'onboarding' 
+                    // Auto-signed in, go to onboarding (trial starts ONLY at paywall)
+                    logAuthEvent(AUTH_EVENTS.ONBOARDING_GATE, {
+                        userId: result.user.id,
+                        route: 'onboarding'
                     });
-                    await startTrial(result.user.id);
+                    // DO NOT start trial here - user must complete onboarding + paywall first
                     navigateTo('onboarding-1-page');
                 } else {
                     // Success but no user object (shouldn't happen)
@@ -2694,225 +2692,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============================================
     // SWIPE CARD SYSTEM
     // ============================================
-
-// ============================================
-// FORGOT PASSWORD MODAL HANDLER
-// ============================================
-
-// Initialize forgot password modal
-function initForgotPasswordModal() {
-    const forgotBtn = document.getElementById('forgot-password-btn');
-    const modal = document.getElementById('forgot-password-modal');
-    const closeBtn = document.getElementById('forgot-password-modal-close');
-    const submitBtn = document.getElementById('forgot-password-submit');
-    const emailInput = document.getElementById('forgot-email');
-    const errorEl = document.getElementById('forgot-password-error');
-    const successEl = document.getElementById('forgot-password-success');
-    const cooldownEl = document.getElementById('forgot-password-cooldown');
-    
-    if (!forgotBtn || !modal) return;
-    
-    // Open modal
-    forgotBtn.addEventListener('click', () => {
-        // Pre-fill email from sign-in form
-        const signinEmail = document.getElementById('signin-email')?.value || '';
-        if (emailInput) emailInput.value = signinEmail;
-        
-        // Reset state
-        if (errorEl) errorEl.style.display = 'none';
-        if (successEl) successEl.style.display = 'none';
-        if (cooldownEl) cooldownEl.style.display = 'none';
-        
-        modal.classList.add('active');
-    });
-    
-    // Close modal
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            modal.classList.remove('active');
-        });
-    }
-    
-    // Close on background click
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.classList.remove('active');
-        }
-    });
-    
-    // Submit handler
-    if (submitBtn) {
-        submitBtn.addEventListener('click', async () => {
-            const email = emailInput?.value?.trim();
-            
-            // Hide previous messages
-            if (errorEl) errorEl.style.display = 'none';
-            if (successEl) successEl.style.display = 'none';
-            if (cooldownEl) cooldownEl.style.display = 'none';
-            
-            if (!email || !email.includes('@')) {
-                if (errorEl) {
-                    errorEl.textContent = 'Please enter a valid email address.';
-                    errorEl.style.display = 'block';
-                }
-                return;
-            }
-            
-            submitBtn.disabled = true;
-            submitBtn.classList.add('loading');
-            
-            try {
-                const result = await handlePasswordReset(email);
-                
-                if (result.onCooldown) {
-                    // Show cooldown message
-                    if (cooldownEl) {
-                        cooldownEl.textContent = result.error;
-                        cooldownEl.style.display = 'block';
-                    }
-                } else if (result.success) {
-                    // ALWAYS show same message for security
-                    if (successEl) {
-                        successEl.textContent = result.message;
-                        successEl.style.display = 'block';
-                    }
-                    // Clear input after success
-                    if (emailInput) emailInput.value = '';
-                } else {
-                    // Rate limit or other error
-                    if (errorEl) {
-                        errorEl.textContent = result.error || 'Could not send reset email. Please try again.';
-                        errorEl.style.display = 'block';
-                    }
-                }
-            } catch (error) {
-                console.error('Forgot password error:', error);
-                if (errorEl) {
-                    errorEl.textContent = 'Something went wrong. Please try again.';
-                    errorEl.style.display = 'block';
-                }
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('loading');
-            }
-        });
-    }
-}
-
-// ============================================
-// PASSWORD RECOVERY FORM HANDLER
-// ============================================
-
-function initPasswordRecoveryForm() {
-    const form = document.getElementById('password-recovery-form');
-    const submitBtn = document.getElementById('recovery-submit-btn');
-    const errorEl = document.getElementById('recovery-error');
-    
-    if (!form) return;
-    
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const newPassword = document.getElementById('recovery-password')?.value;
-        const confirmPassword = document.getElementById('recovery-password-confirm')?.value;
-        
-        // Hide previous errors
-        if (errorEl) errorEl.style.display = 'none';
-        
-        // Validate passwords
-        if (!newPassword || newPassword.length < 6) {
-            if (errorEl) {
-                errorEl.textContent = 'Password must be at least 6 characters long.';
-                errorEl.style.display = 'block';
-            }
-            return;
-        }
-        
-        if (newPassword !== confirmPassword) {
-            if (errorEl) {
-                errorEl.textContent = 'Passwords do not match.';
-                errorEl.style.display = 'block';
-            }
-            return;
-        }
-        
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.classList.add('loading');
-        }
-        
-        try {
-            const result = await handleUpdatePassword(newPassword);
-            
-            if (result.success) {
-                showAlertModal('Password Updated', 'Your password has been successfully changed.', async () => {
-                    // Check onboarding and route appropriately
-                    const user = getUser();
-                    if (user) {
-                        const onboardingComplete = await hasCompletedOnboarding(user.id);
-                        logAuthEvent(AUTH_EVENTS.ONBOARDING_GATE, { 
-                            userId: user.id, 
-                            route: onboardingComplete ? 'main_app' : 'onboarding' 
-                        });
-                        
-                        if (onboardingComplete) {
-                            navigateTo('homepage');
-                        } else {
-                            navigateTo('onboarding-1-page');
-                        }
-                    } else {
-                        navigateTo('sign-in-page');
-                    }
-                });
-            } else {
-                if (errorEl) {
-                    errorEl.textContent = result.error || 'Could not update password. Please try again.';
-                    errorEl.style.display = 'block';
-                }
-            }
-        } catch (error) {
-            console.error('Password recovery error:', error);
-            if (errorEl) {
-                errorEl.textContent = 'Something went wrong. Please try again.';
-                errorEl.style.display = 'block';
-            }
-        } finally {
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('loading');
-            }
-        }
-    });
-}
-
-// ============================================
-// PASSWORD VISIBILITY TOGGLE
-// ============================================
-
-function initPasswordToggles() {
-    const toggles = document.querySelectorAll('.password-toggle');
-    
-    toggles.forEach(toggle => {
-        toggle.addEventListener('click', () => {
-            const wrapper = toggle.closest('.password-wrapper');
-            const input = wrapper?.querySelector('input');
-            const eyeOpen = toggle.querySelector('.eye-open');
-            const eyeClosed = toggle.querySelector('.eye-closed');
-            
-            if (!input) return;
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                if (eyeOpen) eyeOpen.style.display = 'none';
-                if (eyeClosed) eyeClosed.style.display = 'block';
-            } else {
-                input.type = 'password';
-                if (eyeOpen) eyeOpen.style.display = 'block';
-                if (eyeClosed) eyeClosed.style.display = 'none';
-            }
-        });
-    });
-}
+    // Auth UI functions (initPasswordToggles, initForgotPasswordModal, initPasswordRecoveryForm)
+    // are defined in global scope at end of file
 
     let isGeneratingIdeas = false;
     let generatorStatusTimer = null;
@@ -5169,6 +4950,56 @@ function populateProfileFields(data) {
     }
 }
 
+/**
+ * Save onboarding page 1 data and advance to page 2
+ * This ensures user can return to page 2 if they refresh/close app
+ */
+async function saveOnboardingPage1() {
+    console.log('🔄 Saving onboarding page 1...');
+    
+    // Get values from page 1
+    const brandName = document.getElementById('onb-brand-name')?.value;
+    const role = document.getElementById('onb-role')?.value;
+    const foundedYear = document.getElementById('onb-founded')?.value;
+    const industry = document.getElementById('onb-industry')?.value;
+    const targetAudience = document.getElementById('onb-target-audience')?.value;
+    
+    // Validation - Brand name is required
+    if (!brandName || brandName.trim() === '') {
+        console.log('❌ Brand name is empty');
+        showAlertModal('Required Field', 'Please enter your brand name to continue.');
+        return;
+    }
+    
+    try {
+        const user = getUser();
+        if (!user) {
+            console.log('❌ No user session found');
+            showAlertModal('Error', 'No user session found. Please sign in again.');
+            navigateTo('sign-in-page');
+            return;
+        }
+        
+        console.log('💾 Saving page 1 data to Supabase...');
+        
+        // Save page 1 data AND set step to 1 (means page 1 complete, on page 2)
+        await updateUserProfile(user.id, {
+            brand_name: brandName,
+            role: role,
+            founded_year: foundedYear || null,
+            industry: industry,
+            target_audience: targetAudience
+        });
+        
+        console.log('✅ Page 1 saved, advancing to page 2');
+        navigateTo('onboarding-2-page');
+        
+    } catch (error) {
+        console.error('❌ Error saving page 1:', error);
+        showAlertModal('Error', `Could not save progress: ${error.message}`);
+    }
+}
+
 async function completeOnboarding() {
     console.log('🔄 Starting completeOnboarding...');
     
@@ -5184,9 +5015,28 @@ async function completeOnboarding() {
     
     console.log('📝 Form values:', { brandName, role, foundedYear, industry, targetAudience, contentGoals, postFrequency, productionLevel });
     
+    // Validation - Required fields
     if (!brandName || brandName.trim() === '') {
         console.log('❌ Brand name is empty');
         showAlertModal('Required Field', 'Please enter your brand name to continue.');
+        return;
+    }
+    
+    if (!contentGoals || contentGoals.trim() === '') {
+        console.log('❌ Content goals is empty');
+        showAlertModal('Required Field', 'Please enter your content goals to continue.');
+        return;
+    }
+    
+    if (!postFrequency) {
+        console.log('❌ Post frequency not selected');
+        showAlertModal('Required Field', 'Please select your post frequency to continue.');
+        return;
+    }
+    
+    if (!productionLevel) {
+        console.log('❌ Production level not selected');
+        showAlertModal('Required Field', 'Please select your production level to continue.');
         return;
     }
     
@@ -5195,13 +5045,7 @@ async function completeOnboarding() {
         document.querySelectorAll('#onb-platforms .platform-select-btn.selected')
     ).map(btn => btn.dataset.platform);
     
-    // Get selected culture values from onboarding page 2
-    const selectedValues = Array.from(
-        document.querySelectorAll('#onb-culture-values .pill-btn.selected')
-    ).map(btn => btn.dataset.value);
-    
     console.log('📱 Selected platforms:', selectedPlatforms);
-    console.log('💎 Selected culture values:', selectedValues);
     
     try {
         const user = getUser();
@@ -5216,6 +5060,7 @@ async function completeOnboarding() {
         
         console.log('💾 Saving profile to Supabase...');
         
+        // Save page 2 data AND set step to 2 (means page 2 complete, on paywall)
         await updateUserProfile(user.id, {
             brand_name: brandName,
             role: role,
@@ -5226,7 +5071,6 @@ async function completeOnboarding() {
             post_frequency: postFrequency,
             production_level: productionLevel,
             platforms: selectedPlatforms,
-            culture_values: selectedValues,
             onboarding_complete: true
         });
         
@@ -5266,12 +5110,7 @@ async function saveProfileChanges() {
             await updateUserProfile(user.id, profileData);
             console.log('✅ Profile saved to Supabase');
         } catch (supabaseErr) {
-            // In dev bypass mode, local save is sufficient
-            if (isDevBypassEnabled()) {
-                console.log('🔧 DEV BYPASS: Supabase save skipped, using local storage');
-            } else {
-                console.warn('⚠️ Supabase save failed, using local storage only:', supabaseErr.message);
-            }
+            console.warn('⚠️ Supabase save failed, using local storage only:', supabaseErr.message);
         }
         
         // Inline button feedback instead of modal
@@ -5516,9 +5355,6 @@ function getTrialTimeRemaining() {
 // isTrialExpired and hasActiveSubscription are now imported from auth-integration.js
 
 async function hasAccessToPaidContent() {
-    if (isDevBypassEnabled()) {
-        return true;
-    }
     const user = getUser();
     if (user) {
         const hasSubscription = await hasActiveSubscription(user.id);
@@ -5532,36 +5368,43 @@ async function hasAccessToPaidContent() {
 async function startFreeTrial() {
     const user = getUser();
     
-    if (user) {
-        const hasSubscription = await hasActiveSubscription(user.id);
-        if (hasSubscription) {
-            // Mark onboarding as complete
-            localStorage.setItem('onboardingComplete', 'true');
-            navigateTo('homepage');
-            return;
-        }
+    if (!user) {
+        console.error('❌ No user found, cannot start trial');
+        navigateTo('sign-in-page');
+        return;
     }
-
-    if (isTrialStarted()) {
-        const trialExpired = await isTrialExpired(user?.id);
-        if (trialExpired) {
-            showAlertModal('Trial Ended', 'Your free trial has expired. Subscribe to continue.');
-            await updateTrialCountdownDisplay();
-            navigateTo('paywall-page');
-            return;
-        }
-
-        // Mark onboarding as complete
-        localStorage.setItem('onboardingComplete', 'true');
+    
+    // Check if already has subscription
+    const hasSubscription = await hasActiveSubscription(user.id);
+    if (hasSubscription) {
+        console.log('✅ User has subscription, going to homepage');
         navigateTo('homepage');
         return;
     }
-
-    // This should not happen as trial starts on sign-in now
-    // But keep as fallback
+    
+    // Check if trial already started in database
+    const trialAlreadyStarted = await hasStartedTrial(user.id);
+    if (trialAlreadyStarted) {
+        // Check if expired
+        const trialExpired = await isTrialExpired(user.id);
+        if (trialExpired) {
+            showAlertModal('Trial Ended', 'Your free trial has expired. Subscribe to continue.');
+            return;
+        }
+        console.log('✅ Trial already active, going to homepage');
+        navigateTo('homepage');
+        return;
+    }
+    
+    // START THE TRIAL - Save to Supabase database
+    console.log('🚀 Starting trial for user:', user.id);
+    await startTrial(user.id);
+    
+    // Also set localStorage for countdown display
     localStorage.setItem('trialStartedAt', Date.now().toString());
-    localStorage.setItem('onboardingComplete', 'true');
+    
     await updateTrialCountdownDisplay();
+    console.log('✅ Trial started, going to homepage');
     navigateTo('homepage');
 }
 
@@ -6218,7 +6061,7 @@ async function initializeApp() {
     try {
         console.log('🚀 initializeApp() called');
         
-        // Initialize auth UI components first
+        // Initialize auth UI components (defined in global scope at end of file)
         initPasswordToggles();
         initForgotPasswordModal();
         initPasswordRecoveryForm();
@@ -6228,14 +6071,6 @@ async function initializeApp() {
             console.log('🔑 Password recovery mode detected');
             logAuthEvent(AUTH_EVENTS.PASSWORD_RECOVERY);
             navigateTo('password-recovery-page');
-            return;
-        }
-        
-        // CHECK DEV BYPASS ONLY IF EXPLICITLY ENABLED via env var
-        // Set VITE_DEV_BYPASS_AUTH=true to skip auth (useful for testing UI)
-        if (isDevBypassEnabled()) {
-            console.log('🔧 DEV BYPASS ENABLED via env var: Skipping auth, going straight to homepage');
-            navigateTo('homepage');
             return;
         }
         
@@ -6264,30 +6099,55 @@ async function initializeApp() {
         
         console.log('✅ User authenticated');
         
-        // ONBOARDING GATE: Always enforce on session restore
-        const onboardingComplete = await hasCompletedOnboarding(user.id);
+        // =====================================================
+        // MANDATORY FLOW GATE: User MUST complete full process
+        // Step 0 = Page 1, Step 1 = Page 2, Step 2 = Paywall
+        // Only after trial_started_at is set can user access homepage
+        // =====================================================
+        
+        // First check: Has user started their trial? (completed paywall)
+        const trialStarted = await hasStartedTrial(user.id);
+        console.log('🔍 Trial started:', trialStarted);
+        
+        if (trialStarted) {
+            // User has completed paywall - check if trial expired
+            const trialExpired = await isTrialExpired(user.id);
+            const hasSubscription = await hasActiveSubscription(user.id);
+            
+            if (trialExpired && !hasSubscription) {
+                console.log('❌ Trial expired and no subscription, navigating to paywall-page');
+                navigateTo('paywall-page');
+                return;
+            }
+            
+            console.log('✅ All checks passed, navigating to homepage');
+            navigateTo('homepage');
+            return;
+        }
+        
+        // Trial not started - check onboarding step to route correctly
+        const onboardingStep = await getOnboardingStep(user.id);
+        console.log('🔍 Onboarding step:', onboardingStep);
+        
         logAuthEvent(AUTH_EVENTS.ONBOARDING_GATE, { 
             userId: user.id, 
-            route: onboardingComplete ? 'checking_trial' : 'onboarding' 
+            step: onboardingStep 
         });
         
-        if (!onboardingComplete) {
-            console.log('❌ Onboarding not complete, navigating to onboarding-1-page');
-            navigateTo('onboarding-1-page');
-            return;
-        }
-        
-        const trialExpired = await isTrialExpired(user.id);
-        const hasSubscription = await hasActiveSubscription(user.id);
-        
-        if (trialExpired && !hasSubscription) {
-            console.log('❌ Trial expired and no subscription, navigating to paywall-page');
+        // Route based on step:
+        // 0 or null = Page 1
+        // 1 = Page 2 (completed page 1)
+        // 2 = Paywall (completed page 2)
+        if (onboardingStep >= 2) {
+            console.log('📍 Routing to paywall-page (step 2)');
             navigateTo('paywall-page');
-            return;
+        } else if (onboardingStep === 1) {
+            console.log('📍 Routing to onboarding-2-page (step 1)');
+            navigateTo('onboarding-2-page');
+        } else {
+            console.log('📍 Routing to onboarding-1-page (step 0)');
+            navigateTo('onboarding-1-page');
         }
-        
-        console.log('✅ All checks passed, navigating to homepage');
-        navigateTo('homepage');
         // Note: loadIdeasFromSupabase is triggered via navigateTo('homepage')
     } catch (error) {
         console.error('❌ Error initializing app:', error);
@@ -6297,9 +6157,55 @@ async function initializeApp() {
 
 // completeOnboarding function is defined earlier in the file
 
+// ============================================
+// RANGE SLIDER INITIALIZATION
+// ============================================
+function initRangeSliders() {
+    const rangeSliders = document.querySelectorAll('.range-slider');
+    
+    rangeSliders.forEach(slider => {
+        const rangeInput = slider.querySelector('.range-input');
+        const labels = slider.querySelectorAll('.range-labels span');
+        const hiddenInput = slider.querySelector('input[type="hidden"]');
+        
+        if (!rangeInput) return;
+        
+        // Handle range input change (drag)
+        const updateSlider = () => {
+            const value = parseInt(rangeInput.value);
+            
+            // Update active label
+            labels.forEach((label, index) => {
+                label.classList.toggle('active', index === value);
+            });
+            
+            // Update hidden input with the data-value
+            if (hiddenInput && labels[value]) {
+                hiddenInput.value = labels[value].dataset.value;
+            }
+        };
+        
+        rangeInput.addEventListener('input', updateSlider);
+        rangeInput.addEventListener('change', updateSlider);
+        
+        // Touch-friendly: prevent page scroll while dragging
+        rangeInput.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
+        }, { passive: true });
+        
+        // Initialize with default value
+        updateSlider();
+    });
+    
+    console.log('✅ Range sliders initialized:', rangeSliders.length);
+}
+
 // Initialize feedback character counter
 document.addEventListener('DOMContentLoaded', async () => {
     updateFeedbackCharCount();
+    
+    // Initialize range sliders for onboarding
+    initRangeSliders();
     
     // Safety mechanism: Re-init swipe handlers when touching card stack area
     const cardStack = document.getElementById('card-stack');
@@ -6423,12 +6329,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function checkAndEnforceSubscription() {
     const user = getUser();
     if (!user) return;
-    
-    if (isDevBypassEnabled()) {
-        removeSubscriptionPaywall();
-        return;
-    }
-    
+
     const homePage = document.getElementById('homepage');
     if (!homePage || !homePage.classList.contains('active')) return;
     
@@ -6520,6 +6421,7 @@ function removeSubscriptionPaywall() {
 
 // Make functions globally accessible for onclick handlers
 window.navigateTo = navigateTo;
+window.saveOnboardingPage1 = saveOnboardingPage1;
 window.completeOnboarding = completeOnboarding;
 window.startFreeTrial = startFreeTrial;
 // generateRandomIdeas and buildCustomIdeas already assigned to window where defined
@@ -7146,4 +7048,258 @@ function initCalendarAction() {
 
 // Removed duplicate initVibeSelector function
 // Removed duplicate selectedVibes declaration (was causing SyntaxError)
+
+// ============================================
+// GLOBAL AUTH UI FUNCTIONS
+// ============================================
+// These need to be in global scope for initializeApp() to access them
+
+/**
+ * Initialize password visibility toggles
+ */
+function initPasswordToggles() {
+    const toggles = document.querySelectorAll('.password-toggle');
+    console.log('🔐 initPasswordToggles: Found', toggles.length, 'toggles');
+
+    toggles.forEach((toggle, index) => {
+        // Remove any existing listeners by cloning
+        const newToggle = toggle.cloneNode(true);
+        toggle.parentNode.replaceChild(newToggle, toggle);
+        
+        newToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('👁️ Password toggle clicked:', index);
+            
+            const wrapper = newToggle.closest('.password-wrapper');
+            const input = wrapper?.querySelector('input[type="password"], input[type="text"]');
+            const eyeOpen = newToggle.querySelector('.eye-open');
+            const eyeClosed = newToggle.querySelector('.eye-closed');
+
+            if (!input) {
+                console.warn('⚠️ No input found in password wrapper');
+                return;
+            }
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (eyeOpen) eyeOpen.style.display = 'none';
+                if (eyeClosed) eyeClosed.style.display = 'block';
+                console.log('  ✅ Changed to text (show password)');
+            } else {
+                input.type = 'password';
+                if (eyeOpen) eyeOpen.style.display = 'block';
+                if (eyeClosed) eyeClosed.style.display = 'none';
+                console.log('  ✅ Changed to password (hide password)');
+            }
+        });
+        
+        console.log('  ✅ Toggle', index, 'initialized');
+    });
+}
+
+/**
+ * Initialize forgot password modal
+ */
+function initForgotPasswordModal() {
+    console.log('🔑 initForgotPasswordModal called');
+    
+    const forgotBtn = document.getElementById('forgot-password-btn');
+    const modal = document.getElementById('forgot-password-modal');
+    const closeBtn = document.getElementById('forgot-password-modal-close');
+    const submitBtn = document.getElementById('forgot-password-submit');
+    const emailInput = document.getElementById('forgot-email');
+    const errorEl = document.getElementById('forgot-password-error');
+    const successEl = document.getElementById('forgot-password-success');
+    const cooldownEl = document.getElementById('forgot-password-cooldown');
+    
+    console.log('  - forgotBtn:', !!forgotBtn);
+    console.log('  - modal:', !!modal);
+    
+    if (!forgotBtn) {
+        console.error('❌ Forgot password button not found!');
+        return;
+    }
+    
+    if (!modal) {
+        console.error('❌ Forgot password modal not found!');
+        return;
+    }
+    
+    // Remove existing listeners by cloning
+    const newForgotBtn = forgotBtn.cloneNode(true);
+    forgotBtn.parentNode.replaceChild(newForgotBtn, forgotBtn);
+    
+    // Open modal
+    newForgotBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('🔑 Forgot password button clicked!');
+        
+        // Pre-fill email from sign-in form
+        const signinEmail = document.getElementById('signin-email')?.value || '';
+        if (emailInput) emailInput.value = signinEmail;
+        
+        // Reset state
+        if (errorEl) errorEl.style.display = 'none';
+        if (successEl) successEl.style.display = 'none';
+        if (cooldownEl) cooldownEl.style.display = 'none';
+        
+        modal.classList.add('active');
+        console.log('  ✅ Modal opened');
+    });
+    
+    console.log('  ✅ Forgot password button listener attached');
+    
+    // Close modal
+    const newCloseBtn = closeBtn?.cloneNode(true);
+    if (closeBtn && newCloseBtn) {
+        closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+        newCloseBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+    }
+    
+    // Close on background click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+        }
+    });
+    
+    // Submit handler
+    if (submitBtn) {
+        const newSubmitBtn = submitBtn.cloneNode(true);
+        submitBtn.parentNode.replaceChild(newSubmitBtn, submitBtn);
+        
+        newSubmitBtn.addEventListener('click', async () => {
+            const email = emailInput?.value?.trim();
+            
+            // Hide previous messages
+            if (errorEl) errorEl.style.display = 'none';
+            if (successEl) successEl.style.display = 'none';
+            if (cooldownEl) cooldownEl.style.display = 'none';
+            
+            if (!email || !email.includes('@')) {
+                if (errorEl) {
+                    errorEl.textContent = 'Please enter a valid email address.';
+                    errorEl.style.display = 'block';
+                }
+                return;
+            }
+            
+            newSubmitBtn.disabled = true;
+            newSubmitBtn.classList.add('loading');
+            
+            try {
+                const result = await handlePasswordReset(email);
+                
+                if (result.onCooldown) {
+                    if (cooldownEl) {
+                        cooldownEl.textContent = result.error;
+                        cooldownEl.style.display = 'block';
+                    }
+                } else if (result.success) {
+                    if (successEl) {
+                        successEl.textContent = result.message;
+                        successEl.style.display = 'block';
+                    }
+                    if (emailInput) emailInput.value = '';
+                } else {
+                    if (errorEl) {
+                        errorEl.textContent = result.error || 'Could not send reset email. Please try again.';
+                        errorEl.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('Forgot password error:', error);
+                if (errorEl) {
+                    errorEl.textContent = 'Something went wrong. Please try again.';
+                    errorEl.style.display = 'block';
+                }
+            } finally {
+                newSubmitBtn.disabled = false;
+                newSubmitBtn.classList.remove('loading');
+            }
+        });
+    }
+}
+
+/**
+ * Initialize password recovery form
+ */
+function initPasswordRecoveryForm() {
+    const form = document.getElementById('password-recovery-form');
+    const submitBtn = document.getElementById('recovery-submit-btn');
+    const errorEl = document.getElementById('recovery-error');
+    
+    if (!form) return;
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const newPassword = document.getElementById('recovery-password')?.value;
+        const confirmPassword = document.getElementById('recovery-password-confirm')?.value;
+        
+        if (errorEl) errorEl.style.display = 'none';
+        
+        if (!newPassword || newPassword.length < 6) {
+            if (errorEl) {
+                errorEl.textContent = 'Password must be at least 6 characters long.';
+                errorEl.style.display = 'block';
+            }
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            if (errorEl) {
+                errorEl.textContent = 'Passwords do not match.';
+                errorEl.style.display = 'block';
+            }
+            return;
+        }
+        
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+        }
+        
+        try {
+            const result = await handleUpdatePassword(newPassword);
+            
+            if (result.success) {
+                showAlertModal('Password Updated', 'Your password has been successfully changed.', async () => {
+                    const user = getUser();
+                    if (user) {
+                        const onboardingComplete = await hasCompletedOnboarding(user.id);
+                        if (onboardingComplete) {
+                            navigateTo('homepage');
+                        } else {
+                            navigateTo('onboarding-1-page');
+                        }
+                    } else {
+                        navigateTo('sign-in-page');
+                    }
+                });
+            } else {
+                if (errorEl) {
+                    errorEl.textContent = result.error || 'Could not update password. Please try again.';
+                    errorEl.style.display = 'block';
+                }
+            }
+        } catch (error) {
+            console.error('Password recovery error:', error);
+            if (errorEl) {
+                errorEl.textContent = 'Something went wrong. Please try again.';
+                errorEl.style.display = 'block';
+            }
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+            }
+        }
+    });
+}
 

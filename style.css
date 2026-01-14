@@ -427,8 +427,15 @@ body {
    ============================================ */
 .btn-primary {
     width: 100%;
-    padding: 16px;
-    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+    padding: 12px;
+    /* Smoother gradient with more stops */
+    background: linear-gradient(135deg, 
+        #1e3a5f 0%, 
+        #254a6f 25%,
+        #2d5a87 50%, 
+        #356a97 75%,
+        #3a7ca5 100%
+    ) !important;
     color: white;
     border: none;
     border-radius: 12px;
@@ -436,28 +443,39 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3);
+    box-shadow: 0 4px 12px rgba(30, 58, 95, 0.25);
     position: relative;
     overflow: hidden;
 }
 
 .btn-primary::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
-    transform: translateX(-100%);
-    animation: buttonShine 3s ease infinite;
-    pointer-events: none;
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 200% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        transparent 25%,
+        rgba(255, 255, 255, 0.15) 50%, 
+        transparent 75%,
+        transparent 100%
+    ) !important;
+    animation: seamlessShine 3s linear infinite !important;
+    pointer-events: none !important;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #2d5a87 0%, #3a7ca5 100%);
+    background: linear-gradient(135deg, 
+        #254a6f 0%, 
+        #2d5a87 25%,
+        #356a97 50%, 
+        #3a7ca5 75%,
+        #4a8cb5 100%
+    );
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(30, 58, 95, 0.4);
+    box-shadow: 0 6px 16px rgba(30, 58, 95, 0.35);
 }
 
 .btn-primary:active {
@@ -467,18 +485,28 @@ body {
 .btn-text {
     background: none;
     border: none;
-    color: #000000;
+    color: #666666;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    padding: 8px;
+    padding: 10px 16px;
     text-decoration: underline;
+    text-underline-offset: 3px;
     transition: all 0.2s;
+    margin-top: 4px;
+    display: inline-block;
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
 }
 
 .btn-text:hover {
-    color: #333333;
+    color: #1d4ed8;
     text-decoration-color: #1d4ed8;
+}
+
+.btn-text:active {
+    color: #1e40af;
 }
 
 .btn-danger {
@@ -761,7 +789,7 @@ body {
 
 .auth-header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
 }
 
 /* Use mask + gradient background for auth logo to match theme */
@@ -827,83 +855,101 @@ body {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     font-weight: 600;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    position: relative;
-    overflow: hidden;
-}
-
-.app-tagline::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        to right,
-        transparent 0%,
-        rgba(255, 255, 255, 0.4) 50%,
-        transparent 100%
-    );
-    transform: translateX(-100%);
-    animation: buttonShine 3s ease infinite;
 }
 
 .auth-container {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(20px);
     border-radius: 24px;
-    padding: 40px 32px; /* Increased padding for expansion */
+    padding: 24px 24px 20px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 400px; /* Increased max-width to expand container */
-    margin: 0 auto; /* Center it */
+    max-width: 360px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 5;
 }
 
 .auth-form {
     display: none;
+    position: relative;
+    z-index: 10;
 }
 
 .auth-form.active {
     display: block;
 }
 
+/* Reduced vertical spacing for auth forms */
+.auth-form .input-group {
+    margin-bottom: 12px;
+}
+
+.auth-form .input-group label {
+    margin-bottom: 5px;
+}
+
+.auth-form .input-group input {
+    padding: 12px 14px;
+}
+
+.auth-form .password-hint {
+    margin-top: 4px;
+    font-size: 11px;
+}
+
+/* Ensure forgot password button is clickable */
+#forgot-password-btn {
+    display: block;
+    width: fit-content;
+    margin: 4px auto 0;
+    cursor: pointer;
+    z-index: 100;
+    position: relative;
+}
+
+/* Help link styling - outside container */
+.help-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: #666;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.help-link:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
 .form-title {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 700;
     background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-align: center;
-    margin-bottom: 24px;
-    position: relative;
-    overflow: visible; /* Changed to visible to avoid clipping shadows if any */
-}
-
-.form-title::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(
-        to right,
-        transparent 0%,
-        rgba(255, 255, 255, 0.4) 50%,
-        transparent 100%
-    );
-    transform: translateX(-100%);
-    animation: buttonShine 3s ease infinite;
+    margin-bottom: 14px;
 }
 
 .btn-signup {
     width: 100%;
-    margin-top: 24px;
-    margin-bottom: 16px; /* Add spacing below */
-    padding: 16px;
-    background: linear-gradient(135deg, #14b8a6 0%, #0369a1 50%, #7c3aed 100%); /* Revital Gradient */
+    margin-top: 8px;
+    margin-bottom: 6px;
+    padding: 12px;
+    /* Smoother gradient with more color stops */
+    background: linear-gradient(135deg, 
+        #14b8a6 0%, 
+        #0d9488 20%,
+        #0369a1 40%, 
+        #0284c7 60%,
+        #6366f1 80%,
+        #7c3aed 100%
+    );
+    background-size: 200% 200%;
     color: white;
     border: none;
     border-radius: 12px;
@@ -911,27 +957,32 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+    box-shadow: 0 4px 12px rgba(49, 130, 206, 0.25);
     position: relative;
     overflow: hidden;
 }
 
 .btn-signup::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
-    transform: translateX(-100%);
-    animation: buttonShine 3s ease infinite;
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 200% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        transparent 25%,
+        rgba(255, 255, 255, 0.2) 50%, 
+        transparent 75%,
+        transparent 100%
+    ) !important;
+    animation: seamlessShine 3s linear infinite !important;
 }
 
 .btn-signup:hover {
-    background: linear-gradient(135deg, #5ee1d5 0%, #4192de 50%, #b79bfb 100%); /* Lighter hover state */
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(49, 130, 206, 0.4);
+    background-position: 100% 100%;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(49, 130, 206, 0.35);
 }
 
 .btn-signup:active {
@@ -972,36 +1023,51 @@ body {
 
 .password-wrapper input {
     width: 100%;
-    padding-right: 48px; /* Space for eye icon */
+    padding-right: 44px; /* Space for eye icon */
 }
 
+/* Password toggle - icon only, no button appearance */
 .password-toggle {
     position: absolute;
-    right: 12px;
+    right: 14px;
     top: 50%;
     transform: translateY(-50%);
-    background: none;
+    background: transparent;
     border: none;
-    padding: 4px;
+    padding: 0;
+    margin: 0;
+    width: 20px;
+    height: 20px;
     cursor: pointer;
-    color: #666;
+    color: #999;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: color 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+    box-shadow: none;
+    outline: none;
 }
 
 .password-toggle:hover {
-    color: #333;
+    color: #555;
 }
 
 .password-toggle:focus {
     outline: none;
+    box-shadow: none;
+}
+
+.password-toggle:active {
+    outline: none;
+    box-shadow: none;
 }
 
 .password-toggle .eye-icon {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
 }
 
 .password-hint {
@@ -1063,10 +1129,13 @@ body {
 .btn-primary .btn-loading,
 .btn-signup .btn-loading {
     display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-.btn-primary.loading .btn-text,
-.btn-signup.loading .btn-text {
+.btn-primary.loading .btn-label,
+.btn-signup.loading .btn-label {
     display: none;
 }
 
@@ -1075,6 +1144,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
+}
+
+/* Keep button width stable during loading */
+.btn-primary,
+.btn-signup.btn-create {
+    min-width: 160px;
 }
 
 /* Spinner animation */
@@ -1093,35 +1169,45 @@ body {
 
 /* Forgot Password Modal */
 .forgot-password-modal-content {
-    max-width: 360px;
+    max-width: 340px;
     width: 90%;
-    padding: 32px 24px;
+    padding: 24px 20px;
     background: white;
     border-radius: 16px;
     position: relative;
+    height: auto !important;
+    min-height: auto !important;
+}
+
+.forgot-password-modal-content .modal-close {
+    color: #dc2626 !important;
+    font-size: 24px;
+    top: 8px;
+    right: 10px;
 }
 
 .forgot-password-modal-content .modal-title {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     color: #1a1a1a;
-    margin: 0 0 8px 0;
+    margin: 0 0 6px 0;
     text-align: center;
 }
 
 .forgot-password-modal-content .modal-subtitle {
-    font-size: 14px;
+    font-size: 13px;
     color: #666;
-    margin: 0 0 24px 0;
+    margin: 0 0 16px 0;
     text-align: center;
 }
 
 .forgot-password-modal-content .input-group {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .forgot-password-modal-content .btn-primary {
     width: 100%;
+    margin-top: 4px;
 }
 
 /* Password Recovery Page */
@@ -1280,28 +1366,132 @@ body {
 }
 
 /* ============================================
-   PAYWALL PAGE - No Scroll, Compact Layout
+   RANGE SLIDER (Post Frequency & Production Level)
    ============================================ */
-#paywall-page {
-    background: linear-gradient(180deg, 
-        #ffffff 0%, 
-        #f0f8ff 15%, 
-        #e0f0ff 30%, 
-        #f0f8ff 50%, 
-        #ffffff 70%, 
-        #f8fbff 100%
-    ) !important;
+.range-slider {
+    position: relative;
+    padding: 10px 0 8px 0;
+    width: 100%;
 }
 
-#paywall-page .page-content {
+.range-input {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Track styling */
+.range-input::-webkit-slider-runnable-track {
+    height: 6px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+.range-input::-moz-range-track {
+    height: 6px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+/* Thumb (draggable circle) styling */
+.range-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    border-radius: 50%;
+    cursor: grab;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4), 0 0 0 4px rgba(59, 130, 246, 0.15);
+    margin-top: -11px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.range-input::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    border-radius: 50%;
+    cursor: grab;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4), 0 0 0 4px rgba(59, 130, 246, 0.15);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.range-input::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5), 0 0 0 6px rgba(59, 130, 246, 0.2);
+}
+
+.range-input::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.5), 0 0 0 6px rgba(59, 130, 246, 0.2);
+}
+
+.range-input::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.15);
+}
+
+.range-input::-moz-range-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.15);
+}
+
+/* Labels below slider */
+.range-labels {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px 24px;
-    overflow: hidden;
-    height: 100vh;
-    background: transparent;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding: 0 2px;
+}
+
+.range-labels span {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.45);
+    text-align: center;
+    flex: 1;
+    transition: color 0.2s ease, font-weight 0.2s ease;
+}
+
+.range-labels span.active {
+    color: #3b82f6;
+    font-weight: 700;
+}
+
+/* Mobile adjustments for range slider */
+@media (max-width: 430px) {
+    .range-input::-webkit-slider-thumb {
+        width: 32px;
+        height: 32px;
+        margin-top: -13px;
+    }
+    
+    .range-input::-moz-range-thumb {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .range-labels span {
+        font-size: 10px;
+    }
+}
+
+/* ============================================
+   PAYWALL PAGE - No Scroll, Compact Layout
+   ============================================ */
+/* Paywall page - image at top with white below */
+#paywall-page {
+    background: url('PAYWALL.png') no-repeat center top, white !important;
+    background-size: 100% auto !important;
+    overflow-y: auto;
 }
 
 .paywall-header {
@@ -1327,8 +1517,7 @@ body {
     color: rgba(31, 41, 55, 0.85);
 }
 
-/* Image now used as background in .paywall-card */
-
+/* Generic paywall card (for subscription page) */
 .paywall-card {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
@@ -1341,32 +1530,31 @@ body {
     width: 100%;
 }
 
-/* PAYWALL PAGE SPECIFIC - Image background */
+/* PAYWALL PAGE SPECIFIC - No card styling, just content */
 #paywall-page .paywall-card {
-    background-image: url('paywall-people.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    position: relative;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    color: white;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
 }
 
-#paywall-page .paywall-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.6) 100%);
-    border-radius: 20px;
-    z-index: 0;
+/* Content wrapper - positioned below the background image */
+#paywall-page .paywall-card .paywall-content {
+    padding: 20px 24px 40px 24px;
+    padding-top: 420px; /* Push content below image */
+    text-align: center;
 }
 
-#paywall-page .paywall-card > * {
-    position: relative;
-    z-index: 1;
+/* Price and trial text styling */
+#paywall-page .paywall-price {
+    margin-bottom: 4px;
+}
+
+#paywall-page .trial-text {
+    margin-bottom: 16px;
 }
 
 .paywall-price {
@@ -1391,18 +1579,20 @@ body {
     background-clip: text;
 }
 
-/* PAYWALL PAGE SPECIFIC - White text */
+/* PAYWALL PAGE SPECIFIC - Dark text on white background */
 #paywall-page .price-amount {
-    background: none;
-    -webkit-text-fill-color: white;
-    color: white;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: none;
 }
 
 #paywall-page .price-period {
     background: none;
-    -webkit-text-fill-color: white;
-    color: white;
+    -webkit-text-fill-color: #4b5563;
+    color: #4b5563;
+    filter: none;
 }
 
 .trial-text {
@@ -1413,8 +1603,9 @@ body {
 }
 
 #paywall-page .trial-text {
-    color: white;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    color: #059669;
+    font-weight: 700;
+    text-shadow: none;
 }
 
 .trial-countdown {
@@ -1448,16 +1639,16 @@ body {
     margin-top: 10px;
 }
 
-/* PAYWALL PAGE SPECIFIC - White text */
+/* PAYWALL PAGE SPECIFIC - Dark text on white */
 #paywall-page .feature-list li {
-    color: white;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    color: #374151;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    text-shadow: none;
 }
 
 #paywall-page .terms-text {
-    color: rgba(255, 255, 255, 0.85);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    color: rgba(55, 65, 81, 0.7);
+    text-shadow: none;
 }
 
 .paywall-trial-btn {
@@ -1473,12 +1664,12 @@ body {
     overflow: hidden;
 }
 
-/* PAYWALL PAGE SPECIFIC - White button */
+/* PAYWALL PAGE SPECIFIC - Blue gradient button */
 #paywall-page .paywall-trial-btn {
-    background: white;
-    color: #1a1a1a;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .paywall-trial-btn::before {
@@ -1504,9 +1695,9 @@ body {
 }
 
 #paywall-page .paywall-trial-btn:hover {
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 
-                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 /* ============================================
@@ -2456,7 +2647,8 @@ body {
     animation: buttonShine 3s ease infinite;
 }
 
-@keyframes buttonShine {
+/* Seamless continuous shine - no pause, linear flow */
+@keyframes seamlessShine {
     0% {
         transform: translateX(-100%);
     }
@@ -2876,10 +3068,11 @@ body {
         rgba(255, 255, 255, 0.3),
         transparent
     ) !important;
-    animation: buttonShine 3s ease-in-out infinite !important;
+    animation: buildMoreShine 3s ease-in-out infinite !important;
 }
 
-@keyframes buttonShine {
+/* buttonShine for build-more uses left property */
+@keyframes buildMoreShine {
     0% { left: -100%; }
     50%, 100% { left: 100%; }
 }
@@ -5792,6 +5985,95 @@ END GENERATOR STYLES */
         left: 0;
         transform: none;
     }
+    
+    /* AUTH FORMS - Mobile specific */
+    .auth-header {
+        margin-bottom: 16px !important;
+    }
+    
+    .auth-container {
+        padding: 20px 18px 16px !important;
+        max-width: 340px !important;
+        border-radius: 20px !important;
+    }
+    
+    .form-title {
+        font-size: 20px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .auth-form .input-group {
+        margin-bottom: 10px !important;
+    }
+    
+    .auth-form .input-group label {
+        margin-bottom: 4px !important;
+        font-size: 13px !important;
+    }
+    
+    .auth-form .input-group input {
+        padding: 10px 12px !important;
+        font-size: 15px !important;
+    }
+    
+    .auth-form .password-wrapper input {
+        padding-right: 40px !important;
+    }
+    
+    .auth-form .password-hint {
+        margin-top: 3px !important;
+        font-size: 10px !important;
+    }
+    
+    .btn-primary,
+    .btn-signup {
+        padding: 10px !important;
+        font-size: 15px !important;
+        margin-top: 6px !important;
+        margin-bottom: 4px !important;
+    }
+    
+    #forgot-password-btn {
+        margin-top: 2px !important;
+        font-size: 13px !important;
+        padding: 6px 12px !important;
+    }
+    
+    .btn-text {
+        padding: 6px 12px !important;
+        font-size: 13px !important;
+    }
+    
+    .help-link {
+        margin-top: 14px !important;
+        font-size: 12px !important;
+    }
+    
+    /* Forgot Password Modal - Mobile */
+    .forgot-password-modal-content {
+        padding: 18px 16px !important;
+        max-width: 300px !important;
+    }
+    
+    .forgot-password-modal-content .modal-title {
+        font-size: 16px !important;
+        margin-bottom: 4px !important;
+    }
+    
+    .forgot-password-modal-content .modal-subtitle {
+        font-size: 12px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .forgot-password-modal-content .input-group {
+        margin-bottom: 10px !important;
+    }
+    
+    .forgot-password-modal-content .modal-close {
+        font-size: 20px !important;
+        top: 6px !important;
+        right: 8px !important;
+    }
 }
 
 /* Hide native select completely when custom dropdown wrapper exists */
@@ -5809,14 +6091,51 @@ select.custom-dropdown {
     padding: 0 !important;
 }
 
-/* Prevent label from triggering native select on mobile */
-.input-group label {
+/* Prevent label from triggering native select on mobile - ONLY for dropdown labels */
+.input-group:has(.custom-dropdown-wrapper) > label {
     pointer-events: none;
 }
 
-.input-group label,
 .input-group .custom-dropdown-wrapper {
     pointer-events: auto;
+}
+
+/* Ensure ALL auth page elements are always interactive */
+#sign-in-page,
+#password-recovery-page {
+    position: relative;
+    z-index: 1;
+}
+
+#sign-in-page *,
+#sign-in-page button,
+#sign-in-page input,
+#sign-in-page form,
+#password-recovery-page *,
+.auth-form,
+.auth-form *,
+.auth-container,
+.auth-container *,
+.auth-toggle,
+.btn-signup,
+.btn-primary,
+.btn-text,
+#forgot-password-btn,
+.password-toggle {
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+}
+
+/* Ensure buttons are clickable above any overlays */
+.auth-form button,
+.auth-container button,
+.btn-primary,
+.btn-signup,
+.btn-text,
+.auth-toggle {
+    position: relative;
+    z-index: 10;
+    cursor: pointer !important;
 }
 
 .custom-dropdown-wrapper {

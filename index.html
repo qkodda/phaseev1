@@ -101,11 +101,12 @@
                         <div id="signin-suggestion" class="auth-suggestion" style="display: none;"></div>
 
                         <button type="submit" class="btn-primary" id="signin-submit-btn">
-                            <span class="btn-text">Sign In</span>
-                            <span class="btn-loading" style="display: none;">
-                                <svg class="spinner" viewBox="0 0 24 24" width="20" height="20">
+                            <span class="btn-label">Sign In</span>
+                            <span class="btn-loading">
+                                <svg class="spinner" viewBox="0 0 24 24" width="18" height="18">
                                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="32" stroke-linecap="round"></circle>
                                 </svg>
+                                Signing In...
                             </span>
                         </button>
                         
@@ -175,11 +176,12 @@
                         <div id="signup-error" class="auth-error" style="display: none;"></div>
 
                         <button type="submit" class="btn-signup btn-create" id="signup-submit-btn">
-                            <span class="btn-text">Create Account</span>
-                            <span class="btn-loading" style="display: none;">
-                                <svg class="spinner" viewBox="0 0 24 24" width="20" height="20">
+                            <span class="btn-label">Create Account</span>
+                            <span class="btn-loading">
+                                <svg class="spinner" viewBox="0 0 24 24" width="18" height="18">
                                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="32" stroke-linecap="round"></circle>
                                 </svg>
+                                Creating...
                             </span>
                         </button>
                     </form>
@@ -189,6 +191,9 @@
                         Create New Account
                     </button>
                 </div>
+                
+                <!-- Help Link - Outside container -->
+                <a href="https://tacobell.com" target="_blank" rel="noopener noreferrer" class="help-link">Need Help?</a>
             </div>
         </div>
 
@@ -263,7 +268,7 @@
                         <div id="recovery-error" class="auth-error" style="display: none;"></div>
 
                         <button type="submit" class="btn-primary" id="recovery-submit-btn">
-                            <span class="btn-text">Update Password</span>
+                            <span class="btn-label">Update Password</span>
                             <span class="btn-loading" style="display: none;">
                                 <svg class="spinner" viewBox="0 0 24 24" width="20" height="20">
                                     <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="32" stroke-linecap="round"></circle>
@@ -301,7 +306,7 @@
                 <div id="forgot-password-cooldown" class="auth-cooldown" style="display: none;"></div>
                 
                 <button class="btn-primary" id="forgot-password-submit">
-                    <span class="btn-text">Send Reset Link</span>
+                    <span class="btn-label">Send Reset Link</span>
                     <span class="btn-loading" style="display: none;">
                         <svg class="spinner" viewBox="0 0 24 24" width="20" height="20">
                             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="32" stroke-linecap="round"></circle>
@@ -379,7 +384,7 @@
                     </div>
                 </div>
 
-                <button class="btn-primary onboarding-btn" onclick="navigateTo('onboarding-2-page')">Continue</button>
+                <button class="btn-primary onboarding-btn" onclick="saveOnboardingPage1()">Continue</button>
             </div>
         </div>
 
@@ -403,50 +408,8 @@
                     <h2 class="onboarding-title">Customize Your Content</h2>
                     
                     <div class="input-group">
-                        <label>Culture Values <span class="required-asterisk">*</span></label>
-                        <div class="pill-selection" id="onb-culture-values">
-                            <div class="pill-row" data-speed="28">
-                                <button type="button" class="pill-btn" data-value="innovation">Innovation</button>
-                                <button type="button" class="pill-btn" data-value="authenticity">Authenticity</button>
-                                <button type="button" class="pill-btn" data-value="community">Community</button>
-                                <button type="button" class="pill-btn" data-value="creativity">Creativity</button>
-                                <button type="button" class="pill-btn" data-value="sustainability">Sustainability</button>
-                                <button type="button" class="pill-btn" data-value="quality">Quality</button>
-                                <button type="button" class="pill-btn" data-value="excellence">Excellence</button>
-                                <button type="button" class="pill-btn" data-value="boldness">Boldness</button>
-                                <button type="button" class="pill-btn" data-value="curiosity">Curiosity</button>
-                                <button type="button" class="pill-btn" data-value="kindness">Kindness</button>
-                            </div>
-                            <div class="pill-row" data-speed="32" data-direction="reverse">
-                                <button type="button" class="pill-btn" data-value="integrity">Integrity</button>
-                                <button type="button" class="pill-btn" data-value="playfulness">Playfulness</button>
-                                <button type="button" class="pill-btn" data-value="leadership">Leadership</button>
-                                <button type="button" class="pill-btn" data-value="humility">Humility</button>
-                                <button type="button" class="pill-btn" data-value="collaboration">Collaboration</button>
-                                <button type="button" class="pill-btn" data-value="adventure">Adventure</button>
-                                <button type="button" class="pill-btn" data-value="focus">Focus</button>
-                                <button type="button" class="pill-btn" data-value="empathy">Empathy</button>
-                                <button type="button" class="pill-btn" data-value="craftsmanship">Craftsmanship</button>
-                                <button type="button" class="pill-btn" data-value="joy">Joy</button>
-                            </div>
-                            <div class="pill-row" data-speed="36">
-                                <button type="button" class="pill-btn" data-value="resilience">Resilience</button>
-                                <button type="button" class="pill-btn" data-value="clarity">Clarity</button>
-                                <button type="button" class="pill-btn" data-value="gratitude">Gratitude</button>
-                                <button type="button" class="pill-btn" data-value="precision">Precision</button>
-                                <button type="button" class="pill-btn" data-value="growth">Growth</button>
-                                <button type="button" class="pill-btn" data-value="fun">Fun</button>
-                                <button type="button" class="pill-btn" data-value="trust">Trust</button>
-                                <button type="button" class="pill-btn" data-value="balance">Balance</button>
-                                <button type="button" class="pill-btn" data-value="courage">Courage</button>
-                                <button type="button" class="pill-btn" data-value="insight">Insight</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="onb-content-goals">Content Goals</label>
-                        <textarea id="onb-content-goals" rows="3" placeholder="What do you want to achieve with your content?"></textarea>
+                        <label for="onb-content-goals">Content Goals <span class="required-asterisk">*</span></label>
+                        <textarea id="onb-content-goals" rows="3" placeholder="What do you want to achieve with your content?" required></textarea>
                     </div>
 
                     <div class="input-group">
@@ -471,25 +434,31 @@
                     </div>
 
                     <div class="input-group">
-                        <label for="onb-post-frequency">Post Frequency</label>
-                        <select id="onb-post-frequency" class="custom-dropdown">
-                            <option value="">Select frequency</option>
-                            <option value="daily">Daily</option>
-                            <option value="3-per-week">3x per week</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="bi-weekly">Bi-weekly</option>
-                            <option value="monthly">Monthly</option>
-                        </select>
+                        <label>Post Frequency <span class="required-asterisk">*</span></label>
+                        <div class="range-slider" id="onb-post-frequency-slider">
+                            <input type="range" id="onb-post-frequency-range" min="0" max="4" step="1" value="2" class="range-input">
+                            <div class="range-labels">
+                                <span data-value="monthly">Monthly</span>
+                                <span data-value="bi-weekly">Bi-weekly</span>
+                                <span data-value="weekly">Weekly</span>
+                                <span data-value="3-per-week">3x/week</span>
+                                <span data-value="daily">Daily</span>
+                            </div>
+                            <input type="hidden" id="onb-post-frequency" value="">
+                        </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="onb-production-level">Production Level <span class="required-asterisk">*</span></label>
-                        <select id="onb-production-level" class="custom-dropdown" required>
-                            <option value="">Select level</option>
-                            <option value="basic">Basic (Phone camera, natural lighting)</option>
-                            <option value="intermediate">Intermediate (DSLR, basic editing)</option>
-                            <option value="professional">Professional (Full production team)</option>
-                        </select>
+                        <label>Production Level <span class="required-asterisk">*</span></label>
+                        <div class="range-slider" id="onb-production-level-slider">
+                            <input type="range" id="onb-production-level-range" min="0" max="2" step="1" value="1" class="range-input">
+                            <div class="range-labels">
+                                <span data-value="basic">Basic</span>
+                                <span data-value="intermediate">Intermediate</span>
+                                <span data-value="professional">Professional</span>
+                            </div>
+                            <input type="hidden" id="onb-production-level" value="">
+                        </div>
                     </div>
                 </div>
 
@@ -499,13 +468,9 @@
 
         <!-- PAYWALL PAGE -->
         <div id="paywall-page" class="page">
-            <div class="page-content">
-                <div class="paywall-header">
-                    <h2 class="paywall-title">Unlock Unlimited Ideas</h2>
-                    <p class="paywall-subtitle">Generate endless content ideas with AI</p>
-                </div>
-
-                <div class="paywall-card">
+            <div class="paywall-card">
+                <!-- Content positioned below image -->
+                <div class="paywall-content">
                     <div class="paywall-price">
                         <span class="price-amount">$4.99</span>
                         <span class="price-period">/month</span>

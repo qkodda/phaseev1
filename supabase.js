@@ -376,33 +376,6 @@ export async function getScheduledIdeasForDate(userId, date) {
 // SEALED IDEA PERSISTENCE FUNCTIONS
 // ============================================
 
-// Dev bypass localStorage key for ideas
-const DEV_IDEAS_KEY = 'phazee_dev_ideas'
-
-// Check if user is dev bypass user
-function isDevBypassUser(userId) {
-  return typeof userId === 'string' && userId.startsWith('dev-bypass')
-}
-
-// Get dev ideas from localStorage
-function getDevIdeas() {
-  try {
-    const stored = localStorage.getItem(DEV_IDEAS_KEY)
-    return stored ? JSON.parse(stored) : []
-  } catch (e) {
-    return []
-  }
-}
-
-// Save dev ideas to localStorage
-function saveDevIdeas(ideas) {
-  try {
-    localStorage.setItem(DEV_IDEAS_KEY, JSON.stringify(ideas))
-  } catch (e) {
-    console.warn('Failed to save dev ideas to localStorage:', e)
-  }
-}
-
 /**
  * Save an idea to the drawing board (pinned)
  * Sealed function: isolates pinned idea persistence logic
@@ -412,24 +385,6 @@ function saveDevIdeas(ideas) {
  */
 export async function saveIdeaToDrawingBoard(idea, userId) {
   try {
-    // Dev bypass: use localStorage instead of Supabase
-    if (isDevBypassUser(userId)) {
-      console.log('🔧 DEV BYPASS: Saving idea to localStorage')
-      const devIdeas = getDevIdeas()
-      const newIdea = {
-        ...idea,
-        id: `dev-idea-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        user_id: userId,
-        is_pinned: true,
-        is_scheduled: false,
-        created_at: new Date().toISOString()
-      }
-      devIdeas.push(newIdea)
-      saveDevIdeas(devIdeas)
-      console.log('✅ DEV BYPASS: Idea saved to localStorage:', newIdea.id)
-      return { success: true, idea: newIdea }
-    }
-
     const ideaToSave = {
       ...idea,
       user_id: userId,
@@ -461,45 +416,6 @@ export async function saveIdeaToDrawingBoard(idea, userId) {
  */
 export async function scheduleIdea(idea, scheduledDate, userId) {
   try {
-    // Dev bypass: use localStorage instead of Supabase
-    if (isDevBypassUser(userId)) {
-      console.log('🔧 DEV BYPASS: Scheduling idea to localStorage')
-      const devIdeas = getDevIdeas()
-      
-      // Check if updating existing idea
-      if (idea.id && idea.id.startsWith('dev-idea-')) {
-        const index = devIdeas.findIndex(i => i.id === idea.id)
-        if (index !== -1) {
-          devIdeas[index] = {
-            ...devIdeas[index],
-            ...idea,
-            is_pinned: false,
-            is_scheduled: true,
-            scheduled_date: scheduledDate,
-            updated_at: new Date().toISOString()
-          }
-          saveDevIdeas(devIdeas)
-          console.log('✅ DEV BYPASS: Idea updated in localStorage:', idea.id)
-          return { success: true, idea: devIdeas[index] }
-        }
-      }
-      
-      // Create new scheduled idea
-      const newIdea = {
-        ...idea,
-        id: `dev-idea-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        user_id: userId,
-        is_pinned: false,
-        is_scheduled: true,
-        scheduled_date: scheduledDate,
-        created_at: new Date().toISOString()
-      }
-      devIdeas.push(newIdea)
-      saveDevIdeas(devIdeas)
-      console.log('✅ DEV BYPASS: Scheduled idea saved to localStorage:', newIdea.id)
-      return { success: true, idea: newIdea }
-    }
-
     const ideaToSave = {
       ...idea,
       user_id: userId,
@@ -551,41 +467,7 @@ export async function loadUserIdeas(userId, options = {}) {
       order = 'desc'
     } = options
 
-    // Dev bypass: load from localStorage
-    if (isDevBypassUser(userId)) {
-      console.log('🔧 DEV BYPASS: Loading ideas from localStorage')
-      let allIdeas = getDevIdeas().filter(i => i.user_id === userId)
-      
-      // Sort by created_at
-      allIdeas.sort((a, b) => {
-        const dateA = new Date(a.created_at || 0)
-        const dateB = new Date(b.created_at || 0)
-        return order === 'desc' ? dateB - dateA : dateA - dateB
-      })
-      
-      const pinned = allIdeas.filter(idea => idea.is_pinned === true)
-      const scheduled = allIdeas.filter(idea => idea.is_scheduled === true)
-      
-      let filteredIdeas = allIdeas
-      if (type === 'pinned') filteredIdeas = pinned
-      else if (type === 'scheduled') filteredIdeas = scheduled
-      
-      if (scheduledDate) {
-        filteredIdeas = filteredIdeas.filter(idea => idea.scheduled_date === scheduledDate)
-      }
-      
-      if (limit) filteredIdeas = filteredIdeas.slice(0, limit)
-      
-      console.log(`✅ DEV BYPASS: Loaded ${filteredIdeas.length} ideas (${pinned.length} pinned, ${scheduled.length} scheduled)`)
-      return {
-        success: true,
-        ideas: filteredIdeas,
-        pinnedCount: pinned.length,
-        scheduledCount: scheduled.length
-      }
-    }
-
-    // Get all ideas for user (single query)
+    // Get all ideas for user
     const result = await getUserIdeas(userId)
     
     if (result.error || !result.data) {

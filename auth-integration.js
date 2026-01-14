@@ -1,12 +1,7 @@
 /**
  * AUTH INTEGRATION - Supabase Authentication
  * 
- * PHAZEE HEALTH CHECK: This file contains all authentication logic for Phazee.
- * Integrates Supabase auth with dev bypass for local development.
- * 
- * DEV BYPASS BEHAVIOR:
- * - Development: Auto-login as "Dev User", any email/password works
- * - Production: Dev bypass disabled, real Supabase auth required
+ * PRODUCTION-READY: Real Supabase authentication only.
  * 
  * SECURITY:
  * - Never logs passwords, tokens, or sensitive data
@@ -17,7 +12,6 @@
  */
 
 import { supabase, signUp, signIn, signOut, getCurrentUser, resetPassword } from './supabase.js';
-import { isDevBypassEnabled } from './auth-config.js';
 import { 
     logAuthEvent, 
     AUTH_EVENTS, 
@@ -31,73 +25,6 @@ import {
 } from './auth-logger.js';
 
 // ============================================
-// DEV BYPASS CONFIGURATION (DEV ONLY - REMOVE BEFORE MERGE TO MAIN)
-// ============================================
-
-/**
- * Check if dev bypass should be active
- * Only active when DEV_BYPASS_ENABLED is true
- * NOTE: When enabled, works on any hostname (dev only - disable before production)
- */
-function isDevBypassActive() {
-    return isDevBypassEnabled();
-}
-
-/**
- * Create a fake dev user for testing (in-memory only, no DB writes)
- * This user has all the properties needed for the app to function
- */
-const DEV_BYPASS_USER_ID = 'dev-bypass-user';
-
-function createDevBypassUser(overrides = {}) {
-    const fakeEmail = 'dev@phazee.local';
-    
-    return {
-        id: DEV_BYPASS_USER_ID,
-        email: fakeEmail,
-        email_confirmed_at: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-        app_metadata: {
-            provider: 'dev-bypass',
-            providers: ['dev-bypass']
-        },
-        user_metadata: {
-            full_name: 'Dev User',
-            display_name: 'Dev User'
-        },
-        aud: 'authenticated',
-        role: 'authenticated',
-        ...overrides
-    };
-}
-
-/**
- * Create a fake dev session for testing (in-memory only, no DB writes)
- */
-function createDevBypassSession(fakeUser) {
-    return {
-        access_token: 'dev-bypass-token',
-        refresh_token: 'dev-bypass-refresh',
-        expires_in: 3600,
-        expires_at: Math.floor(Date.now() / 1000) + 3600,
-        token_type: 'bearer',
-        user: fakeUser
-    };
-}
-
-function activateDevBypassSession(overrides = {}) {
-    const fakeUser = createDevBypassUser(overrides);
-    const fakeSession = createDevBypassSession(fakeUser);
-    
-    currentUser = fakeUser;
-    currentSession = fakeSession;
-    
-    return { fakeUser, fakeSession };
-}
-
-const isDevBypassUserId = (value) => typeof value === 'string' && value.startsWith('dev-bypass-user');
-
-// ============================================
 // AUTHENTICATION STATE
 // ============================================
 
@@ -106,23 +33,10 @@ let currentSession = null;
 
 /**
  * Initialize authentication - check for existing session
- * DEV BYPASS: If enabled and on localhost, creates fake user/session
- * 
- * SESSION BOOTSTRAP: Single source of truth for session state on app start
  */
 export async function initAuth() {
     logAuthEvent(AUTH_EVENTS.SESSION_BOOTSTRAP);
     
-    if (isDevBypassActive()) {
-        if (!currentUser) {
-            console.warn('🔧 DEV BYPASS ACTIVE - Initializing mock session');
-            activateDevBypassSession();
-        }
-        logAuthEvent(AUTH_EVENTS.SESSION_RESTORED, { userId: currentUser?.id });
-        return currentUser;
-    }
-    
-    // NORMAL AUTH FLOW - Check for real Supabase session
     try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
@@ -154,9 +68,6 @@ export async function initAuth() {
  * Check if user is authenticated
  */
 export function isAuthenticated() {
-    if (isDevBypassActive()) {
-        return true;
-    }
     return currentUser !== null && currentSession !== null;
 }
 
@@ -164,9 +75,6 @@ export function isAuthenticated() {
  * Get current user
  */
 export function getUser() {
-    if (isDevBypassActive() && !currentUser) {
-        activateDevBypassSession();
-    }
     return currentUser;
 }
 
@@ -174,9 +82,6 @@ export function getUser() {
  * Get current session
  */
 export function getSession() {
-    if (isDevBypassActive() && !currentSession) {
-        activateDevBypassSession();
-    }
     return currentSession;
 }
 
@@ -185,34 +90,18 @@ export function getSession() {
 // ============================================
 
 /**
- * Handle user sign-up with email confirmation
+ * Handle user sign-up
+ * 
+ * FLOW:
+ * - Creates auth user in Supabase
+ * - Creates profile in database (onboarding_complete: false)
+ * - User proceeds to onboarding (email verification is for recovery, not access)
  * 
  * SECURITY:
- * - Never reveals if email already exists
- * - Profile creation is also handled by DB trigger (reliable backup)
+ * - Never reveals if email already exists (generic error messages)
  */
 export async function handleSignUp(name, email, password) {
     logAuthEvent(AUTH_EVENTS.SIGNUP_ATTEMPT);
-    
-    // DEV BYPASS CHECK
-    if (isDevBypassActive()) {
-        console.warn('🔧 DEV BYPASS ACTIVE - Simulating sign up (DEV ONLY)');
-        const { fakeUser } = activateDevBypassSession({
-            email,
-            user_metadata: {
-                full_name: name,
-                display_name: name
-            }
-        });
-        
-        logAuthEvent(AUTH_EVENTS.SIGNUP_SUCCESS, { userId: fakeUser.id });
-        
-        return {
-            success: true,
-            requiresConfirmation: false,
-            user: fakeUser
-        };
-    }
 
     try {
         // Sign up with Supabase
@@ -262,12 +151,14 @@ export async function handleSignUp(name, email, password) {
             
             logAuthEvent(AUTH_EVENTS.SIGNUP_SUCCESS, { userId: data.user.id });
             
-            // Create profile in database (backup - DB trigger is primary)
+            // Create profile in database with onboarding_complete: false
             try {
                 await createUserProfile(data.user.id, name, email);
+                console.log('✅ Profile created on signup');
             } catch (profileError) {
-                // Log but don't fail - DB trigger should handle this
-                console.warn('Client-side profile creation failed (DB trigger should handle):', profileError);
+                // Profile creation failed - this is critical, log it
+                console.error('❌ Profile creation failed:', profileError);
+                // Don't block signup, but this needs attention
             }
             
             return {
@@ -308,21 +199,7 @@ export async function handleSignUp(name, email, password) {
  */
 export async function handleSignIn(email, password) {
     logAuthEvent(AUTH_EVENTS.LOGIN_ATTEMPT);
-    
-    // DEV BYPASS CHECK - HIGHEST PRIORITY
-    if (isDevBypassActive()) {
-        console.warn('🔧 DEV BYPASS ACTIVE - Simulating sign in (DEV ONLY)');
-        activateDevBypassSession({ email });
-        logAuthEvent(AUTH_EVENTS.LOGIN_SUCCESS, { userId: currentUser.id });
-        clearErrorTracking();
-        return {
-            success: true,
-            user: currentUser,
-            session: currentSession
-        };
-    }
 
-    // NORMAL SIGN IN - Only runs if dev bypass is disabled
     try {
         const result = await signIn(email, password);
         
@@ -394,15 +271,6 @@ export async function handleSignIn(email, password) {
  */
 export async function handleSignOut() {
     const userId = currentUser?.id;
-    
-    // DEV BYPASS CHECK
-    if (isDevBypassActive()) {
-        console.warn('🔧 DEV BYPASS ACTIVE - Simulating sign out (DEV ONLY)');
-        currentUser = null;
-        currentSession = null;
-        logAuthEvent(AUTH_EVENTS.LOGOUT, { userId });
-        return { success: true };
-    }
 
     try {
         const { error } = await signOut();
@@ -510,9 +378,6 @@ export async function handlePasswordReset(email) {
 /**
  * Update user password (after clicking reset link)
  * Called from the password recovery screen
- * 
- * @param {string} newPassword - The new password
- * @returns {Promise<{success: boolean, error?: string}>}
  */
 export async function handleUpdatePassword(newPassword) {
     try {
@@ -551,8 +416,6 @@ export async function handleUpdatePassword(newPassword) {
 /**
  * Check if current URL indicates password recovery mode
  * Supabase adds type=recovery to the URL hash when user clicks reset link
- * 
- * @returns {boolean}
  */
 export function isPasswordRecoveryMode() {
     try {
@@ -568,63 +431,48 @@ export function isPasswordRecoveryMode() {
 // ============================================
 
 /**
- * Create user profile in database
+ * Create user profile in database (UPSERT)
+ * Called on signup - creates profile with onboarding_complete: false
+ * Uses upsert so it's safe to call multiple times
  */
 async function createUserProfile(userId, name, email) {
     try {
+        console.log('📝 Creating/updating profile for:', userId);
+        
         const { data, error } = await supabase
             .from('profiles')
-            .insert([
-                {
-                    id: userId,
-                    full_name: name,
-                    email: email,
-                    created_at: new Date().toISOString()
-                }
-            ])
+            .upsert({
+                id: userId,
+                full_name: name || '',
+                email: email,
+                onboarding_complete: false,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            }, {
+                onConflict: 'id'
+            })
             .select()
             .single();
-        
+
         if (error) {
-            console.error('Error creating profile:', error);
+            console.error('❌ Error creating profile:', error);
             throw error;
         }
-        
-        console.log('✅ Profile created:', data);
+
+        console.log('✅ Profile created/updated:', data);
         return data;
-        
+
     } catch (error) {
-        console.error('Error creating profile:', error);
+        console.error('❌ Error creating profile:', error);
         throw error;
     }
 }
 
 /**
  * Get user profile from database
- * DEV BYPASS: Returns fake profile for dev bypass users (in-memory only)
  */
 export async function getUserProfile(userId) {
-    // DEV BYPASS: Return fake profile for dev bypass users (no DB access)
-    // Check if userId is provided and matches current dev user OR if dev bypass is simply active
-    // This ensures getProfile works even if called with ID directly
-    if (isDevBypassActive() && (
-        isDevBypassUserId(currentUser?.id) || 
-        isDevBypassUserId(userId)
-    )) {
-        console.log('🔧 DEV BYPASS: Returning fake profile for dev bypass user');
-        return {
-            id: userId || currentUser?.id,
-            email: 'dev@phazee.local',
-            full_name: 'Dev User',
-            display_name: 'Dev User',
-            onboarding_complete: true,
-            subscription_status: 'active',
-            trial_started_at: new Date().toISOString(),
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-        };
-    }
-    
+    console.log('👤 Fetching profile from database for:', userId);
     try {
         const { data, error } = await supabase
             .from('profiles')
@@ -634,9 +482,10 @@ export async function getUserProfile(userId) {
         
         if (error) {
             console.error('Error fetching profile:', error);
-            throw error;
+            return null;
         }
         
+        console.log('✅ Profile fetched:', data ? 'Found' : 'Not found');
         return data;
         
     } catch (error) {
@@ -656,15 +505,31 @@ export async function updateUserProfile(userId, profileData) {
         // Get current user to ensure we have email
         const { data: { user } } = await supabase.auth.getUser();
         
+        // Check if profile exists first
+        const { data: existingProfile } = await supabase
+            .from('profiles')
+            .select('id, onboarding_complete')
+            .eq('id', userId)
+            .single();
+        
+        // Build upsert data
+        const upsertData = {
+            id: userId,
+            email: user?.email || profileData.email,
+            ...profileData,
+            updated_at: new Date().toISOString()
+        };
+        
+        // If creating new profile, ensure onboarding_complete defaults to false
+        if (!existingProfile && !profileData.hasOwnProperty('onboarding_complete')) {
+            upsertData.onboarding_complete = false;
+            console.log('📝 New profile - setting onboarding_complete: false');
+        }
+        
         // Use UPSERT to create or update
         const { data, error } = await supabase
             .from('profiles')
-            .upsert({
-                id: userId,
-                email: user?.email || profileData.email,
-                ...profileData,
-                updated_at: new Date().toISOString()
-            }, {
+            .upsert(upsertData, {
                 onConflict: 'id'
             })
             .select()
@@ -673,7 +538,6 @@ export async function updateUserProfile(userId, profileData) {
         if (error) {
             console.error('❌ Error updating profile:', error);
             
-            // Provide helpful error messages
             if (error.message?.includes('column') && error.message?.includes('does not exist')) {
                 throw new Error('Database schema is outdated. Please run SUPABASE_FRESH_START.sql in your Supabase dashboard.');
             } else if (error.message?.includes('violates')) {
@@ -698,20 +562,10 @@ export async function updateUserProfile(userId, profileData) {
 // AUTH STATE LISTENER
 // ============================================
 
-// Track active subscriptions for cleanup
 let authStateSubscription = null;
 
 /**
  * Listen for auth state changes
- * 
- * EVENTS HANDLED:
- * - SIGNED_IN: User signed in
- * - SIGNED_OUT: User signed out  
- * - TOKEN_REFRESHED: Session token refreshed
- * - PASSWORD_RECOVERY: User clicked password reset link
- * - USER_UPDATED: User data updated
- * 
- * CLEANUP: Returns unsubscribe function, also tracks globally for cleanup
  */
 export function onAuthStateChange(callback) {
     // Clean up any existing subscription first
@@ -720,18 +574,7 @@ export function onAuthStateChange(callback) {
         authStateSubscription = null;
     }
     
-    if (isDevBypassActive()) {
-        activateDevBypassSession();
-        if (callback) {
-            callback('DEV_BYPASS', { user: currentUser, session: currentSession });
-        }
-        return { 
-            data: { subscription: { unsubscribe: () => {} } }
-        };
-    }
-    
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        // Map Supabase events to our auth events
         const eventMap = {
             'SIGNED_IN': AUTH_EVENTS.SIGNED_IN,
             'SIGNED_OUT': AUTH_EVENTS.SIGNED_OUT,
@@ -756,7 +599,6 @@ export function onAuthStateChange(callback) {
         }
     });
     
-    // Track for cleanup
     authStateSubscription = subscription;
     
     return { 
@@ -770,7 +612,6 @@ export function onAuthStateChange(callback) {
 
 /**
  * Clean up all auth subscriptions
- * Call this on app unmount or before re-initializing
  */
 export function cleanupAuthListeners() {
     if (authStateSubscription) {
@@ -785,28 +626,25 @@ export function cleanupAuthListeners() {
 
 /**
  * Check if user has completed onboarding
- * DEV BYPASS: Returns true for dev bypass users (skips onboarding)
  */
 export async function hasCompletedOnboarding(userId) {
     console.log('🔍 hasCompletedOnboarding called with userId:', userId);
-    console.log('🔍 currentUser:', currentUser ? `ID: ${currentUser.id}` : 'null');
-    console.log('🔍 isDevBypassActive():', isDevBypassActive());
     
-    // DEV BYPASS: Always return true for dev bypass users (skip onboarding)
-    if (isDevBypassActive() && (
-        isDevBypassUserId(currentUser?.id) ||
-        isDevBypassUserId(userId)
-    )) {
-        console.log('🔧 DEV BYPASS: Returning true for onboarding check');
-        return true;
-    }
-    
-    console.log('⚠️ Dev bypass check failed, falling back to normal check');
     try {
         const profile = await getUserProfile(userId);
-        return profile && profile.onboarding_complete === true;
+        console.log('📋 Profile for onboarding check:', {
+            hasProfile: !!profile,
+            onboarding_complete: profile?.onboarding_complete,
+            type: typeof profile?.onboarding_complete
+        });
+        
+        // STRICT CHECK: Must be explicitly true
+        const isComplete = profile !== null && profile.onboarding_complete === true;
+        console.log('🎯 hasCompletedOnboarding result:', isComplete);
+        return isComplete;
     } catch (error) {
         console.error('Error checking onboarding:', error);
+        // FAIL SAFE: If we can't check, assume NOT complete
         return false;
     }
 }
@@ -826,15 +664,68 @@ export async function markOnboardingComplete(userId) {
 }
 
 /**
+ * Get onboarding step by inferring from existing data (no new column needed)
+ * 0 = page 1 (no brand_name)
+ * 1 = page 2 (has brand_name, but onboarding_complete is false)
+ * 2 = paywall (onboarding_complete is true, but no trial_started_at)
+ */
+export async function getOnboardingStep(userId) {
+    try {
+        const profile = await getUserProfile(userId);
+        
+        if (!profile) {
+            console.log('📋 No profile, step: 0');
+            return 0;
+        }
+        
+        // If onboarding is complete, user is at paywall (step 2)
+        if (profile.onboarding_complete === true) {
+            console.log('📋 Onboarding complete, step: 2 (paywall)');
+            return 2;
+        }
+        
+        // If brand_name exists, user completed page 1, now on page 2
+        if (profile.brand_name && profile.brand_name.trim() !== '') {
+            console.log('📋 Has brand_name, step: 1 (page 2)');
+            return 1;
+        }
+        
+        // Otherwise, user is on page 1
+        console.log('📋 No brand_name, step: 0 (page 1)');
+        return 0;
+    } catch (error) {
+        console.error('Error getting onboarding step:', error);
+        return 0;
+    }
+}
+
+/**
  * Get trial start date
  */
 export async function getTrialStartDate(userId) {
     try {
         const profile = await getUserProfile(userId);
+        console.log('📋 Profile trial_started_at:', profile?.trial_started_at);
         return profile?.trial_started_at || null;
     } catch (error) {
         console.error('Error getting trial start date:', error);
         return null;
+    }
+}
+
+/**
+ * Check if user has started their trial (passed through paywall)
+ */
+export async function hasStartedTrial(userId) {
+    try {
+        console.log('🔍 Checking if trial started for user:', userId);
+        const trialStart = await getTrialStartDate(userId);
+        const result = trialStart !== null;
+        console.log('🔍 Trial started check:', { trialStart, result });
+        return result;
+    } catch (error) {
+        console.error('Error checking if trial started:', error);
+        return false;
     }
 }
 
@@ -853,32 +744,22 @@ export async function startTrial(userId) {
 }
 
 /**
- * Check if trial is expired
- * DEV BYPASS: Returns false for dev bypass users (trial never expires)
+ * Check if trial is expired (3 day trial)
  */
 export async function isTrialExpired(userId) {
-    // DEV BYPASS: Always return false for dev bypass users (trial never expires)
-    if (isDevBypassActive() && (
-        isDevBypassUserId(currentUser?.id) ||
-        isDevBypassUserId(userId)
-    )) {
-        console.log('🔧 DEV BYPASS: Returning false for trial expiration check');
-        return false;
-    }
-    
     try {
         const trialStart = await getTrialStartDate(userId);
-        
+
         if (!trialStart) {
             return false; // No trial started yet
         }
-        
+
         const trialStartTime = new Date(trialStart).getTime();
         const now = Date.now();
         const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
-        
+
         return (now - trialStartTime) > threeDaysMs;
-        
+
     } catch (error) {
         console.error('Error checking trial expiration:', error);
         return false;
@@ -887,18 +768,8 @@ export async function isTrialExpired(userId) {
 
 /**
  * Check if user has active subscription
- * DEV BYPASS: Returns true for dev bypass users (allows full access)
  */
 export async function hasActiveSubscription(userId) {
-    // DEV BYPASS: Always return true for dev bypass users (allows full access)
-    if (isDevBypassActive() && (
-        isDevBypassUserId(currentUser?.id) ||
-        isDevBypassUserId(userId)
-    )) {
-        console.log('🔧 DEV BYPASS: Returning true for subscription check');
-        return true;
-    }
-    
     try {
         const profile = await getUserProfile(userId);
         return profile?.subscription_status === 'active';
@@ -907,4 +778,3 @@ export async function hasActiveSubscription(userId) {
         return false;
     }
 }
-
