@@ -292,6 +292,15 @@ export async function saveIdea(idea) {
  */
 export async function updateIdea(ideaId, updates) {
   try {
+    // SAFETY CHECK: Validate ideaId is a proper UUID before sending to database
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!ideaId || typeof ideaId !== 'string' || ideaId.startsWith('idea-') || !uuidRegex.test(ideaId)) {
+      console.warn('⚠️ updateIdea called with invalid ID (not a UUID):', ideaId)
+      console.warn('⚠️ This is a client-generated ID - skipping database update')
+      // Return the updates as if saved (for local consistency)
+      return { data: { ...updates, id: ideaId }, error: null }
+    }
+    
     const tableName = await _getIdeasTableName()
     const { data, error } = await supabase
       .from(tableName)
@@ -385,12 +394,28 @@ export async function getScheduledIdeasForDate(userId, date) {
  */
 export async function saveIdeaToDrawingBoard(idea, userId) {
   try {
+    // Helper to check if ID is a valid UUID (from database) vs client-generated
+    const isValidUUID = (id) => {
+      if (!id || typeof id !== 'string') return false
+      if (id.startsWith('idea-')) return false
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      return uuidRegex.test(id)
+    }
+    
+    // Remove client-generated ID - let database generate proper UUID
+    const { id: ideaId, scheduledDate, scheduledMonth, scheduledDay, ...cleanIdea } = idea
+    
     const ideaToSave = {
-      ...idea,
+      ...cleanIdea,
       user_id: userId,
       // Removed 'type' field - database uses is_pinned/is_scheduled booleans instead
       is_pinned: true,
       is_scheduled: false
+    }
+    
+    // Only include ID if it's a valid UUID (existing DB record)
+    if (ideaId && isValidUUID(ideaId)) {
+      ideaToSave.id = ideaId
     }
 
     const result = await saveIdea(ideaToSave)
@@ -416,8 +441,21 @@ export async function saveIdeaToDrawingBoard(idea, userId) {
  */
 export async function scheduleIdea(idea, scheduledDate, userId) {
   try {
+    // Helper to check if ID is a valid UUID (from database) vs client-generated
+    const isValidUUID = (id) => {
+      if (!id || typeof id !== 'string') return false
+      // Client IDs start with "idea-" - these are NOT in the database yet
+      if (id.startsWith('idea-')) return false
+      // Check for UUID format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      return uuidRegex.test(id)
+    }
+    
+    // Remove client-side camelCase fields that don't exist in DB
+    const { scheduledDate: _, scheduledMonth: __, scheduledDay: ___, id: ideaId, ...cleanIdea } = idea
+    
     const ideaToSave = {
-      ...idea,
+      ...cleanIdea,
       user_id: userId,
       // Removed 'type' field - database uses is_pinned/is_scheduled booleans instead
       is_pinned: false,
@@ -426,11 +464,11 @@ export async function scheduleIdea(idea, scheduledDate, userId) {
     }
 
     let result
-    if (idea.id) {
-      // Update existing idea
-      result = await updateIdea(idea.id, ideaToSave)
+    if (ideaId && isValidUUID(ideaId)) {
+      // Update existing idea (has valid database UUID)
+      result = await updateIdea(ideaId, ideaToSave)
     } else {
-      // Create new idea
+      // Create new idea (no ID or client-generated ID)
       result = await saveIdea(ideaToSave)
     }
 

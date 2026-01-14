@@ -1826,9 +1826,10 @@ window.toggleEditMode = function toggleEditMode() {
 
     isEditMode = !isEditMode;
 
+    // Select all editable elements
     const editableElements = expandedCard.querySelectorAll('.card-title, .section-text');
     const platformIconsContainer = expandedCard.querySelector('#expanded-platform-icons');
-    
+
     if (isEditMode) {
         // Enter edit mode
         editableElements.forEach(el => {
@@ -1879,9 +1880,58 @@ window.toggleEditMode = function toggleEditMode() {
             </svg>
         `;
         
+        // Disable schedule button while editing
+        const scheduleBtn = expandedCard.querySelector('.schedule-btn');
+        if (scheduleBtn) {
+            scheduleBtn.classList.add('disabled');
+            scheduleBtn.setAttribute('title', 'Save changes before scheduling');
+        }
+        
         console.log('Edit mode: ON');
     } else {
         // Exit edit mode (save)
+        
+        // CRITICAL: Read edited text content from DOM and save to ideaData
+        const ideaData = JSON.parse(expandedCard.dataset.originalCard);
+        
+        // Get the title
+        const titleEl = expandedCard.querySelector('.card-title');
+        if (titleEl) {
+            ideaData.title = titleEl.textContent.trim();
+        }
+        
+        // Get hook, action, setup, why from section-text elements
+        const sections = expandedCard.querySelectorAll('.card-section');
+        sections.forEach(section => {
+            const label = section.querySelector('.section-label')?.textContent?.toLowerCase() || '';
+            const textEl = section.querySelector('.section-text');
+            if (textEl) {
+                let text = textEl.textContent.trim();
+                // Remove surrounding quotes if present (hook has them)
+                if (text.startsWith('"') && text.endsWith('"')) {
+                    text = text.slice(1, -1);
+                }
+                
+                if (label.includes('hook')) {
+                    ideaData.hook = text;
+                } else if (label.includes('action')) {
+                    ideaData.action = text;
+                } else if (label.includes('setup')) {
+                    ideaData.setup = text;
+                } else if (label.includes('why')) {
+                    ideaData.why = text;
+                }
+            }
+        });
+        
+        // Get summary if editable
+        const summaryEl = expandedCard.querySelector('.summary-text');
+        if (summaryEl) {
+            ideaData.summary = summaryEl.textContent.trim();
+        }
+        
+        console.log('💾 Saving edited idea data:', ideaData);
+        
         editableElements.forEach(el => {
             el.contentEditable = 'false';
             el.classList.remove('editable');
@@ -1892,10 +1942,8 @@ window.toggleEditMode = function toggleEditMode() {
             const selectedWrappers = platformIconsContainer.querySelectorAll('.platform-icon-wrapper:not(.unselected)');
             const selectedPlatforms = Array.from(selectedWrappers).map(w => w.dataset.platform);
             
-            // Update the idea data
-            const ideaData = JSON.parse(expandedCard.dataset.originalCard);
+            // Update platforms in idea data
             ideaData.platforms = selectedPlatforms;
-            expandedCard.dataset.originalCard = JSON.stringify(ideaData);
             
             // Show ALL platforms - selected ones highlighted, others dimmed
             const allPlatforms = ['tiktok', 'instagram', 'youtube', 'x', 'facebook'];
@@ -1926,7 +1974,10 @@ window.toggleEditMode = function toggleEditMode() {
             platformIconsContainer.classList.remove('edit-mode');
         }
         
-        const ideaData = JSON.parse(expandedCard.dataset.originalCard);
+        // Save updated ideaData back to the expanded card dataset
+        expandedCard.dataset.originalCard = JSON.stringify(ideaData);
+        
+        // Sync changes to collapsed cards
         syncCollapsedCards(ideaData);
         
         // Change back to edit icon
@@ -1938,6 +1989,13 @@ window.toggleEditMode = function toggleEditMode() {
                 <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
             </svg>
         `;
+        
+        // Re-enable schedule button after saving
+        const scheduleBtn = expandedCard.querySelector('.schedule-btn');
+        if (scheduleBtn) {
+            scheduleBtn.classList.remove('disabled');
+            scheduleBtn.setAttribute('title', 'Schedule');
+        }
         
         console.log('Edit mode: OFF (saved)');
     }
@@ -2189,19 +2247,40 @@ window.togglePlatformSelection = function togglePlatformSelection(wrapper) {
  * Schedule from expanded modal (pinned cards only)
  */
 window.scheduleFromExpanded = function scheduleFromExpanded() {
+    // Block scheduling while in edit mode - must save first
+    if (isEditMode) {
+        console.warn('⚠️ Cannot schedule while editing. Please save your changes first.');
+        // Visual feedback - briefly shake the edit/save button
+        const editBtn = document.querySelector('.expanded-action-btn.save-btn');
+        if (editBtn) {
+            editBtn.style.animation = 'shake 0.3s ease-in-out';
+            setTimeout(() => editBtn.style.animation = '', 300);
+        }
+        return;
+    }
+    
     const expandedCard = document.getElementById('expanded-idea-card');
     if (!expandedCard) return;
 
     const ideaData = JSON.parse(expandedCard.dataset.originalCard);
-    
-    // Find the original collapsed card
+
+    // Find the original collapsed card - match by ID first, then by title as fallback
     const allCollapsedCards = document.querySelectorAll('.idea-card-collapsed');
     let originalCard = null;
-    
+
     allCollapsedCards.forEach(card => {
-        const cardData = JSON.parse(card.dataset.idea);
-        if (cardData.title === ideaData.title) {
-            originalCard = card;
+        try {
+            const cardData = JSON.parse(card.dataset.idea || '{}');
+            // Match by ID (preferred) or title (fallback for older cards)
+            const matchById = ideaData.id && cardData.id && ideaData.id === cardData.id;
+            const matchByTitle = cardData.title === ideaData.title;
+            if (matchById || matchByTitle) {
+                originalCard = card;
+                // Also update the collapsed card's data with the edited version
+                card.dataset.idea = JSON.stringify(ideaData);
+            }
+        } catch (err) {
+            console.warn('Could not parse card data:', err);
         }
     });
 
@@ -3567,11 +3646,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (savedIdea) {
                             console.log('✅ Successfully saved pinned idea:', savedIdea.id);
                             try {
-                                pinnedCard.dataset.idea = JSON.stringify({
+                                const updatedIdeaData = {
                                     ...savedIdea,
                                     platforms: savedIdea.platforms || ideaData.platforms || []
-                                });
-                                pinnedCard.dataset.platforms = (savedIdea.platforms || ideaData.platforms || []).join(', ');
+                                };
+                                pinnedCard.dataset.idea = JSON.stringify(updatedIdeaData);
+                                pinnedCard.dataset.platforms = (updatedIdeaData.platforms || []).join(', ');
+                                
+                                // CRITICAL: Also update expanded card if it's showing this idea
+                                const expandedCard = document.getElementById('expanded-idea-card');
+                                if (expandedCard) {
+                                    try {
+                                        const expandedData = JSON.parse(expandedCard.dataset.originalCard || '{}');
+                                        // Match by title since ID might be different (client vs DB)
+                                        if (expandedData.title === savedIdea.title || expandedData.id === ideaData.id) {
+                                            expandedCard.dataset.originalCard = JSON.stringify(updatedIdeaData);
+                                            console.log('✅ Updated expanded card with database ID:', savedIdea.id);
+                                        }
+                                    } catch (e) {
+                                        console.warn('Could not update expanded card:', e);
+                                    }
+                                }
                             } catch (err) {
                                 console.warn('Failed to update pinned idea dataset with Supabase record:', err);
                             }
@@ -4772,8 +4867,38 @@ function fallbackShare(text) {
 // HELPER FUNCTIONS
 // ============================================
 
-function syncCollapsedCards(updatedIdea) {
+async function syncCollapsedCards(updatedIdea) {
     if (!updatedIdea) return;
+    
+    // Helper to check if ID is a valid UUID (from database) vs client-generated
+    const isValidUUID = (id) => {
+        if (!id || typeof id !== 'string') return false;
+        // Client IDs start with "idea-" - these are NOT in the database yet
+        if (id.startsWith('idea-')) return false;
+        // Check for UUID format (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        return uuidRegex.test(id);
+    };
+    
+    // Only save to database if idea has a valid UUID (already exists in DB)
+    if (updatedIdea.id && isValidUUID(updatedIdea.id)) {
+        try {
+            const { updateIdea } = await import('./supabase.js');
+            // Remove client-side only fields before saving to DB
+            const { scheduledDate, scheduledMonth, scheduledDay, id, ...dbFields } = updatedIdea;
+            const result = await updateIdea(updatedIdea.id, dbFields);
+            if (result.error) {
+                console.error('❌ Failed to save idea to database:', result.error);
+            } else {
+                console.log('✅ Idea saved to database:', result.data?.id);
+            }
+        } catch (err) {
+            console.error('❌ Error saving idea to database:', err);
+        }
+    } else if (updatedIdea.id) {
+        console.log('📝 Idea has client-side ID, changes saved locally (will sync to DB when scheduled)');
+    }
+    
     const collapsedCards = document.querySelectorAll('.idea-card-collapsed');
     collapsedCards.forEach(card => {
         try {
