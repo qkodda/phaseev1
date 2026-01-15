@@ -1109,6 +1109,18 @@ function navigateTo(pageId) {
     const pages = document.querySelectorAll('.page');
     pages.forEach(page => page.classList.remove('active'));
     
+    // Close all modals by removing active class
+    // CSS will handle the hiding via .modal:not(.active) selector
+    // DO NOT use inline styles as they override CSS and break modal reopening
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.classList.remove('active');
+        // Clear any inline styles that might have been set
+        modal.style.display = '';
+        modal.style.visibility = '';
+        modal.style.pointerEvents = '';
+    });
+    
     // Pages that require active subscription (allow settings and profile even when expired)
     const restrictedPages = new Set([
         'homepage'
@@ -1189,14 +1201,69 @@ function navigateTo(pageId) {
             });
         
         const cardStack = document.getElementById('card-stack');
-        const existingCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.build-more-card)') : [];
+        // Count REAL idea cards (not loading placeholders, not build-more)
+        const existingIdeaCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.build-more-card):not(.loading-placeholder)') : [];
         
         // Auto-load build more card on app open (always present at bottom layer)
         createBuildMoreCard();
         
-        // Only generate if cards haven't been generated yet
-        if (existingCards.length === 0) {
-            generateNewIdeas({ showLoading: false });
+        // CRITICAL: Preserve swipe stack across navigation
+        // Priority: 1) DOM cards exist 2) ideasStack in memory 3) localStorage 4) generate new
+        console.log('🔍 Homepage: Found', existingIdeaCards.length, 'DOM cards,', (window.ideasStack || []).length, 'in memory');
+        
+        if (existingIdeaCards.length > 0) {
+            // Cards exist in DOM - do nothing, they're preserved
+            console.log('✅ DOM cards exist (' + existingIdeaCards.length + '), preserving current swipe stack');
+            // Also sync ideasStack from DOM if needed
+            if (!window.ideasStack || window.ideasStack.length === 0) {
+                window.ideasStack = [];
+                existingIdeaCards.forEach(card => {
+                    if (card.dataset.idea) {
+                        try {
+                            window.ideasStack.push(JSON.parse(card.dataset.idea));
+                        } catch (e) {}
+                    }
+                });
+                console.log('📦 Synced ideasStack from DOM:', window.ideasStack.length, 'ideas');
+            }
+        } else if (window.ideasStack && window.ideasStack.length > 0) {
+            // Cards not in DOM but we have them in memory - restore them
+            console.log('🔄 DOM empty, restoring', window.ideasStack.length, 'ideas from memory');
+            // Use window.restoreSwipeStackFromMemory if the local function isn't available yet
+            setTimeout(() => {
+                if (typeof window.restoreSwipeStackFromMemory === 'function') {
+                    window.restoreSwipeStackFromMemory();
+                } else {
+                    console.warn('⚠️ restoreSwipeStackFromMemory not available');
+                }
+            }, 50);
+        } else {
+            // Try localStorage as last resort
+            const savedStack = localStorage.getItem('swipeStackIdeas');
+            if (savedStack) {
+                try {
+                    const parsedStack = JSON.parse(savedStack);
+                    if (Array.isArray(parsedStack) && parsedStack.length > 0) {
+                        console.log('🔄 Restoring', parsedStack.length, 'ideas from localStorage');
+                        window.ideasStack = parsedStack;
+                        setTimeout(() => {
+                            if (typeof window.restoreSwipeStackFromMemory === 'function') {
+                                window.restoreSwipeStackFromMemory();
+                            }
+                        }, 50);
+                    } else {
+                        console.log('📝 No saved ideas in localStorage, generating new');
+                        generateNewIdeas({ showLoading: false });
+                    }
+                } catch (e) {
+                    console.log('📝 Failed to parse saved ideas, generating new');
+                    generateNewIdeas({ showLoading: false });
+                }
+            } else if (!window.ideasGeneratedThisSession) {
+                console.log('📝 No ideas found anywhere, generating new');
+                generateNewIdeas({ showLoading: false });
+                window.ideasGeneratedThisSession = true;
+            }
         }
         
         // Reset swipe state and re-initialize handlers when returning to homepage
@@ -1204,31 +1271,122 @@ function navigateTo(pageId) {
             const cardStack = document.getElementById('card-stack');
             if (!cardStack) return;
             
-            // Clear any active swipe state
-            if (window.swipeState) {
-                window.swipeState.activeCard = null;
-            }
+            console.log('🔧 Running reinitSwipe...');
             
-            // Reset all cards to clean state
+            // Clear any active swipe state completely
+            window.swipeState = {
+                activeCard: null,
+                startX: 0,
+                startY: 0,
+                currentX: 0,
+                currentY: 0,
+                hasMoved: false,
+                isTouch: false
+            };
+            
+            // Ensure swipe handlers are enabled
+            window.swipeHandlersDisabled = false;
+            
+            // CRITICAL: Force clear any handler version to force re-binding
+            window.swipeHandlerVersion = String(Date.now());
+            
+            // Reset all cards to clean state and FORCE re-binding
             const cards = cardStack.querySelectorAll('.idea-card');
             cards.forEach(card => {
-                card.dataset.swipeReady = 'false'; // Allow re-binding
+                card.dataset.swipeReady = 'false';
+                card.dataset.swipeHandlerId = ''; // Clear handler ID to force re-binding
                 card.style.transform = '';
                 card.style.transition = '';
                 card.classList.remove('swiping');
+                card.style.pointerEvents = 'auto'; // FORCE pointer events enabled
             });
             
+            // CRITICAL: Ensure entire swipe hierarchy has pointer-events
+            cardStack.style.pointerEvents = 'auto';
+            
+            const ideaSwiper = document.getElementById('idea-swiper');
+            if (ideaSwiper) {
+                ideaSwiper.style.pointerEvents = 'auto';
+                ideaSwiper.classList.remove('initial-hidden');
+                ideaSwiper.classList.add('revealed');
+            }
+            
+            const swipeContainer = document.querySelector('.swipe-card-stack-container');
+            if (swipeContainer) {
+                swipeContainer.style.pointerEvents = 'auto';
+            }
+            
+            // CRITICAL: Ensure ALL modals are properly hidden and don't intercept touches
+            const allModals = document.querySelectorAll('.modal');
+            allModals.forEach(modal => {
+                if (!modal.classList.contains('active')) {
+                    modal.style.pointerEvents = 'none';
+                    modal.style.visibility = 'hidden';
+                    modal.style.display = 'none';
+                    modal.style.zIndex = '-1';
+                }
+            });
+            
+            // Specifically ensure expanded modal is FULLY disabled
+            const expandedModal = document.getElementById('expanded-idea-modal');
+            if (expandedModal) {
+                if (!expandedModal.classList.contains('active')) {
+                    expandedModal.style.pointerEvents = 'none';
+                    expandedModal.style.visibility = 'hidden';
+                    expandedModal.style.display = 'none';
+                    expandedModal.style.zIndex = '-1';
+                }
+                expandedModal.classList.remove('active');
+            }
+            
+            // Ensure schedule modal is disabled
+            const scheduleModal = document.getElementById('schedule-modal');
+            if (scheduleModal && !scheduleModal.classList.contains('active')) {
+                scheduleModal.style.pointerEvents = 'none';
+                scheduleModal.style.visibility = 'hidden';
+                scheduleModal.style.display = 'none';
+            }
+            
+            // Check for ANY element with high z-index that might be blocking
+            const potentialBlockers = document.querySelectorAll('[style*="z-index"]');
+            potentialBlockers.forEach(el => {
+                if (!el.classList.contains('active') && 
+                    !el.closest('#homepage') &&
+                    !el.classList.contains('page') &&
+                    el.id !== 'homepage') {
+                    const zIndex = parseInt(window.getComputedStyle(el).zIndex);
+                    if (zIndex > 100) {
+                        console.log('⚠️ Potential blocker found:', el.className || el.id, 'z-index:', zIndex);
+                    }
+                }
+            });
+            
+            // Ensure homepage itself is interactive
+            const homepage = document.getElementById('homepage');
+            if (homepage) {
+                homepage.style.pointerEvents = 'auto';
+            }
+            
+            // Ensure content swiper is interactive
+            const contentSwiper = document.querySelector('.content-swiper');
+            if (contentSwiper) {
+                contentSwiper.style.pointerEvents = 'auto';
+            }
+            
+            // Re-initialize swipe handlers
             if (typeof initSwipeHandlers === 'function') {
                 initSwipeHandlers();
             } else if (typeof window.initSwipeHandlers === 'function') {
                 window.initSwipeHandlers();
             }
-            console.log('🔄 Swipe system reset');
+            
+            console.log('✅ Swipe system fully reset - handlers reinitialized, version:', window.swipeHandlerVersion);
         };
         
         // Run after a brief delay to ensure DOM is ready
         setTimeout(reinitSwipe, 100);
         setTimeout(reinitSwipe, 400);
+        setTimeout(reinitSwipe, 800); // Additional safety reset
         
         // Update header button based on page
         const homeProfileBtn = document.querySelector('#homepage .profile-pill-btn');
@@ -1247,9 +1405,55 @@ function navigateTo(pageId) {
     if (pageId === 'profile-page') {
         loadProfileData();
     }
+
+    if (pageId === 'account-details-page') {
+        loadAccountDetails();
+    }
     
+    // Update subscription page UI when navigating to it
+    if (pageId === 'subscription-page') {
+        setTimeout(() => {
+            if (typeof updateSubscriptionPageUI === 'function') {
+                updateSubscriptionPageUI();
+            }
+            // Initialize falling logos animation
+            if (typeof initFallingLogos === 'function') {
+                initFallingLogos();
+            } else if (typeof window.initFallingLogos === 'function') {
+                window.initFallingLogos();
+            }
+        }, 100);
+    }
+
     // Scroll to top of new page
     window.scrollTo(0, 0);
+}
+
+/**
+ * Load account details including last sign-in date
+ */
+function loadAccountDetails() {
+    const user = getUser();
+    if (!user) return;
+
+    // Update last sign-in date
+    const lastSignInEl = document.getElementById('account-last-signin');
+    if (lastSignInEl && user.last_sign_in_at) {
+        const date = new Date(user.last_sign_in_at);
+        const options = { month: 'short', day: 'numeric', year: 'numeric' };
+        lastSignInEl.textContent = `Last sign-in: ${date.toLocaleDateString('en-US', options)}`;
+    }
+
+    // Populate account fields from user metadata
+    const nameInput = document.getElementById('account-name');
+    const emailInput = document.getElementById('account-email');
+    
+    if (nameInput && user.user_metadata?.full_name) {
+        nameInput.value = user.user_metadata.full_name;
+    }
+    if (emailInput && user.email) {
+        emailInput.value = user.email;
+    }
 }
 
 // ============================================
@@ -1260,7 +1464,9 @@ function navigateTo(pageId) {
 let pendingScheduleCard = null; // For calendar date picker
 window.pendingScheduleCard = null; // Also expose globally for debugging
 let isEditMode = false; // Track edit mode state
-let ideasStack = []; // Stack of idea cards
+// GLOBAL ideasStack - persists across navigation
+window.ideasStack = window.ideasStack || []; // Preserve if already set
+let ideasStack = window.ideasStack; // Local reference for compatibility
 let cardsRemaining = 7; // Track remaining cards
 const TRIAL_DURATION_MS = 3 * 24 * 60 * 60 * 1000;
 let trialCountdownInterval = null;
@@ -1312,9 +1518,11 @@ function createBuildMoreCard() {
         </div>
     `;
     
-    // Insert at the beginning of card-stack so it's at the bottom layer
-    cardStack.insertBefore(buildMoreCard, cardStack.firstChild);
-    console.log('✅ Build more card created and positioned at bottom layer');
+    // CRITICAL: Insert at END of card-stack (appendChild), NOT beginning!
+    // This ensures build-more is LAST child, so nth-child CSS selectors
+    // give idea cards higher z-index and build-more stays at z-index: 0 (behind)
+    cardStack.appendChild(buildMoreCard);
+    console.log('✅ Build more card created and positioned at bottom layer (end of DOM)');
     return buildMoreCard;
 }
 
@@ -1734,9 +1942,9 @@ function expandIdeaCard(card) {
         <div class="card-content">
             <p class="summary-text" contenteditable="false">${ideaData.summary}</p>
 
-            <div class="card-section">
+            <div class="card-section hook-section">
                 <span class="section-label">Hook:</span>
-                <p class="section-text" contenteditable="false">"${ideaData.hook}"</p>
+                <p class="section-text" contenteditable="false">${ideaData.hook}</p>
             </div>
 
             ${ideaData.action ? `<div class="card-section">
@@ -2413,8 +2621,26 @@ window.closeExpandedModal = function() {
     isEditMode = false;
     console.log('Expanded modal closed');
     
+    // Ensure modal doesn't block interactions (reusing expandedModal from above)
+    if (expandedModal) {
+        expandedModal.style.pointerEvents = 'none';
+        expandedModal.style.visibility = 'hidden';
+    }
+    
     // Re-initialize swipe handlers after modal closes
     setTimeout(() => {
+        // Reset swipe state completely
+        window.swipeState = {
+            activeCard: null,
+            startX: 0,
+            startY: 0,
+            currentX: 0,
+            currentY: 0,
+            hasMoved: false,
+            isTouch: false
+        };
+        window.swipeHandlersDisabled = false;
+        
         if (typeof initSwipeHandlers === 'function') {
             initSwipeHandlers();
             console.log('🔄 Swipe handlers re-initialized after modal close');
@@ -2569,9 +2795,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Generate initial 7 cards (only if homepage is active)
     if (document.getElementById('homepage').classList.contains('active')) {
-        // Auto-load build more card on app open (always present at bottom layer)
-        createBuildMoreCard();
-        generateNewIdeas({ showLoading: false });
+        // Check if we have saved ideas first
+        const savedStack = localStorage.getItem('swipeStackIdeas');
+        let restoredFromStorage = false;
+        
+        if (savedStack) {
+            try {
+                const parsedStack = JSON.parse(savedStack);
+                if (Array.isArray(parsedStack) && parsedStack.length > 0) {
+                    console.log('🔄 Found', parsedStack.length, 'saved ideas on load');
+                    window.ideasStack = parsedStack;
+                    createBuildMoreCard();
+                    // Defer restore until function is available
+                    setTimeout(() => {
+                        if (typeof window.restoreSwipeStackFromMemory === 'function') {
+                            window.restoreSwipeStackFromMemory();
+                        }
+                    }, 100);
+                    window.ideasGeneratedThisSession = true;
+                    restoredFromStorage = true;
+                }
+            } catch (e) {
+                console.warn('⚠️ Failed to parse saved ideas:', e);
+            }
+        }
+        
+        if (!restoredFromStorage) {
+            // Auto-load build more card on app open (always present at bottom layer)
+            createBuildMoreCard();
+            generateNewIdeas({ showLoading: false });
+            window.ideasGeneratedThisSession = true;
+        }
     }
 
     // Platform selector toggle in generator card
@@ -2620,22 +2874,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // FORM HANDLERS
     // ============================================
 
-    // Sign In Form
-    signInForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const email = document.getElementById('signin-email').value;
-        const password = document.getElementById('signin-password').value;
-        const errorEl = document.getElementById('signin-error');
-        const suggestionEl = document.getElementById('signin-suggestion');
-        
-        // Hide previous errors
-        if (errorEl) errorEl.style.display = 'none';
-        if (suggestionEl) suggestionEl.style.display = 'none';
-        
-        const submitBtn = document.getElementById('signin-submit-btn');
-        submitBtn.disabled = true;
-        submitBtn.classList.add('loading');
+    // Sign In Form - with proper null check
+    if (signInForm) {
+        console.log('✅ Setting up sign-in form handler');
+        signInForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log('📝 Sign-in form submitted');
+            
+            const email = document.getElementById('signin-email').value;
+            const password = document.getElementById('signin-password').value;
+            const errorEl = document.getElementById('signin-error');
+            const suggestionEl = document.getElementById('signin-suggestion');
+            
+            // Hide previous errors
+            if (errorEl) errorEl.style.display = 'none';
+            if (suggestionEl) suggestionEl.style.display = 'none';
+            
+            const submitBtn = document.getElementById('signin-submit-btn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('loading');
+            }
         
         try {
             const result = await handleSignIn(email, password);
@@ -2693,33 +2952,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 errorEl.style.display = 'block';
             }
         } finally {
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('loading');
-        }
-    });
-
-    // Sign Up Form
-    signUpForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const name = document.getElementById('signup-name').value;
-        const email = document.getElementById('signup-email').value;
-        const password = document.getElementById('signup-password').value;
-        const errorEl = document.getElementById('signup-error');
-        
-        // Hide previous errors
-        if (errorEl) errorEl.style.display = 'none';
-        
-        if (password.length < 6) {
-            if (errorEl) {
-                errorEl.textContent = 'Password must be at least 6 characters long';
-                errorEl.style.display = 'block';
+            const submitBtn = document.getElementById('signin-submit-btn');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
             }
-            return;
         }
-        
-        const submitBtn = document.getElementById('signup-submit-btn');
-        submitBtn.disabled = true;
-        submitBtn.classList.add('loading');
+        });
+    } else {
+        console.error('❌ Sign-in form not found!');
+    }
+
+    // Sign Up Form - with proper null check
+    if (signUpForm) {
+        console.log('✅ Setting up sign-up form handler');
+        signUpForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log('📝 Sign-up form submitted');
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const errorEl = document.getElementById('signup-error');
+            
+            // Hide previous errors
+            if (errorEl) errorEl.style.display = 'none';
+            
+            if (password.length < 6) {
+                if (errorEl) {
+                    errorEl.textContent = 'Password must be at least 6 characters long';
+                    errorEl.style.display = 'block';
+                }
+                return;
+            }
+            
+            const submitBtn = document.getElementById('signup-submit-btn');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('loading');
+            }
         
         try {
             const result = await handleSignUp(name, email, password);
@@ -2761,10 +3031,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 errorEl.style.display = 'block';
             }
         } finally {
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('loading');
+            const submitBtn = document.getElementById('signup-submit-btn');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+            }
         }
-    });
+        });
+    } else {
+        console.error('❌ Sign-up form not found!');
+    }
 
     // Swipe handlers will be initialized when cards are generated
 
@@ -2840,19 +3116,25 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Remove all existing idea cards
-        const existingCards = cardStack.querySelectorAll('.idea-card:not(.loading-placeholder)');
+        // Remove all existing idea cards (but KEEP build-more card)
+        const existingCards = cardStack.querySelectorAll('.idea-card:not(.loading-placeholder):not(.build-more-card)');
         existingCards.forEach(card => card.remove());
 
         // Reset cards remaining
         cardsRemaining = 7;
         ideasStack = [];
+        window.ideasStack = ideasStack; // Sync global reference
         ideasRemaining = 7;
         lastRefreshTime = new Date();
 
-        // Show single loading placeholder
+        // Show single loading placeholder - insert BEFORE build-more card
         const placeholder = createLoadingPlaceholder(1);
-        cardStack.appendChild(placeholder);
+        const buildMoreCardRef = cardStack.querySelector('.build-more-card');
+        if (buildMoreCardRef) {
+            cardStack.insertBefore(placeholder, buildMoreCardRef);
+        } else {
+            cardStack.appendChild(placeholder);
+        }
         updateSwiperInfo();
         updateIdeaGeneratorVisibility();
 
@@ -3001,7 +3283,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     const card = createIdeaCard(ideaInstance);
                     // Set platform data attribute for CSS theming
                     card.dataset.platform = currentPlatform;
-                    cardStack.insertBefore(card, generatorCard);
+                    // Insert BEFORE build-more card to keep build-more at the end (lowest z-index)
+                    const buildMoreCard = cardStack.querySelector('.build-more-card');
+                    if (buildMoreCard) {
+                        cardStack.insertBefore(card, buildMoreCard);
+                    } else {
+                        cardStack.appendChild(card);
+                    }
                     ideasStack.push(ideaInstance);
                     
                     // Increment ideas generated counter for streak squares
@@ -3054,6 +3342,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const templatesToUse = platformFilteredTemplates.length > 0 ? platformFilteredTemplates : ideaTemplates;
                 
                 ideasStack = [];
+                const buildMoreCard = cardStack.querySelector('.build-more-card');
                 for (let i = 0; i < 7; i++) {
                     const randomIdea = templatesToUse[Math.floor(Math.random() * templatesToUse.length)];
                     const ideaInstance = cloneIdeaTemplate(randomIdea);
@@ -3063,7 +3352,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     const card = createIdeaCard(ideaInstance);
                     // Set platform data attribute for CSS theming
                     card.dataset.platform = currentPlatform;
-                    cardStack.appendChild(card);
+                    // Insert BEFORE build-more to keep build-more at the end (lowest z-index)
+                    if (buildMoreCard) {
+                        cardStack.insertBefore(card, buildMoreCard);
+                    } else {
+                        cardStack.appendChild(card);
+                    }
                     
                     // Increment ideas generated counter for fallback ideas too
                     incrementIdeasGenerated();
@@ -3078,6 +3372,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateIdeaGeneratorVisibility();
                 
                 console.log('✅ Created 7 fallback idea cards');
+                
+                // Save to localStorage for persistence
+                saveSwipeStackToStorage();
                 
                 // Reset generating flag
                 cleanup();
@@ -3100,11 +3397,78 @@ document.addEventListener('DOMContentLoaded', () => {
         updateIdeaGeneratorVisibility();
 
         console.log('✅ Created', ideasStack.length, 'AI-powered idea cards');
+        
+        // Save to localStorage for persistence across navigation and app backgrounding
+        saveSwipeStackToStorage();
 
         cleanup();
     }
 
     window.generateNewIdeas = generateNewIdeas;
+    
+    /**
+     * Save current swipe stack to localStorage for persistence
+     */
+    function saveSwipeStackToStorage() {
+        try {
+            window.ideasStack = ideasStack; // Sync global reference
+            localStorage.setItem('swipeStackIdeas', JSON.stringify(ideasStack));
+            console.log('💾 Saved', ideasStack.length, 'ideas to localStorage');
+        } catch (e) {
+            console.warn('⚠️ Failed to save swipe stack to localStorage:', e);
+        }
+    }
+    window.saveSwipeStackToStorage = saveSwipeStackToStorage;
+    
+    /**
+     * Restore swipe stack cards from memory (window.ideasStack)
+     * Called when returning to homepage and DOM cards are missing but memory has ideas
+     */
+    function restoreSwipeStackFromMemory() {
+        const cardStack = document.getElementById('card-stack');
+        if (!cardStack) {
+            console.warn('⚠️ Cannot restore: card-stack not found');
+            return;
+        }
+        
+        const storedIdeas = window.ideasStack || [];
+        if (storedIdeas.length === 0) {
+            console.warn('⚠️ No ideas in memory to restore');
+            return;
+        }
+        
+        console.log('🔄 Restoring', storedIdeas.length, 'cards from memory...');
+        
+        // Remove any existing cards (shouldn't be any, but just in case)
+        const existingCards = cardStack.querySelectorAll('.idea-card:not(.build-more-card)');
+        existingCards.forEach(card => card.remove());
+        
+        // Recreate cards from stored ideas
+        const currentPlatform = localStorage.getItem('selectedPlatform') || 'tiktok';
+        const buildMoreCard = cardStack.querySelector('.build-more-card');
+        
+        storedIdeas.forEach(idea => {
+            const card = createIdeaCard(idea);
+            card.dataset.platform = currentPlatform;
+            if (buildMoreCard) {
+                cardStack.insertBefore(card, buildMoreCard);
+            } else {
+                cardStack.appendChild(card);
+            }
+        });
+        
+        // Sync local reference
+        ideasStack = storedIdeas;
+        cardsRemaining = storedIdeas.length;
+        ideasRemaining = storedIdeas.length;
+        
+        // Re-initialize swipe handlers
+        initSwipeHandlers();
+        updateSwiperInfo();
+        
+        console.log('✅ Restored', storedIdeas.length, 'cards to swipe stack');
+    }
+    window.restoreSwipeStackFromMemory = restoreSwipeStackFromMemory;
 
     /**
      * Create a loading placeholder card with live AI thinking process
@@ -3223,7 +3587,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="section-text">${ideaData.summary}</p>
             </div>
 
-            <div class="card-section">
+            <div class="card-section hook-section">
                 <span class="section-label">Hook:</span>
                 <p class="section-text">${ideaData.hook}</p>
             </div>
@@ -3347,9 +3711,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 <p class="summary-text">${idea.summary}</p>
                 
-                <div class="card-section">
+                <div class="card-section hook-section">
                     <span class="section-label">Hook:</span>
-                    <p class="section-text">"${idea.hook || 'Grab attention with the first 3 seconds!'}"</p>
+                    <p class="section-text">${idea.hook || 'Grab attention with the first 3 seconds!'}</p>
                 </div>
 
                 <div class="card-section">
@@ -3533,6 +3897,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     /**
      * Initialize swipe handlers for cards - attaches start events only
+     * Uses stored handler references to avoid duplicate listeners
      */
     function initSwipeHandlers() {
         const cardStack = document.getElementById('card-stack');
@@ -3545,13 +3910,22 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`🎯 Setting up swipe for ${cards.length} cards`);
         
         cards.forEach((card, index) => {
-            // Skip if already set up
-            if (card.dataset.swipeReady === 'true') return;
+            // Skip if already set up with current handler ID
+            const handlerId = card.dataset.swipeHandlerId;
+            const currentId = window.swipeHandlerVersion || '1';
+            
+            if (handlerId === currentId) return;
+            
+            // Store handler ID
+            card.dataset.swipeHandlerId = currentId;
             card.dataset.swipeReady = 'true';
             
-            // Touch start handler
-            card.addEventListener('touchstart', (e) => {
-                if (window.swipeHandlersDisabled) return;
+            // Create named handler functions for potential removal
+            const touchStartHandler = (e) => {
+                if (window.swipeHandlersDisabled) {
+                    console.log('⚠️ Swipe handlers disabled');
+                    return;
+                }
                 
                 // Find the top swipeable card (exclude build-more, loading, and already-swiped cards)
                 const topCard = cardStack.querySelector('.idea-card:not(.swipe-left):not(.swipe-right):not(.loading-placeholder):not(.build-more-card)');
@@ -3571,11 +3945,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 card.classList.add('swiping');
                 console.log('📱 Touch start on card', index);
-            }, { passive: true });
+            };
             
-            // Mouse down handler
-            card.addEventListener('mousedown', (e) => {
-                if (window.swipeHandlersDisabled) return;
+            const mouseDownHandler = (e) => {
+                if (window.swipeHandlersDisabled) {
+                    console.log('⚠️ Swipe handlers disabled');
+                    return;
+                }
                 
                 // Find the top swipeable card (exclude build-more, loading, and already-swiped cards)
                 const topCard = cardStack.querySelector('.idea-card:not(.swipe-left):not(.swipe-right):not(.loading-placeholder):not(.build-more-card)');
@@ -3594,12 +3970,84 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 card.classList.add('swiping');
                 console.log('🖱️ Mouse down on card', index);
-            });
+            };
+            
+            // Touch start handler
+            card.addEventListener('touchstart', touchStartHandler, { passive: true });
+            
+            // Mouse down handler
+            card.addEventListener('mousedown', mouseDownHandler);
         });
     }
     
+    // Handler version for tracking - increment to force re-binding
+    window.swipeHandlerVersion = '1';
+    
     // Make initSwipeHandlers globally accessible
     window.initSwipeHandlers = initSwipeHandlers;
+    
+    /**
+     * Force re-initialize all swipe handlers (use when swipe becomes unresponsive)
+     * This increments the handler version to ensure new listeners are attached
+     */
+    window.forceReinitSwipe = function() {
+        console.log('🔧 Force reinitializing swipe handlers...');
+        
+        // Increment handler version to force new bindings
+        window.swipeHandlerVersion = String(Number(window.swipeHandlerVersion || '1') + 1);
+        
+        // Reset all card handler IDs
+        const cardStack = document.getElementById('card-stack');
+        if (cardStack) {
+            const cards = cardStack.querySelectorAll('.idea-card');
+            cards.forEach(card => {
+                delete card.dataset.swipeHandlerId;
+                card.dataset.swipeReady = 'false';
+                card.style.transform = '';
+                card.style.transition = '';
+                card.classList.remove('swiping');
+            });
+        }
+        
+        // Reset swipe state
+        window.swipeState = {
+            activeCard: null,
+            startX: 0,
+            startY: 0,
+            currentX: 0,
+            currentY: 0,
+            hasMoved: false,
+            isTouch: false
+        };
+        window.swipeHandlersDisabled = false;
+        
+        // Re-initialize
+        initSwipeHandlers();
+        console.log('✅ Swipe handlers force reinitialized');
+    };
+    
+    // Listen for visibility change to reset swipe state when app returns from background
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            console.log('👁️ App became visible, checking swipe state...');
+            const homepage = document.getElementById('homepage');
+            if (homepage && homepage.classList.contains('active')) {
+                setTimeout(() => {
+                    window.swipeHandlersDisabled = false;
+                    if (window.swipeState && window.swipeState.activeCard) {
+                        // Reset stuck swipe state
+                        const card = window.swipeState.activeCard;
+                        if (card) {
+                            card.classList.remove('swiping');
+                            card.style.transform = '';
+                        }
+                        window.swipeState.activeCard = null;
+                    }
+                    initSwipeHandlers();
+                }, 100);
+            }
+        }
+    });
 
     /**
      * Swipe a card in the given direction
@@ -3699,6 +4147,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Remove card after animation completes (300ms animation + small buffer)
         setTimeout(() => {
+            // Remove from ideasStack by matching the idea
+            const ideaToRemove = JSON.parse(card.dataset.idea);
+            const indexToRemove = ideasStack.findIndex(idea => idea.id === ideaToRemove.id);
+            if (indexToRemove > -1) {
+                ideasStack.splice(indexToRemove, 1);
+                window.ideasStack = ideasStack; // Sync global
+                // Update localStorage
+                if (typeof saveSwipeStackToStorage === 'function') {
+                    saveSwipeStackToStorage();
+                } else if (typeof window.saveSwipeStackToStorage === 'function') {
+                    window.saveSwipeStackToStorage();
+                }
+            }
+            
             card.remove();
             cardsRemaining--;
             ideasRemaining--;
@@ -3710,6 +4172,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const remainingCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.build-more-card):not(.loading-placeholder)') : [];
             if (remainingCards.length === 0) {
                 showBuildMoreCard();
+                // Clear localStorage when all cards swiped
+                localStorage.removeItem('swipeStackIdeas');
             }
         }, 350); // Reduced from 500ms to match faster animation
     }
@@ -4095,10 +4559,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateSwiperInfo() {
         const ideasCountElement = document.getElementById('ideas-count');
         const refreshTimeElement = document.getElementById('refresh-time');
-        
-        // Count actual remaining cards in the DOM (excluding generator card and loading placeholders)
+
+        // Count actual remaining cards in the DOM (excluding build-more card and loading placeholders)
         const cardStack = document.getElementById('card-stack');
-        const actualCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.loading-placeholder)').length : 0;
+        const actualCards = cardStack ? cardStack.querySelectorAll('.idea-card:not(.loading-placeholder):not(.build-more-card)').length : 0;
         ideasRemaining = actualCards;
         
         if (ideasCountElement) {
@@ -4444,20 +4908,12 @@ function generateCalendarPicker() {
             dateEl.classList.add('today');
         }
 
-        // Calculate max date (30 days from today, inclusive)
-        const maxDate = new Date(today);
-        maxDate.setDate(maxDate.getDate() + 30);
-        maxDate.setHours(0, 0, 0, 0); // Start of day for comparison
-        
         // Normalize dates for comparison (remove time component)
         const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
         const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        const maxDateOnly = new Date(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate());
-        
-        // Disable past dates and dates beyond 30 days
+
+        // Only disable past dates - NO upper limit (indefinite scheduling)
         if (dateOnly < todayOnly) {
-            dateEl.classList.add('disabled');
-        } else if (dateOnly > maxDateOnly) {
             dateEl.classList.add('disabled');
         } else {
             dateEl.addEventListener('click', () => {
@@ -4985,14 +5441,9 @@ function getProfileFormData(prefix) {
     data.postFrequency = document.getElementById(`${prefix}-post-frequency`)?.value || '';
     data.productionLevel = document.getElementById(`${prefix}-production-level`)?.value || '';
     data.additionalContext = document.getElementById(`${prefix}-additional-context`)?.value.trim() || '';
-    
-    const cultureSet = new Set();
-    document.querySelectorAll(`#${prefix}-culture-values .pill-btn.selected`).forEach(pill => {
-        if (pill.dataset.value) {
-            cultureSet.add(pill.dataset.value);
-        }
-    });
-    data.cultureValues = Array.from(cultureSet);
+
+    // Culture values removed from profile page - provide empty array for backward compatibility
+    data.cultureValues = [];
 
     const platformSet = new Set();
     document.querySelectorAll(`#${prefix}-platforms .platform-select-btn.selected`).forEach(btn => {
@@ -5042,8 +5493,6 @@ function populateProfileFields(data) {
         'profile-location': data.location || '',
         'profile-target-audience': data.target_audience || data.targetAudience || '',
         'profile-content-goals': data.content_goals || data.contentGoals || '',
-        'profile-post-frequency': data.post_frequency || data.postFrequency || '',
-        'profile-production-level': data.production_level || data.productionLevel || '',
         'profile-additional-context': data.additional_context || ''
     };
 
@@ -5058,11 +5507,43 @@ function populateProfileFields(data) {
         }
     });
 
-    const cultureContainer = document.getElementById('profile-culture-values');
-    if (cultureContainer) {
-        const cultureValues = data.culture_values || data.cultureValues || [];
-        cultureContainer.querySelectorAll('.pill-btn').forEach(pill => {
-            pill.classList.toggle('selected', cultureValues.includes(pill.dataset.value));
+    // Handle range sliders for post frequency and production level
+    const postFrequency = data.post_frequency || data.postFrequency || '';
+    const productionLevel = data.production_level || data.productionLevel || '';
+    
+    // Set post frequency range slider
+    const postFreqSlider = document.getElementById('profile-post-frequency-slider');
+    if (postFreqSlider && postFrequency) {
+        const rangeInput = postFreqSlider.querySelector('.range-input');
+        const labels = postFreqSlider.querySelectorAll('.range-labels span');
+        const hiddenInput = document.getElementById('profile-post-frequency');
+        
+        labels.forEach((label, index) => {
+            if (label.dataset.value === postFrequency) {
+                rangeInput.value = index;
+                label.classList.add('active');
+                if (hiddenInput) hiddenInput.value = postFrequency;
+            } else {
+                label.classList.remove('active');
+            }
+        });
+    }
+    
+    // Set production level range slider
+    const prodLevelSlider = document.getElementById('profile-production-level-slider');
+    if (prodLevelSlider && productionLevel) {
+        const rangeInput = prodLevelSlider.querySelector('.range-input');
+        const labels = prodLevelSlider.querySelectorAll('.range-labels span');
+        const hiddenInput = document.getElementById('profile-production-level');
+        
+        labels.forEach((label, index) => {
+            if (label.dataset.value === productionLevel) {
+                rangeInput.value = index;
+                label.classList.add('active');
+                if (hiddenInput) hiddenInput.value = productionLevel;
+            } else {
+                label.classList.remove('active');
+            }
         });
     }
 
@@ -5599,6 +6080,204 @@ function formatTrialDuration(ms) {
     segments.push(`${seconds.toString().padStart(2, '0')}s`);
     return segments.join(' ');
 }
+
+// ============================================
+// SUBSCRIPTION PAGE - Pro Plan UI
+// ============================================
+
+/**
+ * Update subscription page UI with current trial/subscription state
+ */
+async function updateSubscriptionPageUI() {
+    const ctaBtn = document.getElementById('subscription-cta-btn');
+    const statusText = document.getElementById('subscription-trial-status');
+    if (!ctaBtn || !statusText) return;
+    
+    const user = getUser();
+    if (!user) {
+        ctaBtn.textContent = 'Start Pro Plan';
+        statusText.textContent = '';
+        return;
+    }
+    
+    // Check subscription status
+    const hasSubscription = await hasActiveSubscription(user.id);
+    if (hasSubscription) {
+        ctaBtn.textContent = 'Manage Subscription';
+        statusText.textContent = 'You are subscribed to Pro Plan';
+        statusText.className = 'trial-status-text';
+        return;
+    }
+    
+    // Check trial status
+    const trialStarted = await hasStartedTrial(user.id);
+    if (trialStarted) {
+        const trialExpired = await isTrialExpired(user.id);
+        if (trialExpired) {
+            ctaBtn.textContent = 'Start Pro Plan';
+            statusText.innerHTML = '<span class="trial-ended-msg">Trial has ended. Start Pro plan to continue building!</span>';
+            statusText.className = 'trial-status-text trial-expired';
+            // Stop any running interval
+            if (window.subscriptionTimerInterval) {
+                clearInterval(window.subscriptionTimerInterval);
+            }
+        } else {
+            // Trial is active - get trial start from database and show LIVE countdown
+            const { getTrialStartDate } = await import('./auth-integration.js');
+            const trialStartDate = await getTrialStartDate(user.id);
+            
+            if (!trialStartDate) {
+                console.warn('⚠️ Trial started but no start date found');
+                statusText.textContent = '';
+                return;
+            }
+            
+            const trialStartTime = new Date(trialStartDate).getTime();
+            const TRIAL_DURATION = 3 * 24 * 60 * 60 * 1000; // 3 days in ms
+            
+            // Store for timer calculations
+            window.trialStartTime = trialStartTime;
+            window.trialDuration = TRIAL_DURATION;
+            
+            const updateTimer = () => {
+                const now = Date.now();
+                const elapsed = now - window.trialStartTime;
+                const remaining = Math.max(0, window.trialDuration - elapsed);
+                
+                if (remaining <= 0) {
+                    statusText.innerHTML = '<span class="trial-ended-msg">Trial has ended. Start Pro plan to continue building!</span>';
+                    statusText.className = 'trial-status-text trial-expired';
+                    ctaBtn.textContent = 'Start Pro Plan';
+                    if (window.subscriptionTimerInterval) {
+                        clearInterval(window.subscriptionTimerInterval);
+                    }
+                    return;
+                }
+
+                const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+
+                // Build countdown display with live seconds
+                const countdownHTML = `
+                    <span class="countdown-label">Trial ends in:</span>
+                    <span class="countdown-timer">
+                        <span class="countdown-segment">${days}<span class="countdown-unit">d</span></span>
+                        <span class="countdown-segment">${hours.toString().padStart(2, '0')}<span class="countdown-unit">h</span></span>
+                        <span class="countdown-segment">${minutes.toString().padStart(2, '0')}<span class="countdown-unit">m</span></span>
+                        <span class="countdown-segment countdown-seconds">${seconds.toString().padStart(2, '0')}<span class="countdown-unit">s</span></span>
+                    </span>
+                `;
+                statusText.innerHTML = countdownHTML;
+            };
+
+            ctaBtn.textContent = 'Start Pro Plan';
+            statusText.className = 'trial-status-text trial-active';
+
+            // Clear any existing interval
+            if (window.subscriptionTimerInterval) {
+                clearInterval(window.subscriptionTimerInterval);
+            }
+
+            // Update immediately then every second
+            updateTimer();
+            window.subscriptionTimerInterval = setInterval(updateTimer, 1000);
+        }
+    } else {
+        // No trial started yet (shouldn't happen on subscription page normally)
+        ctaBtn.textContent = 'Start Pro Plan';
+        statusText.textContent = '';
+        if (window.subscriptionTimerInterval) {
+            clearInterval(window.subscriptionTimerInterval);
+        }
+    }
+}
+
+/**
+ * Handle subscription page CTA button click
+ */
+async function handleSubscriptionAction() {
+    const user = getUser();
+    if (!user) {
+        navigateTo('sign-in-page');
+        return;
+    }
+    
+    // Check if already subscribed
+    const hasSubscription = await hasActiveSubscription(user.id);
+    if (hasSubscription) {
+        // Open subscription management (for iOS this would be App Store settings)
+        showAlertModal('Manage Subscription', 'To manage your subscription, go to Settings > Apple ID > Subscriptions on your device.');
+        return;
+    }
+    
+    // For now, show alert about subscription
+    // In production, this would trigger IAP
+    showAlertModal('Pro Plan', 'Subscription features coming soon via App Store. Your trial is active!');
+}
+
+// Make subscription functions globally accessible
+window.handleSubscriptionAction = handleSubscriptionAction;
+window.updateSubscriptionPageUI = updateSubscriptionPageUI;
+
+/**
+ * Initialize falling logos animation on subscription page
+ */
+function initFallingLogos() {
+    const subscriptionPage = document.getElementById('subscription-page');
+    if (!subscriptionPage) return;
+    
+    const paywallCard = subscriptionPage.querySelector('.paywall-card');
+    if (!paywallCard) return;
+    
+    // Check if already initialized
+    if (paywallCard.querySelector('.falling-logos-container')) return;
+    
+    // Create container for falling logos
+    const container = document.createElement('div');
+    container.className = 'falling-logos-container';
+    paywallCard.insertBefore(container, paywallCard.firstChild);
+    
+    // Logo variations
+    const colors = ['blue', 'orange', 'teal', 'purple', 'white'];
+    const logoCount = 12;
+    
+    // Create falling logos
+    for (let i = 0; i < logoCount; i++) {
+        createFallingLogo(container, colors, i, logoCount);
+    }
+}
+
+function createFallingLogo(container, colors, index, total) {
+    const logo = document.createElement('div');
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    logo.className = `falling-logo ${color}`;
+    
+    // Random properties for variety
+    const size = 20 + Math.random() * 25; // 20-45px
+    const left = (index / total) * 100 + (Math.random() * 15 - 7.5); // Distributed across width with variance
+    const rotation = Math.random() * 360 - 180; // -180 to 180 degrees
+    const duration = 6 + Math.random() * 6; // 6-12 seconds (faster)
+    const delay = Math.random() * duration; // Stagger start times
+    const opacity = 0.08 + Math.random() * 0.12; // 0.08-0.20 opacity
+    
+    logo.style.cssText = `
+        width: ${size}px;
+        height: ${size}px;
+        left: ${left}%;
+        top: -60px;
+        --rotation: ${rotation}deg;
+        --opacity: ${opacity};
+        animation-duration: ${duration}s;
+        animation-delay: -${delay}s;
+    `;
+    
+    container.appendChild(logo);
+}
+
+// Initialize falling logos when navigating to subscription page
+window.initFallingLogos = initFallingLogos;
 
 // ============================================
 // FEEDBACK SYSTEM
@@ -6153,6 +6832,9 @@ async function handleUserSignOutLocal() {
         // Always clear local storage and navigate, even if there's an error
         // (user might be offline, but we still want to sign them out locally)
         localStorage.clear();
+        // Reset session flags and clear swipe stack
+        window.ideasGeneratedThisSession = false;
+        window.ideasStack = [];
         navigateTo('sign-in-page');
         
         // Only show error if there was a real problem
@@ -6165,6 +6847,8 @@ async function handleUserSignOutLocal() {
         console.error('❌ Sign out error:', error);
         // Still sign out locally even if there's an error
         localStorage.clear();
+        window.ideasGeneratedThisSession = false;
+        window.ideasStack = [];
         navigateTo('sign-in-page');
     }
 }
@@ -6254,23 +6938,33 @@ async function initializeApp() {
         const onboardingStep = await getOnboardingStep(user.id);
         console.log('🔍 Onboarding step:', onboardingStep);
         
+        // DEV DEBUG: Fetch profile to log state
+        const debugProfile = await getUserProfile(user.id);
+        console.log('🔍 DEBUG Profile state:', {
+            hasProfile: !!debugProfile,
+            onboarding_complete: debugProfile?.onboarding_complete,
+            brand_name: debugProfile?.brand_name ? 'SET' : 'EMPTY',
+            trial_started_at: debugProfile?.trial_started_at ? 'SET' : 'NULL'
+        });
+        
         logAuthEvent(AUTH_EVENTS.ONBOARDING_GATE, { 
             userId: user.id, 
             step: onboardingStep 
         });
         
         // Route based on step:
-        // 0 or null = Page 1
-        // 1 = Page 2 (completed page 1)
-        // 2 = Paywall (completed page 2)
+        // 0 or null = Page 1 (new user or no profile)
+        // 1 = Page 2 (has brand_name but not complete)
+        // 2 = Paywall (onboarding_complete is true)
+        // CRITICAL: Step 0 MUST go to onboarding, NOT paywall
         if (onboardingStep >= 2) {
-            console.log('📍 Routing to paywall-page (step 2)');
+            console.log('📍 Routing to paywall-page (step 2 - onboarding complete)');
             navigateTo('paywall-page');
         } else if (onboardingStep === 1) {
-            console.log('📍 Routing to onboarding-2-page (step 1)');
+            console.log('📍 Routing to onboarding-2-page (step 1 - has brand_name)');
             navigateTo('onboarding-2-page');
         } else {
-            console.log('📍 Routing to onboarding-1-page (step 0)');
+            console.log('📍 Routing to onboarding-1-page (step 0 - new/incomplete)');
             navigateTo('onboarding-1-page');
         }
         // Note: loadIdeasFromSupabase is triggered via navigateTo('homepage')
@@ -6329,6 +7023,57 @@ function initRangeSliders() {
 document.addEventListener('DOMContentLoaded', async () => {
     updateFeedbackCharCount();
     
+    // CRITICAL: Ensure all modals are hidden on page load to prevent blocking auth pages
+    // But DON'T use inline styles that override CSS - just remove active class
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.classList.remove('active');
+        // Let CSS handle the hiding via .modal:not(.active) selector
+    });
+    console.log('✅ All modals reset on page load');
+    
+    // CRITICAL: Initialize auth UI components EARLY (before auth check)
+    // This ensures password toggles and forgot password work on the sign-in page
+    if (typeof initPasswordToggles === 'function') {
+        initPasswordToggles();
+        console.log('✅ Password toggles initialized early');
+    }
+    if (typeof initForgotPasswordModal === 'function') {
+        initForgotPasswordModal();
+        console.log('✅ Forgot password modal initialized early');
+    }
+    
+    // CRITICAL FIX: Add direct click handlers for auth buttons as a fallback
+    // This ensures buttons work even if form submission fails
+    const signinSubmitBtn = document.getElementById('signin-submit-btn');
+    if (signinSubmitBtn) {
+        signinSubmitBtn.addEventListener('click', (e) => {
+            console.log('🔐 Sign-in button clicked directly');
+            // Form submit will be triggered by the form handler
+            // This click handler is just for logging/debugging
+            const form = signinSubmitBtn.closest('form');
+            if (form) {
+                console.log('📝 Form found, submit should trigger');
+            }
+        });
+        console.log('✅ Sign-in submit button click handler attached');
+    }
+    
+    const authToggleBtn = document.getElementById('auth-toggle');
+    if (authToggleBtn && !authToggleBtn.dataset.directHandlerAttached) {
+        authToggleBtn.dataset.directHandlerAttached = 'true';
+        authToggleBtn.addEventListener('click', (e) => {
+            console.log('🔄 Auth toggle clicked directly');
+        });
+        console.log('✅ Auth toggle direct handler attached');
+    }
+    
+    const forgotPasswordBtn = document.getElementById('forgot-password-btn');
+    if (forgotPasswordBtn && !forgotPasswordBtn.dataset.directHandlerAttached) {
+        forgotPasswordBtn.dataset.directHandlerAttached = 'true';
+        console.log('✅ Forgot password button found');
+    }
+
     // Initialize range sliders for onboarding
     initRangeSliders();
     
@@ -6405,6 +7150,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         if (event === 'SIGNED_OUT') {
             localStorage.clear();
+            window.ideasGeneratedThisSession = false;
+            window.ideasStack = [];
             navigateTo('sign-in-page');
         }
         
@@ -7068,11 +7815,8 @@ function initPlatformSelector() {
                 selectedPlatform = 'tiktok';
                 localStorage.setItem('selectedPlatform', selectedPlatform);
                 setPlatformState(selectedPlatform);
-                // Regenerate ideas for new platform state
-                const cardStack = document.getElementById('card-stack');
-                if (cardStack) {
-                    generateNewIdeas({ showLoading: false });
-                }
+                // Just retheme existing cards - don't regenerate!
+                rethemeSwipeCards(selectedPlatform);
             }
         });
     }
@@ -7083,15 +7827,50 @@ function initPlatformSelector() {
                 selectedPlatform = 'youtube';
                 localStorage.setItem('selectedPlatform', selectedPlatform);
                 setPlatformState(selectedPlatform);
-                // Regenerate ideas for new platform state
-                const cardStack = document.getElementById('card-stack');
-                if (cardStack) {
-                    generateNewIdeas({ showLoading: false });
-                }
+                // Just retheme existing cards - don't regenerate!
+                rethemeSwipeCards(selectedPlatform);
             }
         });
     }
 }
+
+/**
+ * Retheme existing swipe cards without regenerating
+ * Updates platform data attribute for CSS theming
+ */
+function rethemeSwipeCards(platform) {
+    const cardStack = document.getElementById('card-stack');
+    if (!cardStack) return;
+    
+    const cards = cardStack.querySelectorAll('.idea-card');
+    cards.forEach(card => {
+        card.dataset.platform = platform;
+        // Update idea data if present
+        if (card.dataset.idea) {
+            try {
+                const ideaData = JSON.parse(card.dataset.idea);
+                ideaData.platforms = [platform];
+                card.dataset.idea = JSON.stringify(ideaData);
+            } catch (e) {
+                // Ignore JSON parse errors
+            }
+        }
+    });
+    
+    // Also update ideasStack
+    if (window.ideasStack && window.ideasStack.length > 0) {
+        window.ideasStack.forEach(idea => {
+            idea.platforms = [platform];
+        });
+        // Save updated stack
+        if (typeof window.saveSwipeStackToStorage === 'function') {
+            window.saveSwipeStackToStorage();
+        }
+    }
+    
+    console.log('🎨 Rethemed', cards.length, 'cards to platform:', platform);
+}
+window.rethemeSwipeCards = rethemeSwipeCards;
 
 /**
  * Set platform state and trigger distinctive animation sequence

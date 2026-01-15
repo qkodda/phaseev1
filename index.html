@@ -493,8 +493,10 @@
                     <p class="trial-countdown" id="trial-countdown"></p>
                 </div>
             </div>
-            <!-- Terms link directly under container -->
-            <a href="https://tacobell.com" target="_blank" class="terms-link">Terms and Conditions</a>
+            <!-- Mini Terms Disclosure -->
+            <div class="mini-terms-disclosure">
+                <p>3-day free trial, then $4.99/month. Subscription automatically renews unless canceled at least 24 hours before the end of the trial or current billing period. Manage or cancel your subscription anytime in your Apple ID settings. Any unused portion of a free trial will be forfeited if a subscription is purchased. By continuing, you agree to our <a href="#" onclick="navigateTo('terms-page'); return false;">Terms & Conditions</a> and <a href="#" onclick="navigateTo('privacy-page'); return false;">Privacy Policy</a>.</p>
+            </div>
         </div>
 
         <!-- SUBSCRIPTION PAGE (Settings) -->
@@ -514,11 +516,11 @@
                 <h2 class="page-section-title">Subscription</h2>
 
                 <div class="paywall-card" style="margin-top: 12px;">
+                    <p class="plan-name-label">Pro Plan</p>
                     <div class="paywall-price">
-                        <span class="price-amount">$6.99</span>
+                        <span class="price-amount">$4.99</span>
                         <span class="price-period">/month</span>
                     </div>
-                    <p class="trial-text">3-Day Free Trial</p>
                     <ul class="feature-list">
                         <li>✓ Always know what to post</li>
                         <li>✓ Brainfog-free idea creation</li>
@@ -526,8 +528,13 @@
                         <li>✓ Tailored prompts for every platform</li>
                         <li>✓ Unlimited Generation</li>
                     </ul>
-                    <button class="btn-primary paywall-trial-btn" onclick="startFreeTrial()">Start Free Trial</button>
-                    <p class="terms-text">No commitment required.</p>
+                    <button class="btn-pro-plan" id="subscription-cta-btn" onclick="handleSubscriptionAction()">Start Pro Plan</button>
+                    <p class="trial-status-text" id="subscription-trial-status"></p>
+                </div>
+                
+                <!-- Mini Terms Disclosure -->
+                <div class="mini-terms-disclosure">
+                    <p>3-day free trial, then $4.99/month. Subscription automatically renews unless canceled at least 24 hours before the end of the trial or current billing period. Manage or cancel your subscription anytime in your Apple ID settings. Any unused portion of a free trial will be forfeited if a subscription is purchased. By continuing, you agree to our <a href="#" onclick="navigateTo('terms-page'); return false;">Terms & Conditions</a> and <a href="#" onclick="navigateTo('privacy-page'); return false;">Privacy Policy</a>.</p>
                 </div>
             </div>
         </div>
@@ -987,39 +994,41 @@
         <div id="how-it-works-modal" class="modal">
             <div class="modal-content how-it-works-content">
                 <button class="modal-close" id="close-how-it-works">&times;</button>
-                <h3 class="modal-title">How Phazee Works</h3>
-                <p class="modal-subtitle">Your AI-powered content ideation engine</p>
                 
-                <div class="modal-body">
-                    <div class="step">
-                        <div class="step-icon">💡</div>
-                        <div class="step-text">
-                            <h4>Tell Us About You</h4>
-                            <p>Set up your profile with your brand, niche, and style preferences</p>
+                <div class="hiw-header">
+                    <h3 class="hiw-title">How Phazee Works</h3>
+                </div>
+                
+                <div class="hiw-steps">
+                    <div class="hiw-step">
+                        <div class="hiw-step-number">1</div>
+                        <div class="hiw-step-content">
+                            <h4>Build Your Profile</h4>
+                            <p>Tell us your niche, audience, and content style. The more context you provide, the more relevant your ideas become.</p>
                         </div>
                     </div>
                     
-                    <div class="step">
-                        <div class="step-icon">✨</div>
-                        <div class="step-text">
-                            <h4>Generate Ideas</h4>
-                            <p>Tap generate and watch AI create personalized content ideas just for you</p>
+                    <div class="hiw-step">
+                        <div class="hiw-step-number">2</div>
+                        <div class="hiw-step-content">
+                            <h4>Generate the Goods!</h4>
+                            <p>With your direction and profile, we'll create 7 unique ideas tailored to your brand! Or if you're just feeling lucky, hit the Bolt to generate at random!</p>
                         </div>
                     </div>
                     
-                    <div class="step">
-                        <div class="step-icon">👆</div>
-                        <div class="step-text">
-                            <h4>Swipe to Curate</h4>
-                            <p>Skip what doesn't fit, pin what you love to your drawing board</p>
+                    <div class="hiw-step">
+                        <div class="hiw-step-number">3</div>
+                        <div class="hiw-step-content">
+                            <h4>Swipe & Build</h4>
+                            <p>Swipe right and customize any idea to fit your style! Swipe left for the system to pass on an idea!</p>
                         </div>
                     </div>
                     
-                    <div class="step">
-                        <div class="step-icon">📅</div>
-                        <div class="step-text">
-                            <h4>Schedule & Create</h4>
-                            <p>Plan your content calendar and bring your ideas to life</p>
+                    <div class="hiw-step">
+                        <div class="hiw-step-number">4</div>
+                        <div class="hiw-step-content">
+                            <h4>Schedule Your Content!</h4>
+                            <p>Schedule your selected ideas for shooting or posting!</p>
                         </div>
                     </div>
                 </div>
@@ -1230,48 +1239,6 @@
                     </div>
 
                     <div class="input-group">
-                        <label>Culture Values</label>
-                        <div class="pill-selection" id="profile-culture-values">
-                            <div class="pill-row" data-speed="28">
-                                <button class="pill-btn" data-value="innovation">Innovation</button>
-                                <button class="pill-btn" data-value="authenticity">Authenticity</button>
-                                <button class="pill-btn" data-value="community">Community</button>
-                                <button class="pill-btn" data-value="creativity">Creativity</button>
-                                <button class="pill-btn" data-value="sustainability">Sustainability</button>
-                                <button class="pill-btn" data-value="quality">Quality</button>
-                                <button class="pill-btn" data-value="excellence">Excellence</button>
-                                <button class="pill-btn" data-value="boldness">Boldness</button>
-                                <button class="pill-btn" data-value="curiosity">Curiosity</button>
-                                <button class="pill-btn" data-value="kindness">Kindness</button>
-                            </div>
-                            <div class="pill-row" data-speed="32" data-direction="reverse">
-                                <button class="pill-btn" data-value="integrity">Integrity</button>
-                                <button class="pill-btn" data-value="playfulness">Playfulness</button>
-                                <button class="pill-btn" data-value="leadership">Leadership</button>
-                                <button class="pill-btn" data-value="humility">Humility</button>
-                                <button class="pill-btn" data-value="collaboration">Collaboration</button>
-                                <button class="pill-btn" data-value="adventure">Adventure</button>
-                                <button class="pill-btn" data-value="focus">Focus</button>
-                                <button class="pill-btn" data-value="empathy">Empathy</button>
-                                <button class="pill-btn" data-value="craftsmanship">Craftsmanship</button>
-                                <button class="pill-btn" data-value="joy">Joy</button>
-                            </div>
-                            <div class="pill-row" data-speed="36">
-                                <button class="pill-btn" data-value="resilience">Resilience</button>
-                                <button class="pill-btn" data-value="clarity">Clarity</button>
-                                <button class="pill-btn" data-value="gratitude">Gratitude</button>
-                                <button class="pill-btn" data-value="precision">Precision</button>
-                                <button class="pill-btn" data-value="growth">Growth</button>
-                                <button class="pill-btn" data-value="fun">Fun</button>
-                                <button class="pill-btn" data-value="trust">Trust</button>
-                                <button class="pill-btn" data-value="balance">Balance</button>
-                                <button class="pill-btn" data-value="courage">Courage</button>
-                                <button class="pill-btn" data-value="insight">Insight</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
                         <label for="profile-content-goals">Content Goals</label>
                         <textarea id="profile-content-goals" rows="3" placeholder="What do you want to achieve with your content?"></textarea>
                     </div>
@@ -1298,25 +1265,31 @@
                     </div>
 
                     <div class="input-group">
-                        <label for="profile-post-frequency">Post Frequency</label>
-                        <select id="profile-post-frequency" class="custom-dropdown">
-                            <option value="">Select frequency</option>
-                            <option value="daily">Daily</option>
-                            <option value="3-per-week">3x per week</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="bi-weekly">Bi-weekly</option>
-                            <option value="monthly">Monthly</option>
-                        </select>
+                        <label>Post Frequency</label>
+                        <div class="range-slider" id="profile-post-frequency-slider">
+                            <input type="range" id="profile-post-frequency-range" min="0" max="4" step="1" value="2" class="range-input">
+                            <div class="range-labels">
+                                <span data-value="monthly">Monthly</span>
+                                <span data-value="bi-weekly">Bi-weekly</span>
+                                <span data-value="weekly">Weekly</span>
+                                <span data-value="3-per-week">3x/week</span>
+                                <span data-value="daily">Daily</span>
+                            </div>
+                            <input type="hidden" id="profile-post-frequency" value="">
+                        </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="profile-production-level">Production Level</label>
-                        <select id="profile-production-level" class="custom-dropdown">
-                            <option value="">Select level</option>
-                            <option value="basic">Basic (Phone camera, natural lighting)</option>
-                            <option value="intermediate">Intermediate (DSLR, basic editing)</option>
-                            <option value="professional">Professional (Full production team)</option>
-                        </select>
+                        <label>Production Level</label>
+                        <div class="range-slider" id="profile-production-level-slider">
+                            <input type="range" id="profile-production-level-range" min="0" max="2" step="1" value="1" class="range-input">
+                            <div class="range-labels">
+                                <span data-value="basic">Basic</span>
+                                <span data-value="intermediate">Intermediate</span>
+                                <span data-value="professional">Professional</span>
+                            </div>
+                            <input type="hidden" id="profile-production-level" value="">
+                        </div>
                     </div>
 
                     <div class="input-group">
@@ -1349,9 +1322,11 @@
 
             <div class="page-content">
                 <h2 class="page-section-title">Account Details</h2>
+                
+                <p class="last-signin-text" id="account-last-signin">Last sign-in: —</p>
 
                 <div class="input-group">
-                    <label for="account-name">Full Name <span style="color: #e53e3e;">*</span></label>
+                    <label for="account-name">Name <span style="color: #e53e3e;">*</span></label>
                     <input type="text" id="account-name" placeholder="John Doe" value="John Doe" required>
                 </div>
 
@@ -1363,17 +1338,21 @@
                 <div class="input-group">
                     <label for="account-phone">Phone Number</label>
                     <input type="tel" id="account-phone" placeholder="+1 (555) 123-4567" value="">
+                    <p class="input-helper-subtle">Used for account recovery only.</p>
                 </div>
 
-                <!-- Platform preference removed as requested -->
-
-                <div style="margin-top: 40px; display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                <div class="security-section">
+                    <h3 class="security-section-title">Security</h3>
+                    
                     <button class="btn-primary" style="width: 100%;" onclick="navigateTo('change-password-page')">
                         Change Password
                     </button>
+                    <p class="button-helper-text">Update your password to keep your account secure.</p>
+                    
                     <button class="btn-danger" style="width: 100%;" onclick="navigateTo('delete-account-page')">
                         Delete Account
                     </button>
+                    <p class="button-helper-text">Permanently remove your account and data.</p>
                 </div>
             </div>
         </div>
@@ -1480,26 +1459,45 @@
             <div class="page-content">
                 <h2 class="page-section-title">Notifications</h2>
 
-                <div class="notification-item">
-                    <div class="notification-info">
-                        <h4 class="notification-title">General Notifications</h4>
-                        <p class="notification-desc">Receive updates about your account and app</p>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="general-notifications" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
+                <div class="notification-coming-soon">
+                    <p class="coming-soon-badge">Push notifications coming soon!</p>
                 </div>
 
-                <div class="notification-item">
-                    <div class="notification-info">
-                        <h4 class="notification-title">Daily Ideas</h4>
-                        <p class="notification-desc">Get fresh content ideas delivered every day</p>
+                <div class="notification-group">
+                    <h4 class="notification-group-title">General Notifications</h4>
+                    
+                    <div class="notification-item notification-disabled">
+                        <div class="notification-info">
+                            <h4 class="notification-title">Daily Ideas</h4>
+                            <p class="notification-desc">Get fresh content ideas delivered every day</p>
+                        </div>
+                        <label class="toggle-switch toggle-disabled">
+                            <input type="checkbox" disabled>
+                            <span class="toggle-slider"></span>
+                        </label>
                     </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="daily-ideas" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
+
+                    <div class="notification-item notification-disabled">
+                        <div class="notification-info">
+                            <h4 class="notification-title">Idea Counter Reminder</h4>
+                            <p class="notification-desc">Reminder when your idea count is running low</p>
+                        </div>
+                        <label class="toggle-switch toggle-disabled">
+                            <input type="checkbox" disabled>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="notification-item notification-disabled">
+                        <div class="notification-info">
+                            <h4 class="notification-title">Holiday Reminder</h4>
+                            <p class="notification-desc">Get notified about upcoming content opportunities</p>
+                        </div>
+                        <label class="toggle-switch toggle-disabled">
+                            <input type="checkbox" disabled>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1561,7 +1559,7 @@
                         </button>
                     </div>
 
-                    <button class="btn-danger" style="margin-top: 8px; margin-bottom: 8px;" onclick="handleUserSignOut()">Sign Out</button>
+                    <button class="btn-danger" style="margin-top: 4px; margin-bottom: 4px;" onclick="handleUserSignOut()">Sign Out</button>
                     
                     <div class="settings-footer">
                         <p class="copyright-text">© 2026 Phazee. All rights reserved.</p>
@@ -1588,20 +1586,58 @@
                 <h2 class="page-section-title">Privacy Policy</h2>
 
                 <div class="text-content">
-                    <h3>Privacy Policy</h3>
-                    <p><strong>Last Updated:</strong> November 2025</p>
+                    <p class="last-updated"><strong>Last Updated:</strong> January 2026</p>
+                    
+                    <p>Phazee ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our mobile application.</p>
                     
                     <h4>1. Information We Collect</h4>
-                    <p>We collect information you provide directly to us, including your name, email address, and content preferences.</p>
+                    <p><strong>Account Information:</strong> When you create an account, we collect your email address and display name.</p>
+                    <p><strong>User-Generated Content:</strong> We store the content ideas you create, save, edit, and schedule within the app, including your profile preferences such as niche, audience, content style, and platform selections.</p>
+                    <p><strong>Usage Data:</strong> We may collect basic app interaction data to understand how you use Phazee and to improve our services.</p>
+                    <p><strong>Device Information:</strong> We may collect basic device identifiers, operating system version, and crash logs to diagnose issues and improve app stability.</p>
+                    <p><strong>Subscription Status:</strong> We store information about your subscription status to manage access to features. Phazee does not collect or store payment card details. All payments and subscriptions are processed securely by Apple through the App Store.</p>
                     
                     <h4>2. How We Use Your Information</h4>
-                    <p>We use the information we collect to provide, maintain, and improve our services, including generating personalized content ideas.</p>
+                    <p>We use the information we collect to:</p>
+                    <ul>
+                        <li>Provide and operate the Phazee service</li>
+                        <li>Generate personalized content ideas based on your profile</li>
+                        <li>Save and sync your ideas across sessions</li>
+                        <li>Manage your subscription and account</li>
+                        <li>Improve and optimize our app</li>
+                        <li>Respond to support requests</li>
+                        <li>Ensure security and prevent fraud</li>
+                    </ul>
                     
-                    <h4>3. Data Security</h4>
-                    <p>We take reasonable measures to protect your personal information from unauthorized access and disclosure.</p>
+                    <h4>3. How We Share Your Information</h4>
+                    <p><strong>Service Providers:</strong> We use Supabase as our backend service provider to securely store and manage your data.</p>
+                    <p><strong>Payment Processing:</strong> Apple handles all payment processing for subscriptions. We do not have access to your payment card information.</p>
+                    <p>We do not sell your personal information to third parties.</p>
                     
-                    <h4>4. Contact Us</h4>
-                    <p>If you have questions about this Privacy Policy, please contact us at Support@Phazee.App</p>
+                    <h4>4. Data Retention</h4>
+                    <p>We retain your data for as long as your account is active or as needed to provide you services. You may request deletion of your account and associated data at any time.</p>
+                    
+                    <h4>5. Data Security</h4>
+                    <p>We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the internet is 100% secure.</p>
+                    
+                    <h4>6. Children's Privacy</h4>
+                    <p>Phazee is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If you believe we have collected information from a child under 13, please contact us immediately.</p>
+                    
+                    <h4>7. Your Rights and Choices</h4>
+                    <p>You may:</p>
+                    <ul>
+                        <li>Access and update your account information through the app</li>
+                        <li>Request a copy of your data</li>
+                        <li>Request deletion of your account and data</li>
+                        <li>Cancel your subscription at any time through Apple ID settings</li>
+                    </ul>
+                    
+                    <h4>8. Changes to This Policy</h4>
+                    <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy in the app and updating the "Last Updated" date.</p>
+                    
+                    <h4>9. Contact Us</h4>
+                    <p>If you have questions about this Privacy Policy or our data practices, please contact us at:</p>
+                    <p><strong>Email:</strong> Support@Phazee.App</p>
                 </div>
             </div>
         </div>
@@ -1623,23 +1659,55 @@
                 <h2 class="page-section-title">Terms & Conditions</h2>
 
                 <div class="text-content">
-                    <h3>Terms & Conditions</h3>
-                    <p><strong>Last Updated:</strong> November 2025</p>
+                    <p class="last-updated"><strong>Last Updated:</strong> January 2026</p>
                     
-                    <h4>1. Acceptance of Terms</h4>
-                    <p>By accessing and using this application, you accept and agree to be bound by these Terms and Conditions.</p>
+                    <p>Welcome to Phazee. By using our application, you agree to these Terms & Conditions. Please read them carefully.</p>
                     
-                    <h4>2. Subscription Terms</h4>
-                    <p>The service is provided on a subscription basis at $6.99/month with a 3-day free trial. You may cancel at any time.</p>
+                    <h4>1. Account & Eligibility</h4>
+                    <p>You must be at least 13 years old to use Phazee. By creating an account, you confirm that the information you provide is accurate and that you will keep it updated. You are responsible for maintaining the security of your account credentials.</p>
                     
-                    <h4>3. Use of Service</h4>
-                    <p>You agree to use the service only for lawful purposes and in accordance with these Terms.</p>
+                    <h4>2. Subscriptions & Billing</h4>
+                    <p>Phazee offers a subscription with a 3-day free trial, after which the subscription automatically renews at $4.99 per month unless canceled.</p>
+                    <p>Payment will be charged to your Apple ID account at the end of the trial period. Subscriptions automatically renew unless auto-renew is turned off at least 24 hours before the end of the current billing period.</p>
+                    <p>You may manage or cancel your subscription at any time through your Apple ID account settings. Deleting the app does not cancel your subscription.</p>
+                    <p>If you start a subscription before the free trial ends, any unused portion of the trial will be forfeited, as required by Apple's subscription policies.</p>
+                    <p>All billing and refunds are handled by Apple in accordance with their App Store terms.</p>
                     
-                    <h4>4. Intellectual Property</h4>
-                    <p>All content generated remains your property. Our platform and technology are protected by copyright.</p>
+                    <h4>3. Acceptable Use</h4>
+                    <p>You agree to use Phazee only for lawful purposes. You may not:</p>
+                    <ul>
+                        <li>Use the service to create harmful, illegal, or offensive content</li>
+                        <li>Attempt to interfere with or disrupt the service</li>
+                        <li>Share your account with others or transfer your account</li>
+                        <li>Reverse engineer or attempt to extract the source code</li>
+                        <li>Use automated systems to access the service without permission</li>
+                    </ul>
                     
-                    <h4>5. Termination</h4>
-                    <p>We reserve the right to terminate or suspend access to our service immediately, without prior notice.</p>
+                    <h4>4. User Content</h4>
+                    <p><strong>Your Ownership:</strong> You retain ownership of all content ideas you create using Phazee.</p>
+                    <p><strong>License to Operate:</strong> By using our service, you grant us a limited license to store, process, and display your content solely for the purpose of providing the Phazee service to you.</p>
+                    <p>You are solely responsible for any content you create and share outside of Phazee.</p>
+                    
+                    <h4>5. Intellectual Property</h4>
+                    <p>The Phazee app, including its design, features, and technology, is protected by copyright and other intellectual property laws. You may not copy, modify, or distribute any part of the app without our written permission.</p>
+                    
+                    <h4>6. Disclaimers</h4>
+                    <p>Phazee is provided "as is" without warranties of any kind. We do not guarantee that the service will be uninterrupted, error-free, or meet your specific requirements.</p>
+                    <p>Content ideas generated by our AI are suggestions only. You are responsible for reviewing and adapting any content before use.</p>
+                    
+                    <h4>7. Limitation of Liability</h4>
+                    <p>To the maximum extent permitted by law, Phazee shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the service.</p>
+                    
+                    <h4>8. Termination</h4>
+                    <p>We reserve the right to suspend or terminate your access to Phazee at any time if you violate these Terms or engage in conduct that we determine to be harmful to other users or our service.</p>
+                    <p>You may terminate your account at any time by deleting your account through the app settings. Canceling your subscription does not automatically delete your account.</p>
+                    
+                    <h4>9. Changes to Terms</h4>
+                    <p>We may update these Terms from time to time. We will notify you of significant changes by posting the updated Terms in the app. Your continued use of Phazee after changes are posted constitutes acceptance of the new Terms.</p>
+                    
+                    <h4>10. Contact Us</h4>
+                    <p>If you have questions about these Terms, please contact us at:</p>
+                    <p><strong>Email:</strong> Support@Phazee.App</p>
                 </div>
             </div>
         </div>
@@ -1662,31 +1730,82 @@
 
                 <div class="help-content">
                     <div class="help-section">
-                        <h3>Frequently Asked Questions</h3>
+                        <h3>Getting Started</h3>
+                        
+                        <details class="faq-item">
+                            <summary>How do I sign up or log in?</summary>
+                            <p>You can create an account using your email address. After signing up, you'll receive a verification email. Once verified, you can log in and start using Phazee. If you already have an account, simply enter your email and password to sign in.</p>
+                        </details>
+
+                        <details class="faq-item">
+                            <summary>What is onboarding and why is it required?</summary>
+                            <p>When you first sign up, you'll complete a brief onboarding process to set up your profile. This includes selecting your content niche, target audience, preferred platforms, and content style. This information helps our AI generate more relevant and personalized content ideas for you.</p>
+                        </details>
+                    </div>
+
+                    <div class="help-section">
+                        <h3>Using Phazee</h3>
                         
                         <details class="faq-item">
                             <summary>How do I generate content ideas?</summary>
-                            <p>On the homepage, tap the refresh icon button to generate 7 new AI-powered content ideas based on your profile.</p>
+                            <p>On the homepage, tap the Generate button to create 7 new AI-powered content ideas based on your profile. You can also tap the Bolt icon to generate random ideas without using your profile preferences.</p>
                         </details>
 
                         <details class="faq-item">
-                            <summary>How does the swipe feature work?</summary>
-                            <p>Swipe left or tap the X button to skip an idea. Swipe right or tap the heart button to pin an idea for later.</p>
+                            <summary>How does swiping work?</summary>
+                            <p>Swipe right or tap the heart button to save an idea to your Drawing Board for later. Swipe left or tap the X button to pass on an idea and move to the next one.</p>
                         </details>
 
                         <details class="faq-item">
-                            <summary>Can I edit pinned ideas?</summary>
-                            <p>Yes! Tap any pinned idea to view and edit its details before scheduling.</p>
+                            <summary>Can I edit my saved ideas?</summary>
+                            <p>Yes! Tap any saved idea to expand it, then tap the edit button to customize the title, hook, content details, and more. Save your changes before scheduling or closing.</p>
                         </details>
 
                         <details class="faq-item">
-                            <summary>Can I cancel my subscription?</summary>
-                            <p>Yes, you can cancel anytime from Settings > Manage Subscription. You'll retain access until the end of your billing period.</p>
+                            <summary>How do I schedule content?</summary>
+                            <p>From an expanded idea card, tap the schedule button to add it to your content calendar. Select a date and the idea will be scheduled for that day. View all your scheduled content in the Calendar tab.</p>
                         </details>
 
                         <details class="faq-item">
-                            <summary>How do I update my content preferences?</summary>
-                            <p>Go to your Profile page to update your content type, platform, audience, and other preferences.</p>
+                            <summary>How do I update my profile preferences?</summary>
+                            <p>Go to your Profile page by tapping the profile icon in the top header. From there, you can update your niche, audience, platforms, and content style at any time.</p>
+                        </details>
+                    </div>
+
+                    <div class="help-section">
+                        <h3>Subscription & Billing</h3>
+                        
+                        <details class="faq-item">
+                            <summary>How does the free trial work?</summary>
+                            <p>Phazee offers a 3-day free trial. After the trial ends, your subscription automatically renews at $4.99 per month unless canceled. You can cancel anytime through your Apple ID subscription settings.</p>
+                        </details>
+
+                        <details class="faq-item">
+                            <summary>How do I cancel my subscription?</summary>
+                            <p>You can cancel your subscription anytime through your Apple ID settings: Go to Settings > [Your Name] > Subscriptions > Phazee > Cancel Subscription. You'll retain access until the end of your current billing period. Note: Deleting the app does not cancel your subscription.</p>
+                        </details>
+                    </div>
+
+                    <div class="help-section">
+                        <h3>Features & Updates</h3>
+                        
+                        <details class="faq-item">
+                            <summary>Why are notification settings disabled?</summary>
+                            <p>Push notifications are coming soon! We're working on features like Daily Ideas reminders, Idea Counter alerts, and Holiday content reminders. The notification toggles are currently disabled but will be enabled in a future update.</p>
+                        </details>
+                    </div>
+
+                    <div class="help-section">
+                        <h3>Troubleshooting</h3>
+                        
+                        <details class="faq-item">
+                            <summary>I can't log in to my account</summary>
+                            <p>Make sure you're using the correct email address and password. If you've forgotten your password, tap "Forgot Password" on the login screen to receive a reset link via email. Check your spam folder if you don't see it.</p>
+                        </details>
+
+                        <details class="faq-item">
+                            <summary>How is my data protected?</summary>
+                            <p>We take your privacy seriously. Your data is stored securely using industry-standard encryption. We do not sell your personal information. For full details, please review our Privacy Policy in Settings.</p>
                         </details>
                     </div>
 
@@ -1740,6 +1859,8 @@
                         <span>Thank you! Your feedback has been sent.</span>
                     </div>
                 </div>
+                
+                <p class="feedback-contact-line">Or reach us directly at <a href="mailto:Support@Phazee.App" class="feedback-email-link">Support@Phazee.App</a></p>
             </div>
         </div>
     </div>

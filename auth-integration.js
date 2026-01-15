@@ -237,6 +237,24 @@ export async function handleSignIn(email, password) {
             logAuthEvent(AUTH_EVENTS.LOGIN_SUCCESS, { userId: currentUser.id });
             clearErrorTracking();
             
+            // CRITICAL: Ensure profile exists on sign-in (create if missing)
+            // This handles cases where profile was deleted or never created
+            try {
+                const existingProfile = await getUserProfile(data.user.id);
+                if (!existingProfile) {
+                    console.log('⚠️ No profile found on sign-in, creating one...');
+                    await createUserProfile(
+                        data.user.id, 
+                        data.user.user_metadata?.full_name || '', 
+                        data.user.email
+                    );
+                    console.log('✅ Profile created on sign-in');
+                }
+            } catch (profileError) {
+                console.error('⚠️ Profile check/creation on sign-in failed:', profileError);
+                // Don't block sign-in, but log the issue
+            }
+            
             return {
                 success: true,
                 user: data.user,
@@ -470,17 +488,25 @@ async function createUserProfile(userId, name, email) {
 
 /**
  * Get user profile from database
+ * Uses maybeSingle() to gracefully handle 0 rows (returns null instead of error)
  */
 export async function getUserProfile(userId) {
+    // Guard against undefined/null userId
+    if (!userId) {
+        console.warn('⚠️ getUserProfile called with undefined/null userId');
+        return null;
+    }
+    
     console.log('👤 Fetching profile from database for:', userId);
     try {
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', userId)
-            .single();
+            .maybeSingle(); // Use maybeSingle() instead of single() to handle 0 rows gracefully
         
         if (error) {
+            // Only log actual errors, not "no rows" which is handled by maybeSingle
             console.error('Error fetching profile:', error);
             return null;
         }
@@ -505,12 +531,12 @@ export async function updateUserProfile(userId, profileData) {
         // Get current user to ensure we have email
         const { data: { user } } = await supabase.auth.getUser();
         
-        // Check if profile exists first
+        // Check if profile exists first (use maybeSingle to handle 0 rows)
         const { data: existingProfile } = await supabase
             .from('profiles')
             .select('id, onboarding_complete')
             .eq('id', userId)
-            .single();
+            .maybeSingle();
         
         // Build upsert data
         const upsertData = {
