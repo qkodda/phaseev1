@@ -261,11 +261,20 @@ body {
     ) !important;
 }
 
-#settings-page.page {
+/* Pages that fit in single viewport - no scroll needed */
+#settings-page.page,
+#account-details-page.page,
+#change-password-page.page,
+#delete-account-page.page,
+#feedback-page.page {
     overflow: hidden !important;
 }
 
-#settings-page {
+#settings-page,
+#account-details-page,
+#change-password-page,
+#delete-account-page,
+#feedback-page {
     overflow: hidden !important;
 }
 
@@ -277,7 +286,7 @@ body {
 #change-password-page .app-header,
 #delete-account-page .app-header,
 #notifications-page .app-header,
-#privacy-policy-page .app-header,
+#privacy-page .app-header,
 #terms-page .app-header,
 #help-page .app-header,
 #feedback-page .app-header,
@@ -286,7 +295,8 @@ body {
     top: 0 !important;
     left: 0 !important;
     transform: none !important;
-    width: 390px;
+    width: 100%;
+    max-width: 390px;
     height: 65px !important;
     display: flex !important;
     align-items: center;
@@ -299,23 +309,42 @@ body {
     visibility: visible !important;
     opacity: 1 !important;
     flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 /* Ensure page-content doesn't push header up */
 #profile-page .page-content,
-#settings-page .page-content,
-#account-details-page .page-content,
-#change-password-page .page-content,
-#delete-account-page .page-content,
-#notifications-page .page-content,
-#privacy-policy-page .page-content,
-#terms-page .page-content,
-#help-page .page-content,
-#feedback-page .page-content,
 #subscription-page .page-content {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
+}
+
+/* Pages with short content - no scroll needed */
+#settings-page .page-content,
+#account-details-page .page-content,
+#change-password-page .page-content,
+#delete-account-page .page-content,
+#feedback-page .page-content {
+    flex: 1;
+    min-height: 0;
+    overflow-y: hidden;
+}
+
+/* These pages should scroll entirely (header + content together) */
+#notifications-page .page-content,
+#privacy-page .page-content,
+#terms-page .page-content,
+#help-page .page-content {
+    flex: none;
+    overflow-y: visible;
+    max-width: 340px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    padding-left: 24px;
+    padding-right: 24px;
+    box-sizing: border-box;
 }
 
 /* Account details and change password page buttons should match input widths */
@@ -335,10 +364,59 @@ body {
     box-sizing: border-box;
 }
 
-/* Settings page - allow scroll if needed */
+/* Account Details - Last sign-in text */
+.last-signin-text {
+    font-size: 11px;
+    color: rgba(60, 60, 60, 0.6);
+    text-align: center;
+    margin-bottom: 12px;
+    margin-top: -4px;
+}
+
+/* Account Details - Input helper */
+.input-helper-subtle {
+    font-size: 11px;
+    color: rgba(60, 60, 60, 0.6);
+    margin-top: 4px;
+    margin-bottom: 0;
+}
+
+/* Account Details - Security section */
+.security-section {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.security-section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(40, 40, 40, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.button-helper-text {
+    font-size: 11px;
+    color: rgba(60, 60, 60, 0.6);
+    margin-top: -4px;
+    margin-bottom: 8px;
+}
+
+.delete-warning-text {
+    font-size: 10px;
+    color: #dc2626;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
+/* Settings page - no scroll, content fits */
 #settings-page .page-content {
-    overflow-y: auto !important;
-    padding-bottom: 60px;
+    overflow-y: hidden !important;
+    padding-bottom: 20px;
 }
 
 body:has(#homepage.page.active),
@@ -348,12 +426,23 @@ body:has(#account-details-page.page.active),
 body:has(#change-password-page.page.active),
 body:has(#delete-account-page.page.active),
 body:has(#notifications-page.page.active),
-body:has(#privacy-policy-page.page.active),
+body:has(#privacy-page.page.active),
 body:has(#terms-page.page.active),
 body:has(#help-page.page.active),
 body:has(#feedback-page.page.active),
 body:has(#subscription-page.page.active) {
     align-items: flex-start;
+}
+
+/* Full-page scroll for legal/info pages (header scrolls with content) */
+#notifications-page.page.active,
+#privacy-page.page.active,
+#terms-page.page.active,
+#help-page.page.active {
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding-bottom: 40px;
 }
 
 .page::-webkit-scrollbar {
@@ -511,15 +600,15 @@ body {
 
 .btn-danger {
     width: 100%;
-    padding: 10px;
+    padding: 12px; /* Match .btn-primary */
     background: #dc2626;
     color: white;
     border: none;
-    border-radius: 10px;
-    font-size: 14px;
+    border-radius: 12px; /* Match .btn-primary */
+    font-size: 16px; /* Match .btn-primary */
     font-weight: 600;
     cursor: pointer;
-    margin-top: 4px;
+    margin-top: 8px;
 }
 
 .icon-btn {
@@ -900,12 +989,32 @@ body {
 
 /* Ensure forgot password button is clickable */
 #forgot-password-btn {
-    display: block;
-    width: fit-content;
-    margin: 4px auto 0;
-    cursor: pointer;
-    z-index: 100;
-    position: relative;
+    display: block !important;
+    width: fit-content !important;
+    margin: 8px auto 0 !important;
+    cursor: pointer !important;
+    z-index: 100 !important;
+    position: relative !important;
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    background: none !important;
+    border: none !important;
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+    color: #666666 !important;
+    text-decoration: underline !important;
+}
+
+/* Auth toggle button (Create New Account / Back to Sign In) */
+#auth-toggle {
+    display: block !important;
+    width: 100% !important;
+    margin-top: 12px !important;
+    cursor: pointer !important;
+    z-index: 100 !important;
+    position: relative !important;
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
 }
 
 /* Help link styling - outside container */
@@ -969,14 +1078,15 @@ body {
     left: 0 !important;
     width: 200% !important;
     height: 100% !important;
-    background: linear-gradient(90deg, 
-        transparent 0%, 
+    background: linear-gradient(90deg,
+        transparent 0%,
         transparent 25%,
-        rgba(255, 255, 255, 0.2) 50%, 
+        rgba(255, 255, 255, 0.2) 50%,
         transparent 75%,
         transparent 100%
     ) !important;
     animation: seamlessShine 3s linear infinite !important;
+    pointer-events: none !important; /* CRITICAL: Prevent pseudo-element from blocking clicks */
 }
 
 .btn-signup:hover {
@@ -1018,15 +1128,18 @@ body {
 /* Password input wrapper with toggle */
 .password-wrapper {
     position: relative !important;
-    width: 100%;
+    width: 100% !important;
     display: flex !important;
     align-items: center !important;
 }
 
 .password-wrapper input {
-    width: 100%;
-    padding-right: 44px !important; /* Space for eye icon */
-    flex: 1;
+    width: 100% !important;
+    padding-right: 48px !important; /* Space for eye icon */
+    flex: 1 !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    box-sizing: border-box !important;
 }
 
 /* Password toggle - icon only, inside the input field */
@@ -1037,15 +1150,16 @@ body {
     transform: translateY(-50%) !important;
     background: transparent !important;
     border: none !important;
-    padding: 0 !important;
+    padding: 4px !important;
     margin: 0 !important;
-    width: 24px !important;
-    height: 24px !important;
+    width: 32px !important;
+    height: 32px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    z-index: 10 !important;
-    cursor: pointer;
+    z-index: 20 !important;
+    cursor: pointer !important;
+    pointer-events: auto !important;
     color: #999;
     display: flex;
     align-items: center;
@@ -1139,6 +1253,12 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    pointer-events: none; /* Ensure child elements don't block button clicks */
+}
+
+.btn-primary .btn-label,
+.btn-signup .btn-label {
+    pointer-events: none; /* Ensure child elements don't block button clicks */
 }
 
 .btn-primary.loading .btn-label,
@@ -1163,10 +1283,12 @@ body {
 /* Spinner animation */
 .spinner {
     animation: spin 1s linear infinite;
+    pointer-events: none; /* Ensure SVG doesn't block button clicks */
 }
 
 .spinner circle {
     stroke: currentColor;
+    pointer-events: none;
 }
 
 @keyframes spin {
@@ -1560,7 +1682,7 @@ body {
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     border-radius: 24px;
-    margin: 0 16px 100px 16px; /* 100px from bottom */
+    margin: 0 16px 12px 16px; /* Reduced: mini-terms now immediately below */
 }
 
 /* Price and trial text styling */
@@ -1681,6 +1803,291 @@ body {
     padding: 8px;
 }
 
+/* Mini Terms Disclosure */
+.mini-terms-disclosure {
+    padding: 12px 16px;
+    margin-top: 16px;
+    text-align: center;
+}
+
+.mini-terms-disclosure p {
+    font-size: 10px;
+    line-height: 1.5;
+    color: rgba(100, 100, 100, 0.9);
+    margin: 0;
+}
+
+#paywall-page .mini-terms-disclosure {
+    padding: 12px 20px;
+    margin-top: 12px;
+}
+
+#paywall-page .mini-terms-disclosure p {
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.mini-terms-disclosure a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+#paywall-page .mini-terms-disclosure a {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+#subscription-page .mini-terms-disclosure {
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    margin-top: 16px;
+}
+
+/* Pro Plan button - orange background, white text */
+.btn-pro-plan {
+    width: 100%;
+    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+    border: none;
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(255, 107, 0, 0.4);
+    transition: all 0.2s ease;
+    margin-top: 12px;
+}
+
+.btn-pro-plan:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 0, 0.5);
+}
+
+.btn-pro-plan:active {
+    transform: translateY(0);
+}
+
+/* Plan name label */
+.plan-name-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e3a5f;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+/* Trial status text */
+.trial-status-text {
+    font-size: 13px;
+    color: #666;
+    margin-top: 12px;
+    text-align: center;
+}
+
+.trial-status-text.trial-active {
+    color: #059669;
+    font-weight: 500;
+}
+
+.trial-status-text.trial-expired {
+    color: #dc2626;
+    font-weight: 500;
+}
+
+/* Trial ended message */
+.trial-ended-msg {
+    display: block;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Live countdown timer styling */
+.countdown-label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.countdown-timer {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+}
+
+.countdown-segment {
+    display: inline-flex;
+    align-items: baseline;
+    font-size: 18px;
+    font-weight: 700;
+    color: #059669;
+}
+
+.countdown-unit {
+    font-size: 11px;
+    font-weight: 500;
+    color: #666;
+    margin-left: 1px;
+}
+
+.countdown-seconds {
+    min-width: 28px;
+    animation: pulse-seconds 1s ease-in-out infinite;
+}
+
+@keyframes pulse-seconds {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* ============================================
+   SUBSCRIPTION PAGE - FALLING LOGOS ANIMATION
+   ============================================ */
+
+#subscription-page .paywall-card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(145deg, #0f172a 0%, #1e3a5f 60%, #234670 100%) !important;
+    color: #fff !important;
+}
+
+#subscription-page .paywall-card .plan-name-label,
+#subscription-page .paywall-card .feature-list li {
+    color: #fff !important;
+}
+
+/* Price text - must reset background-clip and text-fill-color for white text */
+#subscription-page .paywall-card .price-amount,
+#subscription-page .paywall-card .price-period {
+    color: #fff !important;
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    -webkit-text-fill-color: #fff !important;
+    filter: none !important;
+}
+
+#subscription-page .paywall-card .trial-status-text {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+#subscription-page .paywall-card .trial-status-text.trial-active .countdown-segment {
+    color: #4ade80 !important;
+}
+
+#subscription-page .paywall-card .trial-status-text.trial-expired,
+#subscription-page .paywall-card .trial-status-text.trial-expired .trial-ended-msg {
+    color: #fca5a5 !important;
+}
+
+#subscription-page .paywall-card .countdown-label,
+#subscription-page .paywall-card .countdown-unit {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Falling logos container - must cover entire card */
+.falling-logos-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Individual falling logo */
+.falling-logo {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background-image: url('Phazee-Logo.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.15;
+    animation: fall linear infinite;
+    pointer-events: none;
+}
+
+/* Different logo variations with colors */
+.falling-logo.blue {
+    filter: brightness(0) saturate(100%) invert(45%) sepia(98%) saturate(1500%) hue-rotate(175deg) brightness(95%) contrast(90%);
+    opacity: 0.12;
+}
+
+.falling-logo.orange {
+    filter: brightness(0) saturate(100%) invert(60%) sepia(90%) saturate(2000%) hue-rotate(360deg) brightness(100%) contrast(100%);
+    opacity: 0.1;
+}
+
+.falling-logo.teal {
+    filter: brightness(0) saturate(100%) invert(70%) sepia(50%) saturate(800%) hue-rotate(130deg) brightness(95%) contrast(90%);
+    opacity: 0.12;
+}
+
+.falling-logo.purple {
+    filter: brightness(0) saturate(100%) invert(40%) sepia(80%) saturate(1200%) hue-rotate(240deg) brightness(90%) contrast(95%);
+    opacity: 0.1;
+}
+
+.falling-logo.white {
+    filter: brightness(0) invert(1);
+    opacity: 0.08;
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(-60px) rotate(var(--rotation));
+        opacity: 0;
+    }
+    5% {
+        opacity: var(--opacity);
+    }
+    95% {
+        opacity: var(--opacity);
+    }
+    100% {
+        transform: translateY(500px) rotate(calc(var(--rotation) + 360deg));
+        opacity: 0;
+    }
+}
+
+/* Ensure content stays above falling logos */
+#subscription-page .paywall-card > *:not(.falling-logos-container) {
+    position: relative;
+    z-index: 1;
+}
+
+#subscription-page .paywall-card .plan-name-label {
+    position: relative;
+    z-index: 1;
+}
+
+#subscription-page .paywall-card .paywall-price {
+    position: relative;
+    z-index: 1;
+}
+
+#subscription-page .paywall-card .feature-list {
+    position: relative;
+    z-index: 1;
+}
+
+#subscription-page .paywall-card .btn-pro-plan {
+    position: relative;
+    z-index: 1;
+}
+
+#subscription-page .paywall-card .trial-status-text {
+    position: relative;
+    z-index: 1;
+}
+
 .paywall-trial-btn {
     background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
     border: none;
@@ -1688,7 +2095,7 @@ body {
     font-size: 15px;
     font-weight: 700;
     color: #000000;
-    box-shadow: 0 4px 16px rgba(255, 107, 0, 0.4), 
+    box-shadow: 0 4px 16px rgba(255, 107, 0, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
     position: relative;
     overflow: hidden;
@@ -2868,7 +3275,21 @@ body {
 .idea-swiper.revealed {
     opacity: 1;
     transform: translateX(-50%) translateY(0) !important;
-    pointer-events: auto;
+    pointer-events: auto !important;
+}
+
+/* CRITICAL: Ensure swipe component is ALWAYS interactive when homepage is active */
+#homepage.page.active .idea-swiper,
+#homepage.page.active .card-stack,
+#homepage.page.active .swipe-card-stack-container,
+#homepage.page.active .idea-card {
+    pointer-events: auto !important;
+}
+
+/* Ensure top card is always clickable/swipeable */
+#homepage.page.active .card-stack .idea-card:first-child {
+    pointer-events: auto !important;
+    z-index: 100 !important;
 }
 
 .card-stack {
@@ -3203,19 +3624,19 @@ body {
     }
 }
 
-/* Card stacking and shake animation */
-.idea-swiper .card-stack .idea-card:nth-child(1 of .idea-card):not(.swiping):not(.swipe-left):not(.swipe-right) {
+/* Card stacking and shake animation - EXCLUDE build-more-card from all nth-child rules */
+.idea-swiper .card-stack .idea-card:not(.build-more-card):nth-child(1 of .idea-card:not(.build-more-card)):not(.swiping):not(.swipe-left):not(.swipe-right) {
     animation: cardShake 10s ease-in-out infinite;
     z-index: 100; /* Match the higher z-index */
 }
 
-.idea-swiper .card-stack .idea-card:nth-child(1 of .idea-card):not(.swiping) {
+.idea-swiper .card-stack .idea-card:not(.build-more-card):nth-child(1 of .idea-card:not(.build-more-card)):not(.swiping) {
     z-index: 100; /* Much higher z-index so it always stays on top during swipe */
     opacity: 1 !important;
     transform: translateY(0);
 }
 
-.idea-swiper .card-stack .idea-card:nth-child(2 of .idea-card):not(.swiping) {
+.idea-swiper .card-stack .idea-card:not(.build-more-card):nth-child(2 of .idea-card:not(.build-more-card)):not(.swiping) {
     z-index: 9;
     transform: none; /* Same size as front card */
     height: 240px !important; /* Same as front card */
@@ -3225,7 +3646,7 @@ body {
     box-shadow: 0 9px 6px rgba(10, 30, 60, 0.35) !important;
 }
 
-.idea-swiper .card-stack .idea-card:nth-child(3 of .idea-card):not(.swiping) {
+.idea-swiper .card-stack .idea-card:not(.build-more-card):nth-child(3 of .idea-card:not(.build-more-card)):not(.swiping) {
     z-index: 8;
     transform: none; /* Same size as front card */
     height: 240px !important; /* Same as front card */
@@ -3235,13 +3656,18 @@ body {
     box-shadow: 0 9px 6px rgba(10, 30, 60, 0.35) !important;
 }
 
-.idea-swiper .card-stack .idea-card:nth-child(n+4 of .idea-card):not(.swiping) {
+.idea-swiper .card-stack .idea-card:not(.build-more-card):nth-child(n+4 of .idea-card:not(.build-more-card)):not(.swiping) {
     z-index: 7;
     transform: scale(0.94) translateY(12px);
     opacity: 0 !important;
     pointer-events: none;
     box-shadow: 0 0px 4px rgba(0, 0, 0, 0.2); /* Reduced shadow intensity */
     visibility: hidden;
+}
+
+/* CRITICAL: Build-more card ALWAYS stays at z-index 0, regardless of DOM position */
+.idea-swiper .card-stack .build-more-card {
+    z-index: 0 !important;
 }
 
 /* Idea Generator Card - REMOVED (will rebuild in future) */
@@ -4613,26 +5039,26 @@ END GENERATOR STYLES */
 .settings-content {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    margin-top: 12px;
+    gap: 8px;
+    margin-top: 6px;
     max-height: calc(100vh - 100px);
     overflow-y: auto;
-    padding-bottom: 40px;
+    padding-bottom: 20px;
 }
 
 .settings-group {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    padding: 12px;
+    padding: 10px;
 }
 
 .settings-group-title {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 800;
     color: rgba(40, 40, 40, 0.9);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     padding: 0;
     text-align: left;
 }
@@ -4642,15 +5068,14 @@ END GENERATOR STYLES */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 14px;
-    font-size: 16px;
+    padding: 12px 12px;
+    font-size: 15px;
     background: rgba(255, 255, 255, 0.05);
     border: none;
     border-radius: 8px;
     color: rgba(40, 40, 40, 0.9);
-    font-size: 15px;
     cursor: pointer;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     transition: all 0.2s;
 }
 
@@ -4743,15 +5168,14 @@ END GENERATOR STYLES */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 20px;
-    height: 72px; /* Fixed height for consistency */
-    min-height: 72px;
-    max-height: 72px;
+    padding: 12px 14px;
+    min-height: 60px;
     background: rgba(255, 255, 255, 0.6);
-    border-radius: 12px;
+    border-radius: 10px;
     border: 1px solid #e0e0e0;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
     box-sizing: border-box;
+    width: 100%;
 }
 
 .notification-info {
@@ -4761,20 +5185,64 @@ END GENERATOR STYLES */
 }
 
 .notification-title {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
     color: rgba(40, 40, 40, 0.95);
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 
 .notification-desc {
-    font-size: 13px;
+    font-size: 12px;
     color: rgba(60, 60, 60, 0.8);
     line-height: 1.3;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     margin: 0;
+}
+
+/* Notification Coming Soon State */
+.notification-coming-soon {
+    background: linear-gradient(135deg, rgba(30, 58, 95, 0.08) 0%, rgba(58, 124, 165, 0.08) 100%);
+    border: 1px dashed rgba(30, 58, 95, 0.3);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.coming-soon-badge {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e3a5f;
+    margin: 0;
+}
+
+.notification-group {
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+.notification-group-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(40, 40, 40, 0.9);
+    margin-bottom: 8px;
+}
+
+.notification-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.toggle-disabled {
+    cursor: not-allowed;
+}
+
+.toggle-disabled .toggle-slider {
+    background-color: #ccc !important;
 }
 
 /* Toggle Switch */
@@ -4826,8 +5294,8 @@ END GENERATOR STYLES */
 
 /* Settings Footer */
 .settings-footer {
-    margin-top: 8px;
-    padding-top: 8px;
+    margin-top: 4px;
+    padding-top: 6px;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     text-align: center;
 }
@@ -4848,6 +5316,7 @@ END GENERATOR STYLES */
    ============================================ */
 .text-content {
     color: #000000;
+    width: 100%;
 }
 
 .text-content h3 {
@@ -4871,6 +5340,7 @@ END GENERATOR STYLES */
 
 .help-content {
     color: #000000;
+    width: 100%;
 }
 
 .help-content h3,
@@ -4891,22 +5361,28 @@ END GENERATOR STYLES */
 }
 
 .text-content h3 {
-    font-size: 24px;
-    margin-bottom: 20px;
+    font-size: 22px;
+    margin-bottom: 12px; /* Reduced from 20px */
     color: #000000;
 }
 
+.text-content .last-updated {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 10px; /* Reduced from 16px */
+}
+
 .text-content h4 {
-    font-size: 18px;
-    margin-top: 24px;
-    margin-bottom: 12px;
+    font-size: 16px;
+    margin-top: 16px; /* Reduced from 24px */
+    margin-bottom: 8px; /* Reduced from 12px */
     color: #000000;
 }
 
 .text-content p {
-    font-size: 15px;
-    line-height: 1.6;
-    margin-bottom: 16px;
+    font-size: 14px;
+    line-height: 1.5; /* Reduced from 1.6 */
+    margin-bottom: 10px; /* Reduced from 16px */
     color: #000000;
 }
 
@@ -4935,26 +5411,27 @@ END GENERATOR STYLES */
 }
 
 .help-section {
-    margin-bottom: 32px;
+    margin-bottom: 10px; /* Reduced from 12px */
 }
 
 .help-section h3 {
-    font-size: 20px;
+    font-size: 13px;
     font-weight: 700;
-    margin-bottom: 16px;
+    margin-bottom: 4px; /* Reduced from 6px */
 }
 
 .faq-item {
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    margin-bottom: 12px;
+    border-radius: 6px;
+    margin-bottom: 3px; /* Reduced from 4px */
     overflow: hidden;
 }
 
 .faq-item summary {
-    padding: 16px;
+    padding: 10px;
     cursor: pointer;
     font-weight: 600;
+    font-size: 13px;
     list-style: none;
 }
 
@@ -4963,9 +5440,10 @@ END GENERATOR STYLES */
 }
 
 .faq-item p {
-    padding: 0 16px 16px;
+    padding: 0 10px 10px;
     color: rgba(255, 255, 255, 0.8);
-    line-height: 1.6;
+    line-height: 1.4;
+    font-size: 12px;
 }
 
 .contact-link {
@@ -4991,15 +5469,18 @@ END GENERATOR STYLES */
 }
 
 .modal.active {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: auto; /* Re-enable when active */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: auto !important; /* Re-enable when active */
+    visibility: visible !important;
+    z-index: 10000 !important;
     background: rgba(0, 0, 0, 0.5); /* Semi-transparent backdrop */
 }
 
 .modal:not(.active) {
-    visibility: hidden;
+    display: none !important;
+    visibility: hidden !important;
     pointer-events: none !important;
 }
 
@@ -5396,9 +5877,10 @@ END GENERATOR STYLES */
 .calendar-date {
     aspect-ratio: 1;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
+    gap: 1px;
     font-size: 11px;
     border-radius: 6px;
     cursor: pointer;
@@ -5407,6 +5889,7 @@ END GENERATOR STYLES */
     color: #1a1a1a;
     min-width: 30px;
     max-width: 34px;
+    position: relative;
 }
 
 .calendar-date .date-number {
@@ -5416,9 +5899,24 @@ END GENERATOR STYLES */
 }
 
 .calendar-date .date-ordinal {
-    font-size: 8px;
+    font-size: 7px;
     opacity: 0.7;
     color: #1a1a1a;
+    align-self: flex-start;
+    margin-top: 1px;
+}
+
+/* Indicator for dates with scheduled items */
+.calendar-date.has-scheduled::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background: #1e3a5f;
+    border-radius: 50%;
 }
 
 .calendar-date.placeholder {
@@ -5791,6 +6289,41 @@ END GENERATOR STYLES */
     font-size: 11px;  /* +1px */
     color: #4a4a4a;
     line-height: 1.4;
+}
+
+/* Hook section - Decorative quotation marks effect */
+.expanded-idea-card .hook-section .section-text {
+    position: relative;
+    padding-left: 18px;
+    padding-right: 18px;
+    font-style: italic;
+    color: #374151;
+}
+
+.expanded-idea-card .hook-section .section-text::before {
+    content: '"';
+    position: absolute;
+    left: 0;
+    top: -4px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #1d4ed8;
+    font-family: Georgia, "Times New Roman", serif;
+    line-height: 1;
+    opacity: 0.5;
+}
+
+.expanded-idea-card .hook-section .section-text::after {
+    content: '"';
+    position: absolute;
+    right: 0;
+    bottom: -10px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #1d4ed8;
+    font-family: Georgia, "Times New Roman", serif;
+    line-height: 1;
+    opacity: 0.5;
 }
 
 /* ALL Editable States - consistent across ALL sections */
@@ -6321,42 +6854,135 @@ select.custom-dropdown {
     pointer-events: auto;
 }
 
-/* Ensure ALL auth page elements are always interactive */
-#sign-in-page,
-#password-recovery-page {
-    position: relative;
-    z-index: 1;
+/* ============================================
+   AUTH PAGE INTERACTIVITY FIX (iOS-CRITICAL)
+   Ensures login/signup pages are ALWAYS interactive
+   ============================================ */
+
+/* NUCLEAR OPTION: Force auth pages and ALL descendants to be interactive */
+#sign-in-page.page.active,
+#sign-in-page.page.active *,
+#password-recovery-page.page.active,
+#password-recovery-page.page.active * {
+    pointer-events: auto !important;
 }
 
-#sign-in-page *,
+/* Except for pseudo-elements and decorative items */
+#sign-in-page.page.active::before,
+#sign-in-page.page.active::after,
+#sign-in-page.page.active *::before,
+#sign-in-page.page.active *::after,
+#password-recovery-page.page.active::before,
+#password-recovery-page.page.active::after,
+#password-recovery-page.page.active *::before,
+#password-recovery-page.page.active *::after {
+    pointer-events: none !important;
+}
+
+/* Sign-in page must be above all other elements when active */
+#sign-in-page.page.active,
+#password-recovery-page.page.active {
+    position: absolute !important;
+    z-index: 100 !important;
+}
+
+/* Ensure the page content layer is interactive */
+#sign-in-page .page-content,
+#sign-in-page .auth-page-content,
+#password-recovery-page .page-content {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Auth container must be interactive */
+#sign-in-page .auth-container,
+#password-recovery-page .auth-container {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 5 !important;
+}
+
+/* Auth forms must be interactive */
+#sign-in-page .auth-form,
+#sign-in-page .auth-form.active,
+#password-recovery-page .auth-form {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* Ensure ALL buttons on auth pages are clickable */
 #sign-in-page button,
+#sign-in-page .btn-primary,
+#sign-in-page .btn-signup,
+#sign-in-page .btn-text,
+#sign-in-page #auth-toggle,
+#sign-in-page #forgot-password-btn,
+#password-recovery-page button {
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    cursor: pointer !important;
+    position: relative !important;
+    z-index: 50 !important;
+}
+
+/* Password toggle needs ABSOLUTE positioning (not relative) */
+#sign-in-page .password-toggle,
+#password-recovery-page .password-toggle {
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    cursor: pointer !important;
+    position: absolute !important;
+    z-index: 20 !important;
+    right: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+}
+
+/* Ensure inputs are interactive */
 #sign-in-page input,
-#sign-in-page form,
-#password-recovery-page *,
-.auth-form,
-.auth-form *,
-.auth-container,
-.auth-container *,
-.auth-toggle,
-.btn-signup,
-.btn-primary,
-.btn-text,
-#forgot-password-btn,
-.password-toggle {
+#password-recovery-page input {
     pointer-events: auto !important;
     touch-action: manipulation !important;
 }
 
-/* Ensure buttons are clickable above any overlays */
-.auth-form button,
-.auth-container button,
-.btn-primary,
-.btn-signup,
-.btn-text,
-.auth-toggle {
-    position: relative;
-    z-index: 10;
-    cursor: pointer !important;
+/* Password wrapper needs relative positioning for the toggle */
+#sign-in-page .password-wrapper,
+#password-recovery-page .password-wrapper {
+    position: relative !important;
+    display: flex !important;
+    width: 100% !important;
+}
+
+/* Password input needs padding for the eye icon */
+#sign-in-page .password-wrapper input,
+#password-recovery-page .password-wrapper input {
+    padding-right: 44px !important;
+    width: 100% !important;
+}
+
+/* Modal hiding is handled in the main .modal section above */
+
+/* iOS Safari specific fixes for touch targets */
+@supports (-webkit-touch-callout: none) {
+    #sign-in-page button,
+    #sign-in-page input,
+    #sign-in-page .btn-primary,
+    #sign-in-page .btn-text,
+    #sign-in-page #auth-toggle,
+    #sign-in-page #forgot-password-btn {
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: pointer !important;
+        touch-action: manipulation !important;
+    }
+    
+    #sign-in-page .password-toggle {
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: pointer !important;
+    }
 }
 
 .custom-dropdown-wrapper {
@@ -6603,6 +7229,19 @@ select.custom-dropdown {
     font-size: 14px;
     font-weight: 600;
     animation: slideIn 0.3s ease;
+}
+
+.feedback-contact-line {
+    margin-top: 20px;
+    font-size: 12px;
+    color: rgba(60, 60, 60, 0.7);
+    text-align: center;
+}
+
+.feedback-email-link {
+    color: #1e3a5f;
+    text-decoration: underline;
+    font-weight: 500;
 }
 
 .feedback-success svg {
