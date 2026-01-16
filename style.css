@@ -3328,24 +3328,69 @@ body {
     opacity: 1 !important;
 }
 
-/* Phazee logo watermark on swipe deck cards */
-.idea-card:not(.build-more-card):not(.loading-placeholder)::before {
-    content: '';
+/* Falling logos container for swipe idea cards */
+.idea-card:not(.build-more-card):not(.loading-placeholder) .card-falling-logos {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 400px; /* Slightly smaller for swipe cards */
-    height: 400px;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+    border-radius: 16px;
+}
+
+/* Individual falling logo in idea cards */
+.card-falling-logo {
+    position: absolute;
     background-image: url('Phazee-Logo.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    transform: translate(-50%, -50%) rotate(-8deg);
-    opacity: 0.06; /* Slightly more subtle on swipe cards */
     pointer-events: none;
-    z-index: 0;
-    /* Blue silhouette filter - same as expanded card */
-    filter: brightness(0) saturate(100%) invert(45%) sepia(98%) saturate(1500%) hue-rotate(175deg) brightness(95%) contrast(90%);
+    animation: cardLogoFall linear infinite;
+    will-change: transform;
+}
+
+/* Color variations for card falling logos */
+.card-falling-logo.blue {
+    filter: brightness(0) saturate(100%) invert(25%) sepia(98%) saturate(1500%) hue-rotate(210deg) brightness(95%) contrast(90%);
+}
+
+.card-falling-logo.teal {
+    filter: brightness(0) saturate(100%) invert(55%) sepia(70%) saturate(500%) hue-rotate(140deg) brightness(95%) contrast(90%);
+}
+
+.card-falling-logo.orange {
+    filter: brightness(0) saturate(100%) invert(55%) sepia(90%) saturate(1000%) hue-rotate(360deg) brightness(100%) contrast(90%);
+}
+
+.card-falling-logo.purple {
+    filter: brightness(0) saturate(100%) invert(30%) sepia(80%) saturate(1200%) hue-rotate(260deg) brightness(90%) contrast(95%);
+}
+
+.card-falling-logo.pink {
+    filter: brightness(0) saturate(100%) invert(45%) sepia(90%) saturate(800%) hue-rotate(310deg) brightness(100%) contrast(90%);
+}
+
+@keyframes cardLogoFall {
+    0% {
+        transform: translateY(-20px) rotate(var(--rotation));
+        opacity: 0;
+    }
+    5% {
+        opacity: var(--opacity);
+    }
+    95% {
+        opacity: var(--opacity);
+    }
+    100% {
+        transform: translateY(260px) rotate(calc(var(--rotation) + 360deg));
+        opacity: 0;
+    }
 }
 
 /* All swipe cards - White background, black text */
@@ -3353,6 +3398,14 @@ body {
     background: #ffffff !important;
     transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1),
                 transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden; /* Keep falling logos contained */
+}
+
+/* Ensure card content stays above falling logos */
+.idea-swiper .idea-card .card-content,
+.idea-swiper .idea-card .card-actions-bottom {
+    position: relative;
+    z-index: 1;
 }
 
 /* Platform-specific swipe card colors - Override to white */
@@ -3817,38 +3870,83 @@ body {
     align-items: center !important;
 }
 
-/* Background shadow containers - Gradient with opacity look */
+/* Hide old pseudo-elements - replaced with real divs for falling logos */
 .card-shadow-container::before,
 .card-shadow-container::after {
-    content: '' !important;
+    display: none !important;
+    content: none !important;
+}
+
+/* Shadow panels - real divs with falling logos */
+.shadow-panel {
     width: calc(50% - 4px) !important;
-    height: 220px !important; /* Match container height */
+    height: 220px !important;
     background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3a7ca5 100%) !important;
     border: none !important;
     border-radius: 16px !important;
-    box-shadow: 0 9px 6px rgba(10, 30, 60, 0.35) !important; /* More blur */
+    box-shadow: 0 9px 6px rgba(10, 30, 60, 0.35) !important;
     transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+    overflow: hidden;
+    position: relative;
 }
 
-/* Platform-specific underlay container colors */
-.platform--tiktok .card-shadow-container::before,
-.platform--tiktok .card-shadow-container::after {
-    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3a7ca5 100%) !important;
-    transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.platform--youtube .card-shadow-container::before,
-.platform--youtube .card-shadow-container::after {
-    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3a7ca5 100%) !important;
-    transition: background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.card-shadow-container::before {
+.shadow-panel-left {
     animation: horizontalShake1 12s ease-in-out infinite;
 }
 
-.card-shadow-container::after {
+.shadow-panel-right {
     animation: horizontalShake2 12s ease-in-out infinite;
+}
+
+/* Platform-specific underlay container colors */
+.platform--tiktok .shadow-panel,
+.platform--youtube .shadow-panel {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3a7ca5 100%) !important;
+}
+
+/* Falling logos container for shadow panels */
+.shadow-falling-logos {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Individual falling logo in shadow panels - WHITE */
+.shadow-falling-logo {
+    position: absolute;
+    background-image: url('Phazee-Logo.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    pointer-events: none;
+    animation: shadowLogoFall linear infinite;
+    will-change: transform;
+    /* White logo filter */
+    filter: brightness(0) invert(1);
+}
+
+@keyframes shadowLogoFall {
+    0% {
+        transform: translateY(-30px) rotate(var(--rotation));
+        opacity: 0;
+    }
+    5% {
+        opacity: var(--opacity);
+    }
+    95% {
+        opacity: var(--opacity);
+    }
+    100% {
+        transform: translateY(250px) rotate(calc(var(--rotation) + 360deg));
+        opacity: 0;
+    }
 }
 
 @keyframes horizontalShake1 {
@@ -6349,48 +6447,12 @@ END GENERATOR STYLES */
     background: rgba(59, 130, 246, 0.08) !important;
 }
 
-/* Platform-specific swipe card watermark SVG - Swaps based on platform */
-
-/* TikTok watermark - Behind all content */
-.platform--tiktok .idea-swiper .idea-card::after {
-    content: '';
-    position: absolute;
-    bottom: -50px;
-    left: 50%;
-    transform: translateX(-50%) rotate(25deg);
-    width: 380px;
-    height: 380px;
-    background-image: url('tiktok-watermark.svg');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    opacity: 0.15 !important;
-    z-index: -1 !important; /* Behind all content (text, buttons, etc.) */
-    pointer-events: none;
-    display: block !important;
-    transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1),
-                transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* YouTube watermark - Behind all content */
+/* REMOVED: Large tilted platform watermarks - replaced by falling Phazee logos animation */
+/* TikTok and YouTube watermarks disabled for cleaner look with falling logos */
+.platform--tiktok .idea-swiper .idea-card::after,
 .platform--youtube .idea-swiper .idea-card::after {
-    content: '';
-    position: absolute;
-    bottom: -50px;
-    left: 50%;
-    transform: translateX(-50%) rotate(-25deg);
-    width: 380px;
-    height: 380px;
-    background-image: url('youtube-watermark.svg');
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    opacity: 0.15 !important;
-    z-index: -1 !important; /* Behind all content (text, buttons, etc.) */
-    pointer-events: none;
-    display: block !important;
-    transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1),
-                transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    display: none !important;
+    content: none !important;
 }
 
 /* Platform Icon Wrappers */

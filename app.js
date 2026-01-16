@@ -3706,6 +3706,7 @@ document.addEventListener('DOMContentLoaded', () => {
         card.dataset.platform = currentPlatform; // Set platform for CSS theming
 
         card.innerHTML = `
+            <div class="card-falling-logos"></div>
             <div class="card-content">
                 <h3 class="card-title">${idea.title}</h3>
                 
@@ -3741,7 +3742,98 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
+        // Add falling logos to the card
+        initCardFallingLogos(card);
+
         return card;
+    }
+
+    /**
+     * Initialize falling logos animation inside an idea card
+     */
+    function initCardFallingLogos(card) {
+        const container = card.querySelector('.card-falling-logos');
+        if (!container) return;
+
+        const colors = ['blue', 'teal', 'orange', 'purple', 'pink'];
+        const logoCount = 8; // Fewer logos for smaller card
+
+        for (let i = 0; i < logoCount; i++) {
+            const logo = document.createElement('div');
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            logo.className = `card-falling-logo ${color}`;
+
+            // Random properties for variety
+            const size = 12 + Math.random() * 14; // 12-26px (smaller for cards)
+            const left = (i / logoCount) * 100 + (Math.random() * 12 - 6); // Distributed across width
+            const rotation = Math.random() * 360 - 180; // -180 to 180 degrees
+            const duration = 4 + Math.random() * 4; // 4-8 seconds (faster for smaller area)
+            const delay = Math.random() * duration; // Stagger start times
+            const opacity = 0.08 + Math.random() * 0.10; // 0.08-0.18 opacity
+
+            logo.style.cssText = `
+                width: ${size}px;
+                height: ${size}px;
+                left: ${left}%;
+                top: -20px;
+                --rotation: ${rotation}deg;
+                --opacity: ${opacity};
+                animation-duration: ${duration}s;
+                animation-delay: -${delay}s;
+            `;
+
+            container.appendChild(logo);
+        }
+    }
+
+    /**
+     * Initialize falling WHITE logos in the shadow panels under swipe modal
+     */
+    function initShadowPanelLogos() {
+        const containers = document.querySelectorAll('.shadow-falling-logos');
+        
+        containers.forEach(container => {
+            // Skip if already initialized
+            if (container.children.length > 0) return;
+            
+            const logoCount = 6; // Fewer logos for smaller panels
+            
+            for (let i = 0; i < logoCount; i++) {
+                const logo = document.createElement('div');
+                logo.className = 'shadow-falling-logo';
+                
+                // Random properties for variety
+                const size = 14 + Math.random() * 12; // 14-26px
+                const left = (i / logoCount) * 100 + (Math.random() * 15 - 7.5); // Distributed across width
+                const rotation = Math.random() * 360 - 180; // -180 to 180 degrees
+                const duration = 5 + Math.random() * 5; // 5-10 seconds
+                const delay = Math.random() * duration; // Stagger start times
+                const opacity = 0.12 + Math.random() * 0.12; // 0.12-0.24 opacity (more visible white)
+                
+                logo.style.cssText = `
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${left}%;
+                    top: -30px;
+                    --rotation: ${rotation}deg;
+                    --opacity: ${opacity};
+                    animation-duration: ${duration}s;
+                    animation-delay: -${delay}s;
+                `;
+                
+                container.appendChild(logo);
+            }
+        });
+    }
+    
+    // Initialize shadow panel logos on page load
+    window.initShadowPanelLogos = initShadowPanelLogos;
+    
+    // Call it immediately if DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initShadowPanelLogos);
+    } else {
+        initShadowPanelLogos();
     }
 
     /**
